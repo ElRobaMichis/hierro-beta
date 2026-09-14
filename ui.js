@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.2.6';
+const UI_VERSION = '3.3.0';
 const UI_ICONS = {
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/>',
  pin:'<path d="M9 3h6l-1 7 4 4v2H6v-2l4-4-1-7zM12 16v5"/>',
@@ -172,7 +172,7 @@ function uiSetPreference(key,value,button){
 }
 function uiMotionKey(){
  const s=db.active;
- return [view.name,view.id,view.key,view.section,view.kind,view.exTab,view.progressTab,view.name==='session'&&s?`${sessionOpenIdx()}:${!!s.uiRest}:${uiCurrentSet(s.exercises[sessionOpenIdx()]||{sets:[]})}`:''].join('|');
+ return [view.name,view.id,view.key,view.section,view.kind,view.exTab,view.progressTab,view.name==='session'&&s?`${sessionOpenIdx()}:${!!s.uiRest}:${uiCurrentSet(s.exercises[sessionOpenIdx()]||{sets:[]})}:${s.exercises[sessionOpenIdx()]?.warmup?.phase}:${s.exercises[sessionOpenIdx()]?.warmup?.completed}`:''].join('|');
 }
 function uiAnimateView(){
  const key=uiMotionKey(),changed=window.__motionView!==key;window.__motionView=key;
@@ -623,10 +623,12 @@ function uiSetDisplay(key,st){return `${st.w!==''?fmtWEx(key,recordedSetKg(key,s
 function uiSession(){
  const s=db.active;if(!s.exercises.length)return `<div class="n-empty">${uiGymButton()}<h2>Empieza con un ejercicio.</h2><p>Tu sesión está guardada. Añade lo que vas a entrenar.</p>${uiButton('Añadir ejercicio','uiLibrary()','plus')}</div>`;
  const xi=sessionOpenIdx(),ex=s.exercises[xi],si=uiCurrentSet(ex),m=exMeta(ex.key),r=effRange(ex.key),complete=si<0;
- const resting=!!s.uiRest;
+ const resting=!!s.uiRest,preparing=!resting&&!complete&&warmupRequired(xi);
  const title=`<div class="n-ex-heading"><div><span class="n-eyebrow">Ejercicio ${String(xi+1).padStart(2,'0')} / ${String(s.exercises.length).padStart(2,'0')}</span><h1>${esc(exBaseName(ex.name))}</h1></div><button class="n-round" aria-label="Ver cola de ejercicios" onclick="uiSessionQueue()">${uiIcon('list')}</button></div>`;
  let work='';
- if(resting){
+ if(preparing){
+  work=uiWarmup(xi);
+ }else if(resting){
   const rem=Math.max(0,Math.ceil(((restUntil||0)-Date.now())/1000));
   work=`<div class="n-rest-phase"><div class="n-rest-status">${uiIcon('check')}Serie guardada</div><div class="rest ${rem?'on':'done'}" id="rest"><span id="restlabel">${rem?'Descansando':'Descanso listo'}</span><strong id="resttime">${rem?fmtClock(rem):'¡Vamos!'}</strong><div class="rest-track"><div id="restfill" class="rest-fill"></div></div></div><p>Respira. La siguiente puede esperar.</p>${uiButton('+30 segundos','uiAddRest()','plus','text')}<div class="n-rest-next"><span class="n-number">${complete?uiIcon('check'):si+1}</span><div><b>${complete?'Ejercicio completo':`Siguiente: serie ${si+1} de ${ex.sets.length}`}</b><small>${complete?'Una parte más del trabajo, hecha.':esc(exBaseName(ex.name))}</small></div></div>${uiButton(rem?'Saltar descanso':'Continuar','uiContinue()')}${uiButton('Corregir la última serie',uiAction('uiEditSet',xi,Math.max(0,ex.sets.findLastIndex(st=>st.done))),'edit','text')}</div>`;
  }else if(complete){
@@ -640,26 +642,133 @@ function uiSession(){
   work=`<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):ex.sugg?uiProposalAction(xi):''}</div>${ex.sugg?`<button class="n-proposal" onclick="uiSuggestionInfo(${xi})"><span>${esc(uiProposalTitle(ex))}</span><span>${uiProposalValue(ex)}</span>${uiIcon('info')}</button>`:`<p class="n-first-hint">${corp?'Registra lo que completes.':'Primera referencia: elige una carga para tu rango.'}</p>`}<div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="Peso de la serie ${si+1}" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small>${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Objetivo ${r.lo}–${r.hi}</small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?uiButton('Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text'):''}${m.type==='tiempo'?'<p class="n-time-help">Registra los segundos que completaste. Aquí no se usa RIR: cuenta repeticiones, no segundos de reserva.</p>':`<div class="n-rir"><span>¿Cuántas repeticiones más podías hacer?</span><button onclick="uiRIR(${xi},${si})">${st.rir!==''&&st.rir!==undefined?`${esc(st.rir)} en reserva`:'Opcional'}</button></div>`}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status">Aplicar propuesta sustituye el peso y ${m.type==='tiempo'?'los segundos':'las reps'} del borrador. Registrar confirma la serie y abre el descanso.</span></div>`;
  }
  const logged=ex.sets.map((st,i)=>st.done?`<button class="n-set-chip" onclick="uiEditSet(${xi},${i})" aria-label="Editar serie ${i+1}: ${uiSetDisplay(ex.key,st)}"><span>${i+1}</span>${uiSetDisplay(ex.key,st)}${uiIcon('check')}</button>`:'').join('');
- return `<div class="n-focus">${title}${m.notes?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(m.notes)}">${uiIcon('pin')}<span><small>Tu nota · ajuste del equipo</small><strong>${esc(m.notes)}</strong></span>${uiIcon('edit')}</button>`:''}${!resting&&!complete?uiWarmupPrompt(xi):''}${work}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
+ return `<div class="n-focus">${title}${m.notes?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(m.notes)}">${uiIcon('pin')}<span><small>Tu nota · ajuste del equipo</small><strong>${esc(m.notes)}</strong></span>${uiIcon('edit')}</button>`:''}${!resting&&!complete&&!preparing?uiWarmupPrompt(xi):''}${work}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
 }
 function uiWarmupPrompt(xi){
  const ex=db.active.exercises[xi];
  if(ex.sets.some(st=>st.done))return '';
- return `<button class="n-warmup-prompt ${ex.warmupDone?'is-done':''}" onclick="showWarmup(${xi})">${uiIcon(ex.warmupDone?'check':'barbell')}<span><b>${ex.warmupDone?'Calentamiento listo':'Antes de tu primera serie'}</b><small>${ex.warmupDone?'Ver calentamiento':'Ver calentamiento y preparar la carga'}</small></span>${uiIcon('chevron')}</button>`;
+ const skipped=ex.warmup?.phase==='skipped';
+ return `<button class="n-warmup-prompt is-done" onclick="showWarmup(${xi})">${uiIcon('check')}<span><b>${skipped?'Directo a tus series':'Calentamiento completado'}</b><small>${skipped?esc(ex.warmup.plan.note):'Tu carga de trabajo te espera.'}</small></span>${uiIcon('info')}</button>`;
 }
-function uiWarmupDone(xi){
- const ex=db.active?.exercises[xi];if(!ex)return;
- ex.warmupDone=true;save();closeModal();render();
+function uiWarmup(xi){
+ const ex=db.active.exercises[xi],w=ensureWarmup(xi),key=ex.key;
+ if(w.phase==='setup')return `<section class="n-warmup n-warmup-setup"><span class="n-eyebrow">Primero, la preparación</span><h2>Preparemos tu carga.</h2><p>Aún no tenemos un peso de referencia. Elige con cuánto planeas trabajar y calcularemos la aproximación.</p>${uiWarmupTargetForm(xi)}<small>Las series de trabajo aparecen después del calentamiento.</small></section>`;
+ const p=w.plan,resting=w.phase==='rest',step=p.steps[w.completed],last=w.completed>=p.steps.length;
+ const journey=`<ol class="n-warmup-journey" aria-label="Progreso del calentamiento">${p.steps.map((st,i)=>`<li class="${i<w.completed?'is-done':i===w.completed&&!resting?'is-current':''}" ${i===w.completed&&!resting?'aria-current="step"':''}><span>${i<w.completed?uiIcon('check'):i+1}</span><small>Calentar</small></li>`).join('')}<li><span>${uiIcon('barbell')}</span><small>Trabajo</small></li></ol>`;
+ let body='';
+ if(resting){
+  const rem=Math.max(0,Math.ceil((w.restUntil-Date.now())/1000)),action=last?'Empezar series de trabajo':'Siguiente calentamiento';
+  body=`<div class="n-warmup-rest"><span class="n-warmup-status">${uiIcon('check')}Calentamiento ${w.completed} completado</span><h2 id="warmup-rest-title">${rem?'Dale un respiro.':'Preparación lista.'}</h2><div class="n-warmup-clock" role="timer" aria-label="Descanso de calentamiento"><svg viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="70" class="n-warmup-ring-track"/><circle id="warmup-ring" cx="80" cy="80" r="70" style="stroke-dashoffset:${440*(1-rem/w.restDuration)}"/></svg><strong id="warmup-time">${fmtClock(rem)}</strong><small id="warmup-clock-label" role="status">${rem?'Descanso':'A tu ritmo'}</small></div><div class="n-warmup-rest-tools"><button id="warmup-extend" class="n-text" ${w.restDuration>=60||!rem?'hidden':''} onclick="uiWarmupExtend(${xi},'${w.id}')">${uiIcon('plus')}Añadir 30 s</button><span id="warmup-rest-limit">${w.restDuration>=60?'1 minuto en total':'30 s · ampliable a 1 min'}</span></div><div class="n-warmup-next"><small>Después del descanso</small><b>${last?'Tus series de trabajo':warmupStepText(key,step)}</b></div><button id="warmup-next" type="button" class="n-primary" ${rem?'disabled':''} onclick="uiWarmupNext(${xi},'${w.id}',${w.completed})"><span>${action}</span>${uiIcon('arrow')}</button><p class="n-warmup-foot">${last?'El calentamiento está hecho. Empieza cuando te sientas listo.':'El siguiente paso se habilita al terminar el descanso.'}</p></div>`;
+ }else{
+  const timed=!!step.seconds,corp=exMeta(key).type==='corporal'||step.easy,load=uiWarmupLoad(key,step);
+  body=`<div class="n-warmup-active"><span class="n-eyebrow">Calentamiento ${w.completed+1} de ${p.steps.length}</span><h2>${w.completed?'Un paso más cerca.':'Entra en movimiento.'}</h2><div class="n-warmup-dose"><div><strong>${timed?step.seconds:step.reps}</strong><span>${timed?'segundos':'repeticiones'}</span></div>${!timed&&!corp?`<div><strong>${fmtWEx(key,step.w)}</strong><span>${uLabelEx(key)} ${step.assisted?'de ayuda':'en total'}</span></div>`:`<div class="n-warmup-easy">${uiIcon('spark')}<span>Suave<br>Sin lastre</span></div>`}</div>${load}<p class="n-warmup-guidance">${esc(p.note)}</p>${timed?`<div class="n-warmup-hold" ${w.holdUntil?'':'hidden'} id="warmup-hold"><strong id="warmup-hold-time">${step.seconds}</strong><span id="warmup-hold-label" role="status">Prepárate</span></div><button id="warmup-timed-start" class="n-secondary" ${w.holdUntil?'hidden':''} onclick="uiWarmupTimedStart(${xi},'${w.id}',${w.completed})">${uiIcon('clock')}Iniciar ${step.seconds} segundos</button>`:''}<button id="warmup-record" type="button" class="n-primary" ${timed&&!(w.holdUntil&&Date.now()>=w.holdUntil)?'disabled':''} onclick="uiWarmupRecord(${xi},'${w.id}',${w.completed})"><span>Completé este calentamiento</span>${uiIcon('check')}</button><p class="n-warmup-foot">Después, 30 segundos para respirar.</p></div>`;
+ }
+ return `<section class="n-warmup"><div class="n-warmup-top"><span>${uiIcon('barbell')}Preparación</span><small>Antes de tus series</small></div>${journey}${body}<div class="n-warmup-work"><div><small>Tu objetivo de trabajo</small><b>${uiWarmupWorkTarget(ex,p)}</b></div>${!resting&&!w.completed&&!['corporal','tiempo'].includes(exMeta(key).type)?`<button class="n-text" onclick="uiWarmupEditTarget(${xi})" aria-label="Ajustar carga de trabajo">${uiIcon('edit')}</button>`:''}</div><p class="n-warmup-accounting">La preparación no suma series, volumen ni récords.</p></section>`;
+}
+function uiWarmupWorkTarget(ex,plan){
+ const m=exMeta(ex.key),r=effRange(ex.key),target=ex.sugg?.reps||`${r.lo}–${r.hi}`;
+ const load=plan.W>0?`${fmtWEx(ex.key,plan.W)} ${uLabelEx(ex.key)}${m.type==='asistido'?' de ayuda':m.type==='normal'?' totales':' de lastre'} · `:'';
+ return `${load}${target} ${m.type==='tiempo'?'s':'reps'}`;
+}
+function uiWarmupLoad(key,step){
+ if(step.seconds||step.easy||exMeta(key).type==='corporal')return '';
+ const p=step.assisted&&effEquip(key)==='placas'?{kind:'placas',stack:stackSnap(key,step.w)}:loadPlan(key,step.w);
+ if(!p)return '';
+ let art='',label='';
+ if(p.kind==='placas'){
+  art=stackSVG(p.stack.index,p.stack.plates||Math.max(p.stack.index+3,10),{h:106});label=`Pin en la placa <b>${p.stack.index}</b>${stackExtraLabel(p.stack)}`;
+ }else if(p.kind==='mancuerna'){
+  art=dumbbellSVG(p.dumbbell,{h:72});label=`${fmtW(p.dumbbell)} ${uLabel()} ${p.points===2?'en cada mano':'en una mano'}`;
+ }else{
+  art=p.points===2?barbellSVG(p.perPoint,{h:70,scale:.62}):postSVG(p.perPoint,{h:70,scale:.62});
+  label=p.perPoint.length?`${p.points===1?'En un solo lado':'En cada lado'} · ${pointTextHTML(p.perPoint)}`:'Sin discos añadidos';
+ }
+ return `<div class="n-warmup-load">${art}<div>${label}</div></div>`;
+}
+function uiWarmupTargetForm(xi){
+ const ex=db.active.exercises[xi],offset=discosOffset(ex.key),total=targetWeight(ex),m=exMeta(ex.key);
+ const label=offset>0?'Discos totales':m.type==='asistido'?'Ayuda':effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Total de las dos mancuernas':'Carga de trabajo';
+ return `<form class="n-warmup-target" onsubmit="uiWarmupSetTarget(event,${xi})"><label class="field"><span>${label} · ${uLabelEx(ex.key)}</span><input id="warmup-target" type="number" min="0" step="any" inputmode="decimal" required value="${Number.isFinite(total)?inputWEx(ex.key,kgToTyped(ex.key,total)):''}" placeholder="Ej. 20"></label>${offset>0?`<p class="hint">Sin ${effEquip(ex.key)==='barra'?'la barra':'el aparato'}: sus ${fmtWEx(ex.key,offset)} ${uLabelEx(ex.key)} ya están incluidos en el cálculo.</p>`:''}<button class="n-primary" type="submit"><span>Preparar calentamiento</span>${uiIcon('arrow')}</button></form>`;
+}
+function uiWarmupEditTarget(xi){openModal(`<h2>La carga de hoy</h2><p class="muted">Ajustaremos el calentamiento para este peso.</p>${uiWarmupTargetForm(xi)}${uiButton('Cancelar','closeModal()','close','text')}`);}
+function uiWarmupSetTarget(ev,xi){
+ ev.preventDefault();const ex=db.active?.exercises[xi],input=document.getElementById('warmup-target'),n=Number(input?.value);
+ if(!ex||!input||input.value.trim()===''||!Number.isFinite(n)||n<0)return;
+ const st=ex.sets.find(st=>!st.done);if(!st)return;
+ const forced=!!ex.warmup?.forced;
+ st.w=String(n);delete st.wkg;delete st.totalKg;delete ex.warmup;delete ex.warmupDone;
+ if(forced)ensureWarmup(xi,true);
+ db.active.lastLog=Date.now();save();closeModal();render();window.scrollTo(0,0);
+}
+function uiWarmupRestart(xi){ensureWarmup(xi,true);uiSelectExercise(xi);}
+function uiWarmupRecord(xi,id,step){
+ const ex=db.active?.exercises[xi],w=ensureWarmup(xi);
+ if(!ex||!w||w.id!==id||w.phase!=='set'||w.completed!==step)return;
+ if(w.plan.steps[step].seconds&&!(w.holdUntil&&Date.now()>=w.holdUntil))return;
+ unlockAudio();w.completed++;w.phase='rest';w.restStarted=Date.now();w.restDuration=30;w.restUntil=w.restStarted+30000;
+ delete w.lastCue;delete w.restNotified;delete w.holdUntil;delete w.holdStarted;delete w.holdNotified;
+ db.active.lastLog=Date.now();save();render();window.scrollTo(0,0);
+}
+function uiWarmupExtend(xi,id){
+ const w=ensureWarmup(xi);if(!w||w.id!==id||w.phase!=='rest'||w.restDuration>=60||Date.now()>=w.restUntil)return;
+ w.restDuration=60;w.restUntil=w.restStarted+60000;delete w.lastCue;save();tickWarmup();
+}
+function uiWarmupNext(xi,id,completed){
+ const ex=db.active?.exercises[xi],w=ensureWarmup(xi);
+ if(!ex||!w||w.id!==id||w.phase!=='rest'||w.completed!==completed||Date.now()<w.restUntil)return;
+ if(w.completed>=w.plan.steps.length){
+  w.phase='done';w.completedAt=Date.now();ex.warmupDone=true;
+  const st=ex.sets.find(st=>!st.done);
+  if(st&&String(st.w??'').trim()===''&&w.plan.W!==null)st.w=inputWEx(ex.key,kgToTyped(ex.key,w.plan.W));
+ }else w.phase='set';
+ delete w.restUntil;delete w.restStarted;delete w.restDuration;delete w.lastCue;delete w.restNotified;
+ db.active.lastLog=Date.now();save();render();window.scrollTo(0,0);
+}
+function uiWarmupTimedStart(xi,id,step){
+ const w=ensureWarmup(xi);if(!w||w.id!==id||w.phase!=='set'||w.completed!==step||w.holdUntil||!w.plan.steps[step].seconds)return;
+ unlockAudio();w.holdStarted=Date.now()+3000;w.holdUntil=w.holdStarted+w.plan.steps[step].seconds*1000;
+ db.active.lastLog=Date.now();save();tickWarmup();
+}
+/* One wall clock for the session. Updating text/controls does not remount the
+   view, so seconds ticking cannot flicker or steal an input's focus. */
+function tickWarmup(){
+ if(!db.active?.exercises.length)return;
+ const xi=sessionOpenIdx(),w=db.active.exercises[xi]?.warmup;if(!validWarmupState(w))return;
+ const el=id=>view.name==='session'?document.getElementById(id):null;
+ const cue=(deadline,rem)=>{
+  if(rem<1||rem>3)return;
+  const token=deadline+':'+rem;if(w.lastCue===token)return;
+  w.lastCue=token;save();beep('countdown');
+ };
+ if(w.phase==='rest'){
+  const rem=Math.max(0,Math.ceil((w.restUntil-Date.now())/1000));cue(w.restUntil,rem);
+  if(!rem&&!w.restNotified){w.restNotified=true;save();beep();notify('Calentamiento · descanso listo',exBaseName(db.active.exercises[xi].name),'hierro-warmup');}
+  const time=el('warmup-time'),next=el('warmup-next'),extend=el('warmup-extend'),ring=el('warmup-ring');
+  if(time)time.textContent=fmtClock(rem);if(next)next.disabled=!!rem;
+  if(extend)extend.hidden=w.restDuration>=60||!rem;
+  if(ring)ring.style.strokeDashoffset=440*(1-rem/w.restDuration);
+  const title=el('warmup-rest-title'),label=el('warmup-clock-label'),limit=el('warmup-rest-limit');
+  if(title)title.textContent=rem?'Dale un respiro.':'Preparación lista.';
+  if(label&&label.textContent!==(rem?'Descanso':'A tu ritmo'))label.textContent=rem?'Descanso':'A tu ritmo';
+  if(limit)limit.textContent=w.restDuration>=60?'1 minuto en total':'30 s · ampliable a 1 min';
+ }else if(w.phase==='set'&&w.holdUntil){
+  const prep=Date.now()<w.holdStarted,end=prep?w.holdStarted:w.holdUntil,rem=Math.max(0,Math.ceil((end-Date.now())/1000));cue(end,rem);
+  if(!rem&&!w.holdNotified){w.holdNotified=true;save();beep();}
+  const box=el('warmup-hold'),time=el('warmup-hold-time'),label=el('warmup-hold-label'),start=el('warmup-timed-start'),record=el('warmup-record');
+  if(box)box.hidden=false;if(time)time.textContent=rem;if(label&&label.textContent!==(prep?'Prepárate':rem?'Mantén suave':'Serie terminada'))label.textContent=prep?'Prepárate':rem?'Mantén suave':'Serie terminada';
+  if(start)start.hidden=true;if(record)record.disabled=Date.now()<w.holdUntil;
+ }
 }
 function uiLogSet(xi,si){
  const ex=db.active?.exercises[xi],st=ex?.sets[si];if(!st||st.done===true)return;
+ if(warmupRequired(xi)){uiSelectExercise(xi);return;}
  if(!uiValidSet(ex.key,st)){
   const corp=['corporal','tiempo'].includes(exMeta(ex.key).type),w=Number(st.w),badW=(!corp&&String(st.w??'').trim()==='')||!Number.isFinite(w)||w<0;
   const input=document.getElementById(badW?'n-weight':'n-reps');
   if(input?.setCustomValidity){input.setCustomValidity(badW?'Escribe un peso válido, incluido 0 cuando corresponda.':'Escribe un número entero mayor que cero.');input.reportValidity();input.focus();}
   return;
  }
- db.active.open=xi;st.done=true;if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);db.active.lastLog=Date.now();startRestAuto(ex.key);db.active.uiRest=!!restUntil;save();render();window.scrollTo(0,0);
+ db.active.open=xi;st.done=true;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastLog=Date.now();startRestAuto(ex.key);db.active.uiRest=!!restUntil;save();render();window.scrollTo(0,0);
 }
 function uiStep(xi,si,field,direction){
  const ex=db.active.exercises[xi],st=ex.sets[si];
@@ -704,7 +813,7 @@ function uiRemoveSet(xi,si){const ex=db.active.exercises[xi];ex.sets.splice(si,1
 function uiEditSets(xi){const ex=db.active.exercises[xi];openModal(`<h2>Series del ejercicio</h2>${ex.sets.map((st,i)=>uiRow(`Serie ${i+1}`,uiSetDisplay(ex.key,st),uiAction('uiEditSet',xi,i),'edit')).join('')}${uiButton('Añadir serie',uiAction('uiAddSet',xi),'plus','secondary')}${uiButton('Listo','closeModal()','check','text')}`);}
 function uiSessionOptions(xi){
  const ex=db.active.exercises[xi];
- openModal(`<h2>${esc(exBaseName(ex.name))}</h2>${ex.sugg?uiRow('Entender la propuesta','Qué cambia y por qué',uiAction('uiSuggestionInfo',xi),'spark'):''}${uiRow('Calentamiento','Preparar antes de cargar',`closeModal();showWarmup(${xi})`,'barbell')}${uiRow('Series','Editar, añadir o quitar',uiAction('uiEditSets',xi),'list')}${uiRow('Notas','Asiento, agarre y recordatorios',`closeModal();editExNotes(${xi})`,'edit')}${uiRow('Equipo y objetivos','Ajustes de este ejercicio',`closeModal();openExFromSession(${xi},'equipment')`,'settings')}${uiRow('Quitar ejercicio de la sesión','',`closeModal();removeSessionEx(${xi})`,'trash')}${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
+ openModal(`<h2>${esc(exBaseName(ex.name))}</h2>${ex.sugg?uiRow('Entender la propuesta','Qué cambia y por qué',uiAction('uiSuggestionInfo',xi),'spark'):''}${uiRow('Calentamiento','Preparar antes de cargar',`closeModal();showWarmup(${xi})`,'barbell')}${!warmupRequired(xi)?uiRow('Series','Editar, añadir o quitar',uiAction('uiEditSets',xi),'list'):''}${uiRow('Notas','Asiento, agarre y recordatorios',`closeModal();editExNotes(${xi})`,'edit')}${uiRow('Equipo y objetivos','Ajustes de este ejercicio',`closeModal();openExFromSession(${xi},'equipment')`,'settings')}${uiRow('Quitar ejercicio de la sesión','',`closeModal();removeSessionEx(${xi})`,'trash')}${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
 }
 
 /* Exercise information is split by the decision being made. */

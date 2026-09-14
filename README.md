@@ -6,6 +6,8 @@ Abre ese enlace en tu teléfono y añádelo a la pantalla de inicio. Se instala 
 
 Los planes y el historial se guardan en tu dispositivo. Puedes restaurar un respaldo de Hierro desde **Tú → Datos y respaldos**. Esta beta utiliza almacenamiento y cachés independientes de la aplicación principal; importar o editar aquí no cambia sus datos. No hay sincronización automática entre dispositivos.
 
+Desde la versión 3.3.0, los ejercicios que requieren calentamiento empiezan con una preparación guiada y descansos de 30 segundos, ampliables a un minuto. Al terminar aparecen las series de trabajo. Consulta los [criterios y funcionamiento del calentamiento](docs/warmups.md).
+
 ## Desarrollo
 
 El código de la aplicación está en la raíz. No requiere instalar dependencias de npm. Usa Node.js 24 para las comprobaciones:

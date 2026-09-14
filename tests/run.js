@@ -85,6 +85,23 @@ function confirmFixtureSets(){
   for(const ex of db.active?.exercises||[])for(const st of ex.sets)if(uiValidSet(ex.key,st))st.done=true;
 }
 function fixtureEntries(){confirmFixtureSets();return collectEntries(db.active);}
+/* Existing working-set scenarios begin after the real guided preparation.
+   Advance a fake wall clock through its rests; never mark work as confirmed. */
+function prepareFixture(xi){
+  const realNow=Date.now;let clock=realNow();Date.now=()=>clock;
+  try{
+    let tries=0;
+    while(warmupRequired(xi)){
+      if(++tries>12)throw new Error('Warmup fixture failed to advance');
+      const w=ensureWarmup(xi);
+      if(w.phase==='setup')throw new Error('Warmup fixture needs a target');
+      if(w.phase==='set'){
+        if(w.plan.steps[w.completed].seconds){uiWarmupTimedStart(xi,w.id,w.completed);clock=w.holdUntil;}
+        uiWarmupRecord(xi,w.id,w.completed);
+      }else if(w.phase==='rest'){clock=w.restUntil;uiWarmupNext(xi,w.id,w.completed);}
+    }
+  }finally{Date.now=realNow;}
+}
 /* sesión reciente (últimos ~4 días) para no activar el ajuste por pausas */
 function sess(key, sets, daysAgo){
   const date = daysAgo !== undefined
@@ -468,7 +485,7 @@ chk(bestMetricBefore('farmer') === 45, 'récord por tiempo = mejores segundos');
 /* cronómetro de serie: abre modal y cancela sin dejar intervalos vivos */
 db.routines.push({ id:'rt', name:'Core', exercises:[{ id:'p1', name:'Plancha', key:'plancha' }] });
 startSession('rt');
-startSetTimer(0, 0);
+prepareFixture(0);startSetTimer(0, 0);
 chk(els['modalhost'].innerHTML.includes('Prepárate'), 'cronómetro: modal con cuenta de preparación');
 stopSetTimer(false);
 chk(els['modalhost'].innerHTML === '', 'cancelar cierra sin registrar');
@@ -1050,7 +1067,7 @@ db.routines.push({ id:'r1', name:'Pierna', split:(db.splits[0]||{}).id,
 startSession('r1');
 db.active.start = Date.now() - 34*60*1000;      /* lleva 34 minutos */
 setVal(0, 0, 'w', '60'); setVal(0, 0, 'r', '10'); setVal(0, 0, 'rir', '2');
-toggleSetDone(0, 0);
+prepareFixture(0);toggleSetDone(0, 0);
 addSet(0);
 setVal(0, 1, 'w', '60'); setVal(0, 1, 'r', '9');
 
@@ -2157,7 +2174,7 @@ uiUseSuggestion(0);
 chk(db.active.exercises[0].sets[0].w==='40', 'aplicar la propuesta descuenta los 20 kg de barra');
 chk(db.active.exercises[0].sets[0].r==='8' && db.active.exercises[0].sets[0].rir==='2', 'aplicar propuesta sustituye reps y conserva el RIR escrito');
 chk(!db.active.exercises[0].sets[0].done, 'aplicar sugerencia no finge haber completado la serie');
-toggleSetDone(0,0);
+prepareFixture(0);toggleSetDone(0,0);
 db.active.exercises[0].sets[1]={w:'50',r:'10',rir:''};
 chk(targetWeight(db.active.exercises[0])===70, 'la calculadora sigue la serie actual, no la primera');
 toggleSetDone(0,1);
@@ -2262,7 +2279,7 @@ view={name:'routine',id:'newr'};startSession('newr');
 db.active.exercises[0].sets=[{w:'',r:'',rir:''},{w:'',r:'',rir:''}];
 setVal(0,0,'w','40');setVal(0,0,'r','10');
 chk(restUntil===null,'escribir peso y reps no inicia el descanso');
-uiLogSet(0,0);
+prepareFixture(0);uiLogSet(0,0);
 chk(db.active.exercises[0].sets[0].done&&db.active.uiRest&&restUntil>Date.now(), 'confirmar guarda la serie y abre el descanso');
 chk(uiSession().includes('n-rest-phase')&&!uiSession().includes('id="n-weight"'), 'el descanso sustituye el formulario de la serie');
 uiContinue();
@@ -2325,17 +2342,17 @@ askFinish();
 chk(els.modalhost.innerHTML.includes('No hay series confirmadas')&&db.active!==null,'terminar explica que no se han confirmado series');
 closeModal();finishSession();
 chk(db.history.length===historyBeforeProposal&&db.active!==null,'ni siquiera el cierre directo crea una sesión con propuestas sin confirmar');
-closeModal();uiLogSet(0,0);
+closeModal();prepareFixture(0);uiLogSet(0,0);
 const firstRest=restUntil;
 chk(exDone(db.active.exercises[0])&&collectEntries(db.active).length===1,'registrar sí confirma el ejercicio de una serie');
 chk(sessionOpenIdx()===0&&db.active.uiRest&&uiSession().includes('Ejercicio completo'),'el descanso de la última serie permanece en el ejercicio correcto');
-uiLogSet(0,0);
+prepareFixture(0);uiLogSet(0,0);
 chk(restUntil===firstRest,'una confirmación repetida no reinicia el descanso');
 db=normalize(JSON.parse(localStorage.getItem(LS_KEY)));
 chk(db.active.uiRest&&db.active.restUntil===firstRest&&sessionOpenIdx()===0,'la recarga conserva confirmación, ejercicio y descanso');
 uiContinue();
 chk(sessionOpenIdx()===0&&uiSession().includes('Siguiente: Press de banca'),'continuar deja elegir el siguiente ejercicio explícitamente');
-uiSelectExercise(1);uiUseSuggestion(1);uiLogSet(1,0);uiContinue();uiSelectExercise(2);uiUseSuggestion(2);
+uiSelectExercise(1);uiUseSuggestion(1);prepareFixture(1);uiLogSet(1,0);uiContinue();uiSelectExercise(2);uiUseSuggestion(2);
 chk(collectEntries(db.active).length===2,'el cierre incluye solo las dos series confirmadas, no la tercera propuesta');
 askFinish();
 chk(els.modalhost.innerHTML.includes('sin confirmar'),'el cierre advierte de campos rellenados pendientes de confirmar');closeModal();
@@ -2368,11 +2385,11 @@ view={name:'routine',id:'time-day'};startSession('time-day');
 const timeBefore=JSON.stringify(computeSuggestion(onlyTime));
 for(const h of db.history)for(const e of h.entries)if(e.key===onlyTime)for(const st of e.sets)st.rir=0;
 chk(JSON.stringify(computeSuggestion(onlyTime))===timeBefore,'un RIR antiguo en un ejercicio por tiempo no altera la propuesta');
-const timeUI=uiSession();
+prepareFixture(0);const timeUI=uiSession();
 chk(timeUI.includes('no se usa RIR')&&!timeUI.includes('onclick="uiRIR('),'la sesión por tiempo explica la unidad y no muestra selector de RIR');
 setVal(0,0,'r','35');setVal(0,0,'rir','1');
 chk(db.active.exercises[0].sets[0].rir==='','no se acepta 1 RIR como si significara segundos');
-uiLogSet(0,0);
+prepareFixture(0);uiLogSet(0,0);
 chk(collectEntries(db.active)[0].sets[0].r===35&&collectEntries(db.active)[0].sets[0].rir===undefined,'se guarda la duración sin RIR, con lastre vacío permitido');
 uiEditSet(0,0);chk(!els.modalhost.innerHTML.includes('id="n-edit-rir"'),'el editor de una serie por tiempo tampoco pide RIR');closeModal();
 db.history=[];sess(onlyTime,[S(0,30,0),S(0,30,0),S(0,30,0)]);sess(onlyTime,[S(0,35,0),S(0,35,0),S(0,35,0)]);
@@ -2600,8 +2617,8 @@ chk(mobileEx.sets[0].w==='60'&&!uiProposalMatches(mobileEx,mobileEx.sets[0]),'un
 uiUseSuggestion(0);chk(mobileEx.sets[0].w==='65','aplicar de nuevo sustituye la carga manual completa');
 showWarmup(0);chk(!mobileEx.warmupDone,'ver el calentamiento no afirma que ya lo hiciste');closeModal();
 chk(warmupPlan(1).first,'un ejercicio anterior sin series registradas no se considera calentamiento hecho');
-uiWarmupDone(0);
-chk(mobileEx.warmupDone&&!mobileEx.sets[0].done&&restUntil===null&&collectEntries(db.active).length===0,'Ya calenté guarda solo la preparación, sin añadir trabajo ni descanso');
+prepareFixture(0);
+chk(mobileEx.warmupDone&&!mobileEx.sets[0].done&&restUntil===null&&collectEntries(db.active).length===0,'completar el recorrido guarda solo preparación, sin añadir trabajo ni su descanso');
 chk(!warmupPlan(1).first,'el calentamiento confirmado del mismo músculo también cuenta como preparación previa');
 mobileEx.warmupDone=false;db.active.exercises[1].warmupDone=true;
 chk(!warmupPlan(0).first,'la preparación respeta ejercicios realizados fuera del orden del plan');
@@ -2612,7 +2629,7 @@ openExFromSession(0,'equipment');
 chk(view.exTab==='equipment'&&view.from==='session'&&view.rid==='mobile-day'&&uiExercise().includes('Primera placa'),'ajustar la torre abre Equipo en el contexto de la sesión');
 chk(db.active.exercises[0]===mobileEx&&!mobileEx.sets[0].done,'abrir Equipo mantiene el borrador de la sesión');
 view={name:'session'};showLoad(0);chk(els.modalhost.innerHTML.includes("openExFromSession(0,'equipment')"),'el botón de la torre enlaza al ajuste directo');closeModal();
-uiLogSet(0,0);const afterProposalRest=restUntil;
+prepareFixture(0);uiLogSet(0,0);const afterProposalRest=restUntil;
 chk(mobileEx.sets[0].done&&afterProposalRest>Date.now()&&db.active.uiRest,'solo Registrar confirma e inicia el descanso');
 uiUndoProposal(0);chk(mobileEx.sets[0].done&&restUntil===afterProposalRest,'deshacer no modifica una serie ya registrada ni su descanso');
 chk(!warmupPlan(1).first,'una serie confirmada del mismo músculo sí cuenta como trabajo previo');
@@ -2752,6 +2769,141 @@ chk(db.active.exercises[0].sets[0].w==='10.625'&&fmtWEx(cappedTowerKey,10.625)==
 confirmFixtureSets();
 chk(fixtureEntries()[0].sets[0].w===10.625,'la serie confirmada conserva la carga exacta del ajuste fino');
 db.active=null;uiResetRest();clearInterval(timerInt);timerInt=null;
+
+
+suite('3.3.0 — calentamiento primero, persistente y separado del trabajo');
+resetDB();uiResetRest();db.gym=defaultGym('kg');db.settings.rest='off';db.settings.sound='off';db.settings.vibration='off';
+db.splits=[{id:'warm-sp',name:'Preparación',active:true,exconf:{}}];
+db.routines=[{id:'warm-day',name:'Torso',split:'warm-sp',exercises:[{id:'wa',key:'warm-a',name:'Press principal'},{id:'wb',key:'warm-b',name:'Press secundario'},{id:'wc',key:'warm-c',name:'Remo'}]}];
+for(const [key,muscle] of [['warm-a','pecho'],['warm-b','pecho'],['warm-c','espalda']])Object.assign(exMeta(key),{equip:'placas',muscle,stack:{unit:'kg',start:5,step:5},lo:8,hi:12});
+view={name:'home'};startSession('warm-day');
+chk(uiSession().includes('warmup-target')&&!uiSession().includes('id="n-weight"'),'sin historial se prepara una carga, sin mostrar el registro de trabajo');
+const warmRealNow=Date.now;let warmClock=warmRealNow();Date.now=()=>warmClock;
+const warmFormEvent={preventDefault(){}};
+document.getElementById('warmup-target').value='60';uiWarmupSetTarget(warmFormEvent,0);
+let warmEx=db.active.exercises[0],warmState=ensureWarmup(0);
+chk(warmState.phase==='set'&&warmState.plan.W===60&&warmState.plan.steps.length===2,'elegir 60 kg crea dos aproximaciones');
+chk(warmState.plan.steps[0].w===30&&warmState.plan.steps[1].w===45,'la escalera usa placas existentes: 30 y 45 kg');
+chk(uiSession().includes('Pin en la placa')&&uiSession().includes('Calentamiento 1 de 2')&&!uiSession().includes('Registrar serie'),'la preparación sustituye toda la interfaz de registro');
+warmEx.sets[0].r='8';uiLogSet(0,0);toggleSetDone(0,0);
+chk(!warmEx.sets[0].done&&collectEntries(db.active).length===0,'los dos caminos para registrar bloquean trabajo antes de preparar');
+uiContinue();chk(warmupRequired(0),'Continuar el descanso normal tampoco salta la preparación');
+const warmStepToken=warmState.id;uiWarmupRecord(0,warmStepToken,0);
+chk(warmState.phase==='rest'&&warmState.completed===1&&warmState.restUntil===warmClock+30000,'confirmar un calentamiento inicia exactamente 30 s incluso con descanso de trabajo desactivado');
+chk(restUntil===null&&!db.active.uiRest&&!warmEx.sets[0].done,'el descanso de calentamiento no usa ni confirma el de trabajo');
+const warmDeadline=warmState.restUntil;
+uiWarmupRecord(0,warmStepToken,0);uiWarmupNext(0,warmStepToken,1);
+chk(warmState.completed===1&&warmState.restUntil===warmDeadline&&warmState.phase==='rest','doble toque y continuar antes de tiempo no avanzan ni reinician el descanso');
+warmClock+=10000;uiWarmupExtend(0,warmStepToken);
+chk(warmState.restDuration===60&&warmState.restUntil===warmDeadline+30000,'añadir 30 s mantiene un máximo total de un minuto');
+uiWarmupExtend(0,warmStepToken);chk(warmState.restUntil===warmDeadline+30000,'una segunda ampliación no supera el minuto');
+warmEx.sets[0].r='';save();db=normalize(JSON.parse(localStorage.getItem(LS_KEY)));warmEx=db.active.exercises[0];warmState=ensureWarmup(0);
+chk(warmState.completed===1&&warmState.phase==='rest'&&warmState.restUntil===warmDeadline+30000,'restaurar conserva la serie y el plazo absoluto del descanso');
+const warmMotionKey=uiMotionKey();warmClock+=1000;tickRest();
+chk(uiMotionKey()===warmMotionKey&&els['warmup-next'].disabled,'el reloj actualiza controles sin reconstruir ni animar la pantalla');
+uiSelectExercise(1);chk(uiSession().includes('warmup-target'),'visitar otro ejercicio sin terminar preparación no lo da por caliente');
+uiSelectExercise(0);chk(ensureWarmup(0).id===warmStepToken&&ensureWarmup(0).restUntil===warmDeadline+30000,'volver recupera exactamente el calentamiento y su descanso');
+warmClock=warmState.restUntil-1;uiWarmupNext(0,warmStepToken,1);chk(warmState.phase==='rest','el último milisegundo de descanso también se respeta');
+warmClock++;tickRest();chk(!els['warmup-next'].disabled&&warmState.phase==='rest','al acabar el reloj habilita continuar, sin avanzar solo');
+uiWarmupNext(0,warmStepToken,1);chk(warmState.phase==='set'&&warmState.completed===1,'continuar presenta el segundo calentamiento');
+uiWarmupRecord(0,warmStepToken,0);chk(warmState.phase==='set','un evento atrasado de la primera serie no confirma la segunda');
+uiWarmupRecord(0,warmStepToken,1);warmClock=warmState.restUntil;tickRest();
+chk(warmupRequired(0)&&uiSession().includes('Empezar series de trabajo'),'también hay descanso después del último calentamiento, con salida explícita');
+uiWarmupNext(0,warmStepToken,2);
+chk(warmEx.warmupDone&&!warmupRequired(0)&&uiSession().includes('Registrar serie'),'solo el recorrido terminado desbloquea las series normales');
+chk(collectEntries(db.active).length===0&&db.history.length===0,'los calentamientos no generan volumen, historial ni récords');
+chk(warmEx.sets[0].w==='60'&&warmEx.sets[0].r==='','la carga de trabajo permanece, sin inventar repeticiones realizadas');
+const completedWarmToken=warmState.id;
+setVal(0,0,'w','70');chk(warmupRequired(0)&&ensureWarmup(0).id!==completedWarmToken,'subir la carga antes de empezar trabajo recalcula la preparación');
+setVal(0,0,'w','60');prepareFixture(0);warmState=ensureWarmup(0);setVal(0,0,'w','55');
+chk(!warmupRequired(0)&&ensureWarmup(0).id===warmState.id,'bajar la carga ya preparada no obliga a repetir el recorrido');
+setVal(0,0,'r','8');db.settings.rest='auto';uiLogSet(0,0);
+chk(warmEx.sets[0].done&&db.active.uiRest&&restUntil>warmClock,'registrar trabajo mantiene su descanso habitual');
+chk(collectEntries(db.active)[0].loadContext===warmupLoadContext(warmEx.key),'el historial confirmado conserva el contexto para comparar cargas equivalentes');
+uiSelectExercise(1);db.active.exercises[1].sets[0].w='40';
+chk(warmupPlan(1).reason==='prepared'&&!warmupRequired(1)&&uiSession().includes('Directo a tus series'),'trabajo confirmado del mismo músculo permite el acceso directo en rango moderado');
+uiSelectExercise(2);db.active.exercises[2].sets[0].w='40';
+chk(warmupRequired(2)&&warmupPlan(2).first,'un grupo diferente prepara desde su primer escalón');
+Object.assign(exMeta('warm-b'),{lo:4,hi:6});chk(warmupPlan(1).steps.length===2,'otro ejercicio de fuerza conserva dos aproximaciones aunque su músculo tenga trabajo');
+Object.assign(exMeta('warm-b'),{lo:8,hi:12});warmClock+=31*60*1000;
+chk(warmupPlan(1).first&&warmupRequired(1),'tras una pausa larga no se mantiene la omisión por trabajo antiguo');
+Date.now=warmRealNow;uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
+
+suite('3.3.0 — cargas, equipo real y criterios de preparación');
+resetDB();db.gym=defaultGym('kg');db.settings.rest='auto';
+function warmFixture(key,meta,w,sugg){
+  Object.assign(exMeta(key),meta);
+  db.active={id:'wf',routineName:'Prueba',start:Date.now(),open:0,exercises:[{key,name:key,sugg,sets:[{w:w??'',r:'',rir:''}]}]};
+  view={name:'session'};uiResetRest();return db.active.exercises[0];
+}
+let we=warmFixture('warm-canonical',{equip:'barra',muscle:'pecho',lo:8,hi:12},'40');we.sets[0].totalKg=60;
+chk(warmupPlan(0).W===60&&Array.isArray(warmupPlan(0).steps),'el peso canónico devuelve un plan completo, nunca un número aislado');
+chk(warmupPlan(0).steps.every(st=>st.w<60&&loadPlan(we.key,st.w).exact),'la barra y los discos están incluidos en cada carga realizable');
+we=warmFixture('warm-small',{equip:'nada',muscle:'hombros',lo:8,hi:12},'8');
+chk(warmupPlan(0).steps.length>0,'8 kg no se considera automáticamente ligero para una persona sin historial');
+sess('warm-small',[S(20,10)],2);
+chk(warmupPlan(0).steps.length>0,'un historial sin contexto de equipo no demuestra que la carga actual sea ligera');
+db.history.at(-1).entries[0].loadContext=warmupLoadContext('warm-small');chk(warmupPlan(0).reason==='light'&&!warmupRequired(0),'una reducción grande respecto al trabajo reciente comparable puede ir directo');
+exMeta('warm-small').points=1;chk(warmupPlan(0).steps.length>0,'cambiar de dos manos a una impide comparar cargas no equivalentes');exMeta('warm-small').points=2;
+uiWarmupRestart(0);chk(warmupRequired(0),'se puede solicitar preparación guiada incluso cuando se ofrece acceso directo');
+we=warmFixture('warm-old',{equip:'nada',lo:8,hi:12},'8');sess(we.key,[S(20,10)],40);
+chk(warmupPlan(0).steps.length>0,'una referencia antigua no elimina el calentamiento');
+we=warmFixture('warm-machine',{equip:'placas',lo:8,hi:12,stack:{unit:'lb',start:2.5,step:5,extra:1.5,extraMax:3},cap:250*.45359237},'65');sess(we.key,[S(100,10)],2);
+chk(warmupPlan(0).reason==='specific','no se comparan cargas históricas de torres cuya relación de poleas puede cambiar');
+chk(warmupPlan(0).steps.every(st=>Math.abs(stackSnap(we.key,st.w).kg-st.w)<.001),'las cargas de calentamiento respetan placas, libras y extras disponibles');
+let wg=ensureWarmup(0);uiWarmupRecord(0,wg.id,0);const oldWarmContext=wg.id;
+withExChange(we.key,()=>{exMeta(we.key).stack={unit:'kg',start:2,step:2};});
+chk(ensureWarmup(0).id!==oldWarmContext&&ensureWarmup(0).phase==='set','cambiar la máquina rehace la preparación con su equipo actual');
+uiWarmupRecord(0,oldWarmContext,0);chk(ensureWarmup(0).completed===0,'un botón de la configuración anterior no confirma una carga nueva');
+we=warmFixture('warm-min',{equip:'barra',muscle:'pecho',lo:4,hi:6},'0');
+chk(warmupPlan(0).steps[0].easy&&warmupPlan(0).steps[0].w===0,'si no hay equipo más ligero propone práctica sin carga, sin inventar discos negativos');
+we=warmFixture('warm-assist',{type:'asistido',equip:'placas',lo:8,hi:12,stack:{unit:'kg',start:5,step:5},cap:50},'20');
+chk(warmupPlan(0).steps[0].w>20&&warmupPlan(0).steps[0].assisted,'el calentamiento asistido aumenta la ayuda, no la dificultad');
+we.sets[0].w='50';chk(warmupPlan(0).steps[0].w<=50&&warmupPlan(0).note.includes('apoyo'),'al máximo de ayuda respeta el tope y ofrece apoyo adicional');
+we=warmFixture('warm-body',{type:'corporal',muscle:'pecho',lo:3,hi:6},'10');
+chk(warmupPlan(0).steps[0].w===0&&warmupPlan(0).steps[0].reps===1,'peso corporal prepara sin lastre y con menos reps que el objetivo');
+we=warmFixture('warm-unknown',{equip:'nada',muscle:null,lo:8,hi:12},'40');
+db.active.exercises.unshift({key:'unknown-before',name:'Sin grupo',warmupDone:true,sets:[{w:'20',r:'8',done:true}]});
+chk(warmupPlan(1).first,'un grupo sin asignar nunca se trata como calentamiento de todo el cuerpo');
+we=warmFixture('warm-forced-new',{equip:'nada',muscle:'pecho',lo:8,hi:12},'');
+db.active.exercises.push({key:'warm-previous',name:'Anterior',lastWorkAt:Date.now(),sets:[{w:'40',r:'10',done:true}]});exMeta('warm-previous').muscle='pecho';
+chk(!warmupRequired(0),'otro ejercicio del grupo puede empezar sin calentamiento aunque no tenga carga propuesta');
+uiWarmupRestart(0);chk(ensureWarmup(0).phase==='setup','pedir calentamiento explícito sin historial abre la elección de carga');
+document.getElementById('warmup-target').value='20';uiWarmupSetTarget(warmFormEvent,0);
+chk(warmupRequired(0)&&ensureWarmup(0).forced,'elegir carga conserva la preparación solicitada aunque el grupo ya tenga trabajo');
+we=warmFixture('warm-damaged',{equip:'nada',muscle:'pecho',lo:8,hi:12},'40');wg=ensureWarmup(0);wg.completed=999;
+chk(ensureWarmup(0).completed===0,'un progreso dañado en un respaldo se recalcula sin desbloquear trabajo');
+wg=ensureWarmup(0);uiWarmupRecord(0,wg.id,0);wg.restUntil=Infinity;
+chk(ensureWarmup(0).phase==='set','un descanso corrupto no bloquea la app para siempre');
+wg=ensureWarmup(0);wg.plan.steps[0].reps='<img src=x onerror=alert(1)>';
+chk(!uiSession().includes('<img src=x'),'los pasos restaurados se validan antes de generar la interfaz');
+we=warmFixture('warm-legacy',{equip:'nada',lo:8,hi:12},'40');we.warmupDone=true;
+chk(!warmupRequired(0),'una sesión anterior con calentamiento confirmado sigue abierta para trabajar');
+delete we.warmupDone;we.sets[0].r='8';we.sets[0].done=true;
+chk(!warmupRequired(0),'una sesión que ya tenía trabajo confirmado no vuelve a empezar desde calentamiento');
+uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
+
+suite('3.3.0 — calentamiento por tiempo y avisos sin duplicados');
+we=warmFixture('warm-hang',{type:'tiempo',equip:'nada',muscle:'espalda',lo:20,hi:40},'',{w:0,reps:30,sets:1,type:'hold'});
+warmClock=Date.now();Date.now=()=>warmClock;wg=ensureWarmup(0);
+chk(wg.plan.steps[0].seconds===10&&uiSession().includes('Iniciar 10 segundos'),'el isométrico empieza por una duración corta con temporizador propio');
+uiWarmupRecord(0,wg.id,0);chk(wg.completed===0,'el calentamiento por tiempo no se confirma antes de medirlo');
+uiWarmupTimedStart(0,wg.id,0);const holdDeadline=wg.holdUntil;
+uiWarmupTimedStart(0,wg.id,0);chk(wg.holdUntil===holdDeadline,'un doble toque no reinicia el temporizador de preparación');
+chk(holdDeadline===warmClock+13000,'hay tres segundos para colocarse antes de los diez de trabajo suave');
+warmClock+=3000;tickRest();chk(els['warmup-hold-time'].textContent===10&&els['warmup-record'].disabled,'el tiempo para colocarse no descuenta segundos del isométrico');
+save();db=normalize(JSON.parse(localStorage.getItem(LS_KEY)));wg=ensureWarmup(0);
+warmClock=holdDeadline-1;uiWarmupRecord(0,wg.id,0);chk(wg.phase==='set','recargar tampoco permite confirmar antes de terminar la duración');
+warmClock=holdDeadline;tickRest();uiWarmupRecord(0,wg.id,0);
+chk(wg.phase==='rest'&&wg.restDuration===30&&collectEntries(db.active).length===0,'el isométrico medido abre su descanso sin convertirse en registro');
+const originalWarmBeep=beep,warmCues=[];beep=(kind='finish')=>{warmCues.push(kind);return {};};
+warmClock=wg.restUntil-3000;tickRest();tickRest();warmClock+=1000;tickRest();warmClock+=1000;tickRest();warmClock+=1000;tickRest();tickRest();
+chk(warmCues.join(',')==='countdown,countdown,countdown,finish','los últimos tres segundos y el final avisan una sola vez cada uno');
+const warmExpiry=wg.restUntil;uiWarmupExtend(0,wg.id);chk(wg.restUntil===warmExpiry,'un descanso ya acabado no se reactiva al pulsar un botón antiguo');
+save();db=normalize(JSON.parse(localStorage.getItem(LS_KEY)));tickRest();chk(warmCues.length===4,'recargar después del descanso no repite el sonido final');
+beep=originalWarmBeep;wg=ensureWarmup(0);uiWarmupNext(0,wg.id,wg.completed);
+chk(uiSession().includes('Medir esta serie')&&!uiSession().includes('Iniciar 10 segundos'),'al completar la preparación aparece el temporizador normal del ejercicio');
+Date.now=warmRealNow;uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));

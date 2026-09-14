@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.2.6">
+<link rel="stylesheet" href="ui.css?v=3.3.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,7 +664,7 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.2.6"></script>
+<script src="ui.js?v=3.3.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -684,7 +684,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.2.6';
+const APP_VERSION = '3.3.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -2715,6 +2715,7 @@ function toggleSetDone(xi, si){
   const ex = db.active.exercises[xi];
   const st = ex.sets[si];
   if(st.done){ st.done = false; save(); render(); return; }
+  if(warmupRequired(xi)){uiSelectExercise(xi);return;}
   const r = parseInt(st.r, 10);
   if(!uiValidSet(ex.key, st)){
     const row = document.getElementById(`set-${xi}-${si}`);
@@ -2726,7 +2727,8 @@ function toggleSetDone(xi, si){
     return;
   }
   st.done = true;
-  db.active.lastLog = Date.now();
+  st.loadContext = warmupLoadContext(ex.key);
+  ex.lastWorkAt = db.active.lastLog = Date.now();
   if(!restUntil) startRestAuto(ex.key);
   db.active.open = xi; // Leave the completed exercise visible until the person moves on.
   save(); render();
@@ -4259,6 +4261,7 @@ function sessionAddExercise(ev){
 let setTimerInt = null;
 let setTimerState = null;
 function startSetTimer(xi, si){
+  if(warmupRequired(xi)){uiSelectExercise(xi);return;}
   const ex = db.active && db.active.exercises[xi];
   if(!ex) return;
   const audioReady=unlockAudio();
@@ -4339,7 +4342,11 @@ function collectEntries(s){
       if(exMeta(ex.key).type !== 'tiempo' && !isNaN(rir)) out.rir = Math.min(9, Math.max(0, rir));
       return out;
     }).filter(st => !isNaN(st.w) && st.w >= 0 && !isNaN(st.r) && st.r > 0);
-    if(sets.length) entries.push({ key:ex.key, name:ex.name, sets });
+    if(sets.length){
+      const contexts=ex.sets.filter(st=>st.done===true&&uiValidSet(ex.key,st)).map(st=>st.loadContext);
+      const loadContext=contexts[0]&&contexts.every(c=>c===contexts[0])?contexts[0]:null;
+      entries.push({key:ex.key,name:ex.name,sets,...(loadContext?{loadContext}:{})});
+    }
   }
   return entries;
 }
@@ -4841,74 +4848,113 @@ function askWipe(){
 
 /* =====================================================================
    CALENTAMIENTO CALCULADO
-   Evidencia: escalera específica 40–80 % de la carga de trabajo con reps
-   decrecientes (Ribeiro 2021); cargas moderadas necesitan 0–2 series
-   (Ribeiro 2020); pesado → llegar a ~80 % con intención de velocidad
-   (scoping review 2025); músculo ya caliente → menos (Iversen 2021).
+   Guided specific preparation. Programming heuristics, not a measurement
+   of readiness. Decisions and sources are documented in docs/warmups.md.
    ===================================================================== */
-function warmupPlan(xi){
-  const s = db.active, ex = s.exercises[xi];
+function warmupPlan(xi, force=false){
+  const s = db.active, ex = s?.exercises[xi];
+  if(!ex) return null;
   const meta = exMeta(ex.key);
-  const { hi } = effRange(ex.key);
-
-  /* peso de trabajo de hoy: lo escrito en la serie 1, o la sugerencia del coach */
-  let W = NaN;
-  const activeIndex = ex.sets.findIndex(st => !st.done);
-  const current = ex.sets[activeIndex < 0 ? ex.sets.length - 1 : activeIndex];
-  const previous = ex.sets.slice(0, activeIndex < 0 ? ex.sets.length : activeIndex).reverse().find(st => st.w !== '' && st.w != null);
-  const source = current && current.w !== '' ? current : previous;
-  if(source && Number.isFinite(source.totalKg)) return source.totalKg;
-  const typed = parseFloat(current && current.w !== '' ? current.w : previous && previous.w);
-  if(!isNaN(typed) && (typed > 0 || (typed === 0 && discosOffset(ex.key) > 0)))
-    W = typedToKg(ex.key, typed);
-  else if(ex.sugg && ex.sugg.w > 0) W = ex.sugg.w;
-
-  /* ¿el músculo ya viene caliente de un ejercicio anterior de esta sesión? */
-  let first = true;
-  if(meta.muscle && meta.muscle !== 'none'){
-    for(let i = 0; i < s.exercises.length; i++){
-      const previous=s.exercises[i];
-      if(i!==xi&&exMeta(previous.key).muscle===meta.muscle&&(previous.warmupDone||previous.sets.some(st=>st.done))){ first = false; break; }
-    }
-  } else first = (xi === 0);
-
+  const { lo, hi } = effRange(ex.key), heavy = hi <= 7;
+  let W = targetWeight(ex);
+  const draft = ex.sets.find(st=>!st.done);
+  if(draft && String(draft.w ?? '').trim() !== '' && Number(draft.w) === 0) W = discosOffset(ex.key);
+  /* Only confirmed activity transfers preparation; merely visiting an exercise
+     does not. Unknown groups never imply that the whole body is warm. */
+  const prior = meta.muscle && meta.muscle !== 'none' ? s.exercises.filter((p,i)=>{
+    if(i===xi || exMeta(p.key).muscle!==meta.muscle) return false;
+    const last = p.lastWorkAt || p.warmup?.completedAt || s.lastLog || s.start;
+    return Date.now()-last < 30*60*1000;
+  }) : [];
+  const worked = prior.some(p=>p.sets.some(st=>st.done && uiValidSet(p.key,st)));
+  const first = !worked && !prior.some(p=>p.warmupDone);
+  const plan = { rows:[], steps:[], first, W:Number.isFinite(W)?W:null, heavy, reason:'specific', note:'' };
+  const finish = (steps, note, reason='specific') => Object.assign(plan, {steps, note, reason,
+    rows:steps.map(st=>warmupStepText(ex.key,st))});
+  if(!force && worked && !heavy && meta.type==='normal')
+    return finish([], 'Ya registraste trabajo de este grupo muscular en la sesión. Puedes pasar a tus series.', 'prepared');
+  const target = Math.max(1, Number(ex.sugg?.reps) || lo);
   if(meta.type === 'tiempo'){
-    const target = ex.sugg ? ex.sugg.reps : hi;
-    const easy = Math.max(10, Math.round(target * 0.5 / 5) * 5);
-    return { rows: [`1 serie × ${easy} s suaves (misma posición, lejos del límite)`], first,
-             note: 'En isométricos basta una serie corta para activar el patrón.' };
+    if(!force && worked) return finish([], 'Este grupo ya tiene trabajo registrado. Puedes comenzar tu serie de tiempo.', 'prepared');
+    return finish([{seconds:Math.max(1,Math.min(10,Math.floor(target*.4))),w:0}],
+      'Sostén una versión cómoda, sin lastre y lejos de tu límite. Usa apoyo si lo necesitas.');
   }
   if(meta.type === 'corporal'){
-    const target = ex.sugg ? ex.sugg.reps : hi;
-    const easy = Math.max(3, Math.round(target * 0.5));
-    return { rows: [`1 serie × ${easy} reps fáciles (misma técnica, lejos del fallo)`], first,
-             note: 'En peso corporal basta una serie suave del mismo movimiento para activar el patrón.' };
+    if(!force && worked && !heavy) return finish([], 'Este grupo ya tiene trabajo registrado. Puedes comenzar tus series.', 'prepared');
+    return finish([{reps:Math.max(1,Math.min(5,Math.floor(target*.4))),w:0}],
+      'Misma técnica, sin lastre y con apoyo si lo necesitas. Deja muchas repeticiones en reserva.');
   }
-  if(isNaN(W) || W <= 0) return null;         /* aún no hay peso de referencia */
+  if(!Number.isFinite(W) || W < 0) return null;
   if(meta.type === 'asistido'){
-    const helpW = roundToStep(W * 1.5, effStep(ex.key, W));
-    return { rows: [`1 serie × 6 con más ayuda (~${fmtWEx(ex.key, helpW)} ${uLabelEx(ex.key)})`], first,
-             note: 'En asistidos, calentar = misma técnica con bastante más asistencia.' };
+    const help = Math.max(W*1.5,W+effStep(ex.key,W));
+    const helpW = effEquip(ex.key)==='placas' ? stackSnap(ex.key,help).kg : roundToStep(help,effStep(ex.key,W));
+    return finish([{w:helpW,reps:Math.min(4,Math.max(1,Math.floor(target*.5))),assisted:true}],
+      helpW>W ? 'Más asistencia para preparar el movimiento con poco esfuerzo.' : 'Usa esta ayuda y apoyo adicional si lo necesitas. Mantén el esfuerzo suave.');
   }
-  if(W <= 12){
-    return { rows: [], first, W,
-             note: 'Peso ligero: la evidencia muestra que con cargas moderadas el calentamiento específico aporta poco. Si es tu primer ejercicio del día, haz 1 serie suave del mismo movimiento y listo.' };
-  }
-  const heavy = hi <= 7;    /* rango de fuerza → cargas relativas altas */
+  /* A low absolute weight says nothing about effort. Only a large reduction
+     from recent, comparable free-weight work is treated as a light start.
+     Machine ratios are unknown, so their kg are not used for this shortcut. */
+  const last = lastEntry(ex.key), eq = effEquip(ex.key);
+  const recent = last && last.entry.loadContext===warmupLoadContext(ex.key) && Date.now()-Date.parse(last.session.date) < 28*864e5;
+  const reference = recent ? Math.max(0,...last.entry.sets.filter(st=>st.r>0).map(st=>Number(st.w)||0)) : 0;
+  if(!force && !heavy && !['placas','discos'].includes(eq) && W>0 && reference>0 && W<=reference*.6)
+    return finish([], 'La carga de hoy es mucho menor que tu trabajo reciente en este ejercicio. Puedes empezar directamente.', 'light');
   const scheme = heavy
     ? (first ? [[0.4,5],[0.6,3],[0.8,2]] : [[0.55,3],[0.8,2]])
     : (first ? [[0.5,6],[0.75,3]]        : [[0.7,4]]);
-  const rows = [], steps = [], seen = new Set();
+  const steps = [], seen = new Set();
   for(const [pct, reps] of scheme){
-    let wk = roundToStep(W * pct);
-    wk = fitWeight(ex.key, wk) || wk;   /* que el escalón se pueda armar de verdad */
-    if(wk <= 0 || wk >= W || seen.has(wk)) continue;
+    const wk = fitWeight(ex.key,roundToStep(W*pct));
+    if(wk <= 0 || wk >= W-1e-6 || seen.has(wk)) continue;
     seen.add(wk);
-    rows.push(`${fmtWEx(ex.key, wk)} ${uLabelEx(ex.key)} × ${reps}`);
     steps.push({ w:wk, reps });
   }
-  return { rows, steps, first, W, heavy,
-           note: rows.length ? null : 'El peso de trabajo es tan bajo que no salen escalones útiles: 1 serie suave alcanza.' };
+  if(!steps.length) return finish([{w:0,reps:Math.min(3,Math.max(1,Math.floor(target*.3))),easy:true}],
+    'Este equipo no ofrece una carga menor. Practica el mismo movimiento sin carga o con apoyo, con esfuerzo suave.');
+  return finish(steps, first ? 'Acércate a tu carga de trabajo, sin buscar fatiga.' : 'Ya preparaste este grupo. Haremos una aproximación más corta para este ejercicio.');
+}
+function warmupStepText(key,st){
+  if(st.seconds) return `${st.seconds} s suaves · sin lastre`;
+  if(st.easy||exMeta(key).type==='corporal') return `${st.reps} reps fáciles · sin lastre`;
+  return `${fmtWEx(key,st.w)} ${uLabelEx(key)}${st.assisted?' de ayuda':''} × ${st.reps}`;
+}
+function warmupLoadContext(key){
+  return JSON.stringify([db.settings.gymId,exMeta(key).type,effEquip(key),effPoints(key),effBase(key)]);
+}
+function warmupContext(ex){
+  const m=exMeta(ex.key),eq=effEquip(ex.key);
+  return JSON.stringify([db.settings.gymId,m.type,m.muscle,effRange(ex.key),machineSnapshot(m),effBase(ex.key),
+    ['barra','discos'].includes(eq)?db.gym.plates:eq==='mancuerna'?db.gym.dumbbells:null]);
+}
+function validWarmupState(w){
+  if(!w || typeof w.id!=='string' || !/^[a-z0-9_-]+$/i.test(w.id) || !Array.isArray(w.plan?.steps) || w.plan.steps.length>8)return false;
+  const n=w.plan.steps.length;
+  if(!Number.isInteger(w.completed)||w.completed<0||w.completed>n)return false;
+  if(!w.plan.steps.every(st=>Number.isFinite(st.w)&&st.w>=0 &&
+    (Number.isInteger(st.reps)&&st.reps>0&&st.reps<=20 || Number.isInteger(st.seconds)&&st.seconds>0&&st.seconds<=10)))return false;
+  if(w.phase==='rest')return w.completed>0 && [30,60].includes(w.restDuration) && Number.isFinite(w.restStarted) && w.restUntil===w.restStarted+w.restDuration*1000;
+  if(w.phase==='set')return w.completed<n && (!w.holdUntil || Number.isFinite(w.holdStarted)&&w.holdUntil===w.holdStarted+w.plan.steps[w.completed].seconds*1000);
+  return w.phase==='done'?n>0&&w.completed===n:w.phase==='skipped'&&n===0;
+}
+function ensureWarmup(xi, force=false){
+  const ex=db.active?.exercises[xi];if(!ex)return null;
+  if(!force && ex.sets.some(st=>st.done && uiValidSet(ex.key,st)))return null;
+  if(!force && ex.warmupDone && !ex.warmup)return null; // an already prepared legacy session
+  const context=warmupContext(ex),old=ex.warmup;
+  const plan=warmupPlan(xi,force || old?.forced);
+  if(!plan){
+    if(force){ex.warmup={id:uid(),context,phase:'setup',forced:true};delete ex.warmupDone;save();}
+    return ex.warmup?.phase==='setup'?ex.warmup:{phase:'setup'};
+  }
+  const sameW=plan.W===old?.plan?.W || (Number.isFinite(plan.W)&&Number.isFinite(old?.plan?.W)&&Math.abs(plan.W-old.plan.W)<.001);
+  const easier=exMeta(ex.key).type==='asistido'?plan.W>=old?.plan?.W:plan.W<=old?.plan?.W;
+  if(!force && validWarmupState(old) && old.context===context && (sameW || (old.phase==='done'&&easier)) && (old.phase!=='skipped'||(!plan.steps.length&&old.plan.reason===plan.reason)))return old;
+  ex.warmup={id:uid(),context,plan,completed:0,phase:plan.steps.length?'set':'skipped',forced:!!force};
+  delete ex.warmupDone;
+  save();return ex.warmup;
+}
+function warmupRequired(xi){
+  const w=ensureWarmup(xi);return !!w && !['done','skipped'].includes(w.phase);
 }
 
 /* un escalón del calentamiento con su carga dibujada */
@@ -4936,41 +4982,15 @@ function warmStepHTML(key, label, value, w, work){
 }
 
 function showWarmup(xi){
-  const ex = db.active.exercises[xi];
-  const plan = warmupPlan(xi);
-  if(!plan){
-    infoModal('Calentamiento', 'Escribe primero el peso de hoy en la serie 1 (o entrena una vez este ejercicio) y te calculo la escalera de calentamiento.');
-    return;
-  }
-  const eqW = effEquip(ex.key);
-  const drawn = ['barra','discos','placas'].includes(eqW) && (plan.steps || []).length && plan.W > 0
-    && !!loadPlan(ex.key, plan.W);
-  const list = drawn
-    ? plan.steps.map((st, i) => warmStepHTML(ex.key, `Serie ${i+1}`, `${fmtWEx(ex.key, st.w)} ${uLabelEx(ex.key)} × ${st.reps}`, st.w, false)).join('')
-      + warmStepHTML(ex.key, 'Trabajo', `${fmtWEx(ex.key, plan.W)} ${uLabelEx(ex.key)}`, plan.W, true)
-    : plan.rows.map((r, i) => `
-      <div class="exline">
-        <span class="tiny">Serie ${i+1}</span>
-        <span class="sets" style="font-size:13px;color:var(--bone)">${r}</span>
-      </div>`).join('')
-      + (plan.W && plan.rows.length ? `
-      <div class="exline">
-        <span class="tiny" style="color:var(--up)">Trabajo</span>
-        <span class="sets" style="font-size:13px;color:var(--up)">${fmtWEx(ex.key, plan.W)} ${uLabelEx(ex.key)}</span>
-      </div>` : '');
-  openModal(`
-    <h2>Calentamiento — ${esc(exBaseName(ex.name))}</h2>
-    ${ plan.first ? '' : `<p class="muted" style="margin-bottom:10px">Este músculo ya viene caliente de un ejercicio anterior: con menos alcanza.</p>` }
-    ${ list ? (drawn ? `<div style="margin-bottom:14px">${list}</div>`
-                     : `<div class="list" style="padding:4px 16px;margin-bottom:14px">${list}</div>`) : '' }
-    ${ plan.note ? `<p class="muted" style="margin-bottom:12px">${plan.note}</p>` : '' }
-    <p class="tiny" style="line-height:1.6;margin-bottom:14px">
-      Descansa solo 30–60 s entre series de calentamiento y mueve el peso con <b>intención de velocidad</b>
-      (activa sin fatigar). <b>No registres estas series en la app</b> — solo las de trabajo.
-      ${ plan.first && xi === 0 ? ' Antes del primer ejercicio del día, 5 min de cardio suave suman — sobre todo en pierna (+8 % de rendimiento en la evidencia).' : '' }
-    </p>
-    <button class="btn" onclick="uiWarmupDone(${xi})">Ya calenté</button>
-    <button class="btn ghost" onclick="closeModal()">Cerrar</button>`);
+  const ex=db.active?.exercises[xi];if(!ex)return;
+  if(warmupRequired(xi)){uiSelectExercise(xi);return;}
+  const w=ex.warmup,plan=w?.plan||warmupPlan(xi);
+  openModal(`<span class="n-eyebrow">Preparación</span><h2>${ex.warmupDone?'Calentamiento completado':'Tu calentamiento'}</h2>
+    <p class="muted">${esc(exBaseName(ex.name))}</p>
+    ${plan?.steps.length?`<div class="n-warmup-summary">${plan.steps.map((st,i)=>`<div><span>${i+1}</span><b>${warmupStepText(ex.key,st)}</b>${ex.warmupDone?uiIcon('check'):''}</div>`).join('')}</div>`:''}
+    <p class="muted">${esc(plan?.note||'La preparación que confirmaste sigue guardada en esta sesión.')}</p>
+    ${!ex.sets.some(st=>st.done)?uiButton(ex.warmupDone?'Volver a calentar':'Preparar el movimiento igualmente',uiAction('uiWarmupRestart',xi),'barbell','secondary'):''}
+    ${uiButton('Cerrar','closeModal()','close','text')}`);
 }
 
 /* =====================================================================
@@ -5101,6 +5121,7 @@ function restCountdownCue(remaining){
   beep('countdown');
 }
 function tickRest(){
+  tickWarmup();
   const box=document.getElementById('rest');
   const t=document.getElementById('resttime'),l=document.getElementById('restlabel'),f=document.getElementById('restfill');
   const total=db.active?.restDuration||restSecs()||0;
