@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.3.0';
+const UI_VERSION = '3.3.1';
 const UI_ICONS = {
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/>',
  pin:'<path d="M9 3h6l-1 7 4 4v2H6v-2l4-4-1-7zM12 16v5"/>',
@@ -118,26 +118,32 @@ function uiValidSet(key,st){
  return (!blank||corp)&&Number.isFinite(weight)&&weight>=0&&Number.isInteger(reps)&&reps>0;
 }
 
+function uiLoadDiffers(key,plan){
+ if(!plan)return false;
+ // Tower labels retain their native precision; stored kg are rounded to .001.
+ const available=plan.kind==='placas'?toKgEx(key,plan.stack.value):plan.total;
+ return Math.abs(available-plan.target)>.000501 && fmtWEx(key,available)!==fmtWEx(key,plan.target);
+}
 function uiLoadStrip(xi){
  const ex=db.active.exercises[xi],key=ex.key;
  if(exMeta(key).type!=='normal')return '';
  const target=targetWeight(ex);if(!(target>0))return '';
  const p=loadPlan(key,target);if(!p)return '';
- let label,number,art,footer;
+ let label,number,detail='',closest;
  if(p.kind==='placas'){
-  label='Pon el pin en';number=`Placa ${p.stack.index}${stackExtraLabel(p.stack)}`;
-  art=stackSVG(p.stack.index,p.stack.plates||Math.max(p.stack.index+3,10),{h:100});
-  footer=`Anota <b>${fmtStackNum(p.stack.value)} ${p.stack.unit}</b>${p.stack.extra>0?' · incluye el ajuste fino':''}`;
+  label='Pon el pin en';number=`Placa ${p.stack.index}`;
+  if(p.stack.extra>0)detail=`+${fmtStackNum(p.stack.extra)} ${p.stack.unit} de ajuste fino`;
+  closest=`${fmtStackNum(p.stack.value)} ${p.stack.unit}`;
  }else if(p.kind==='mancuerna'){
   label=p.points===1?'Una mancuerna':'En cada mano';number=`${fmtW(p.dumbbell)} <small>${uLabel()}</small>`;
-  art=dumbbellSVG(p.dumbbell,{h:74});footer=`Anota <b>${fmtWEx(key,p.total)} ${uLabelEx(key)}</b>${p.points===2?' · total de las dos':''}`;
+  closest=`${fmtWEx(key,p.total)} ${uLabelEx(key)}${p.points===2?' entre las dos':''}`;
  }else{
   label=p.points===1?'En un solo lado':p.points===2?'En cada lado':`En cada uno de ${p.points} pitones`;
-  number=p.perPoint.length?`${pointTextHTML(p.perPoint)}`:'Sin discos';
-  art=p.points===2?barbellSVG(p.perPoint,{h:82,scale:.72}):postSVG(p.perPoint,{h:82,scale:.72});
-  footer=`Anota <b>${fmtWEx(key,Math.max(0,p.total-p.base))} ${uLabelEx(key)}</b>${p.base>0?' · solo discos':''}`;
+  number=p.perPoint.length?pointTextHTML(p.perPoint):'Sin discos';
+  closest=`${fmtWEx(key,Math.max(0,p.total-p.base))} ${uLabelEx(key)}${p.base>0?' en discos':''}`;
  }
- return `<button class="ui-load-card" onclick="showLoad(${xi})"><span class="ui-load-main"><span><span class="ui-load-label">${label}</span><span class="ui-load-number">${number}</span></span><span class="ui-load-art">${art}</span></span><span class="ui-load-footer"><span>${footer}${!p.exact?' · carga disponible más cercana':''}</span>${uiIcon('chevron')}</span></button>`;
+ const differs=uiLoadDiffers(key,p),spoken=`Ver montaje. ${label}: ${number.replace(/<[^>]+>/g,'')}${detail?'. '+detail:''}${differs?'. Más cercano: '+closest:''}`;
+ return `<button class="ui-load-card" aria-label="${esc(spoken)}" onclick="showLoad(${xi})"><span class="ui-load-heading"><span class="ui-load-label">${label}</span><span class="ui-load-link"><span>Ver montaje</span>${uiIcon('chevron')}</span></span><span class="ui-load-number">${number}</span>${detail?`<span class="ui-load-detail">${detail}</span>`:''}${differs?`<span class="ui-load-nearest">Más cercano: ${closest}</span>`:''}</button>`;
 }
 
 function uiRefreshLoad(xi){
@@ -269,7 +275,7 @@ function uiCloseModal(){
 
 function uiSuggestionInfo(xi){
  const sugg=db.active?.exercises[xi]?.sugg;if(!sugg)return;
- openModal(`<h2>Tu siguiente paso</h2>${verdictHTML(sugg,true)}<button class="btn quiet" style="margin-top:24px" onclick="closeModal()">Volver al entrenamiento</button>`);
+ openModal(`<h2>Tu siguiente paso</h2>${verdictHTML(sugg,true)}<p class="n-proposal-help">Aplicar la propuesta rellena el peso y ${exMeta(db.active.exercises[xi].key).type==='tiempo'?'los segundos':'las repeticiones'} del borrador. Pulsa Registrar serie cuando hayas terminado de hacerla; entonces empieza el descanso.</p><button class="btn quiet" style="margin-top:24px" onclick="closeModal()">Volver al entrenamiento</button>`);
 }
 
 function uiUseSuggestion(xi){
@@ -282,7 +288,7 @@ function uiUseSuggestion(xi){
  delete st.wkg;delete st.totalKg;
  window.__proposalUndo.applied={w:st.w,r:st.r};
  db.active.open=xi;save();render();
- const status=document.getElementById('n-draft-status');if(status)status.textContent='Peso y '+(exMeta(ex.key).type==='tiempo'?'segundos':'repeticiones')+' de la propuesta preparados. Puedes deshacer o ajustar antes de registrar.';
+ const status=document.getElementById('n-draft-status');if(status)status.textContent='Propuesta preparada. Registra al terminar la serie.';
 }
 function uiProposalMatches(ex,st){
  return !!ex?.sugg&&String(st?.w??'').trim()!==''&&String(st?.r??'').trim()!==''&&Math.abs(Number(st.w)-Number(inputWEx(ex.key,kgToTyped(ex.key,ex.sugg.w))))<1e-9&&Number(st.r)===ex.sugg.reps;
@@ -297,18 +303,20 @@ function uiUndoProposal(xi){
  const {st,previous}=window.__proposalUndo;
  for(const key of ['w','r','wkg','totalKg']){if(previous[key]===undefined)delete st[key];else st[key]=previous[key];}
  delete window.__proposalUndo;save();render();
- const status=document.getElementById('n-draft-status');if(status)status.textContent='Se recuperaron los valores que habías escrito. La serie sigue sin registrar.';
+ const status=document.getElementById('n-draft-status');if(status)status.textContent='Borrador anterior recuperado.';
 }
 function uiProposalAction(xi){
  const ex=db.active.exercises[xi],matches=uiProposalMatches(ex,ex.sets[uiCurrentSet(ex)]);
- return `<div class="n-proposal-actions"><button class="n-text" id="n-fill-proposal" onclick="uiUseSuggestion(${xi})" ${matches?'disabled':''}><span>${matches?'Propuesta aplicada':'Aplicar propuesta'}</span>${uiIcon(matches?'check':'copy')}</button>${uiCanUndoProposal(ex)?uiButton('Deshacer',uiAction('uiUndoProposal',xi),'back','text'):''}</div>`;
+ return `<div class="n-proposal-actions"><button class="n-text" id="n-fill-proposal" aria-label="${matches?'Propuesta aplicada':'Aplicar propuesta'}" onclick="uiUseSuggestion(${xi})" ${matches?'disabled':''}><span>${matches?'Aplicada':'Aplicar'}</span>${uiIcon(matches?'check':'copy')}</button>${uiCanUndoProposal(ex)?uiButton('Deshacer',uiAction('uiUndoProposal',xi),'back','text'):''}</div>`;
 }
 function uiRefreshSuggestionAction(xi){
  const ex=db.active?.exercises[xi],si=ex?uiCurrentSet(ex):-1;
  const button=document.getElementById('n-fill-proposal');if(!button||si<0)return;
  const matches=uiProposalMatches(ex,ex.sets[si]);
  button.disabled=matches;
- button.innerHTML='<span>'+(matches?'Propuesta aplicada':'Aplicar propuesta')+'</span>'+uiIcon(matches?'check':'copy');
+ button.innerHTML='<span>'+(matches?'Aplicada':'Aplicar')+'</span>'+uiIcon(matches?'check':'copy');
+ button.setAttribute?.('aria-label',matches?'Propuesta aplicada':'Aplicar propuesta');
+ const status=document.getElementById('n-draft-status');if(status)status.textContent='';
  const undo=button.parentElement?.querySelector('button:last-child');
  if(undo&&undo!==button&&!uiCanUndoProposal(ex))undo.remove();
 }
@@ -613,13 +621,17 @@ function uiProposalTitle(ex){
  return {up:'Puedes subir de peso',reps:'Suma una repetición',hold:'Consolida esta carga',deload:'Un paso más ligero',sets:'Revisa tus series'}[sg.type]||'Tu siguiente paso';
 }
 function uiProposalValue(ex){
- const type=exMeta(ex.key).type,sg=ex.sugg,w=fmtNum(fromKgEx(ex.key,kgToTyped(ex.key,sg.w)));
+ const type=exMeta(ex.key).type,sg=ex.sugg,w=fmtWEx(ex.key,kgToTyped(ex.key,sg.w));
  if(type==='tiempo')return `${sg.reps} s${sg.w>0?` · ${w} ${uLabelEx(ex.key)} de lastre`:''}`;
  if(type==='corporal'&&!sg.w)return `${sg.reps} reps`;
  return `${w} ${uLabelEx(ex.key)}${type==='asistido'?' de ayuda':''} · ${sg.reps} reps`;
 }
 function uiCurrentSet(ex){return ex.sets.findIndex(st=>!st.done);}
 function uiSetDisplay(key,st){return `${st.w!==''?fmtWEx(key,recordedSetKg(key,st))+' '+uLabelEx(key)+' total':'—'} × ${st.r!==''?esc(st.r):'—'}${exMeta(key).type==='tiempo'?' s':''}`;}
+function uiSetProposal(xi,hasPrevious){
+ const ex=db.active.exercises[xi];
+ return `<div class="n-set-proposal"><button class="n-set-target" onclick="uiSuggestionInfo(${xi})" aria-label="Ver propuesta: ${esc(uiProposalValue(ex))}"><span>${esc(uiProposalTitle(ex))}</span><strong>${uiProposalValue(ex)}${uiIcon('info')}</strong></button>${hasPrevious?'':uiProposalAction(xi)}</div>`;
+}
 function uiSession(){
  const s=db.active;if(!s.exercises.length)return `<div class="n-empty">${uiGymButton()}<h2>Empieza con un ejercicio.</h2><p>Tu sesión está guardada. Añade lo que vas a entrenar.</p>${uiButton('Añadir ejercicio','uiLibrary()','plus')}</div>`;
  const xi=sessionOpenIdx(),ex=s.exercises[xi],si=uiCurrentSet(ex),m=exMeta(ex.key),r=effRange(ex.key),complete=si<0;
@@ -639,16 +651,10 @@ function uiSession(){
   const weightLabel=effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Total de las dos':discosOffset(ex.key)>0?'Discos totales':m.type==='asistido'?'Ayuda':corp?'Lastre opcional':'Peso';
   const offset=discosOffset(ex.key),hint=offset>0?'Sin '+(effEquip(ex.key)==='barra'?'la barra':'el aparato'):effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Suma ambas manos':m.type==='asistido'?'Menos ayuda = más esfuerzo':corp?'Vacío = sin lastre':uLabelEx(ex.key);
   const prev=ex.sets.slice(0,si).reverse().find(x=>x.done);
-  work=`<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):ex.sugg?uiProposalAction(xi):''}</div>${ex.sugg?`<button class="n-proposal" onclick="uiSuggestionInfo(${xi})"><span>${esc(uiProposalTitle(ex))}</span><span>${uiProposalValue(ex)}</span>${uiIcon('info')}</button>`:`<p class="n-first-hint">${corp?'Registra lo que completes.':'Primera referencia: elige una carga para tu rango.'}</p>`}<div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="Peso de la serie ${si+1}" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small>${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Objetivo ${r.lo}–${r.hi}</small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?uiButton('Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text'):''}${m.type==='tiempo'?'<p class="n-time-help">Registra los segundos que completaste. Aquí no se usa RIR: cuenta repeticiones, no segundos de reserva.</p>':`<div class="n-rir"><span>¿Cuántas repeticiones más podías hacer?</span><button onclick="uiRIR(${xi},${si})">${st.rir!==''&&st.rir!==undefined?`${esc(st.rir)} en reserva`:'Opcional'}</button></div>`}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status">Aplicar propuesta sustituye el peso y ${m.type==='tiempo'?'los segundos':'las reps'} del borrador. Registrar confirma la serie y abre el descanso.</span></div>`;
+  work=`<div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):''}</div>${ex.sugg?uiSetProposal(xi,!!prev):`<p class="n-first-hint">${corp?'Registra lo que completes.':'Elige una carga para tu rango.'}</p>`}<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="Peso de la serie ${si+1}" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small>${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Rango <span>${r.lo}–${r.hi}</span></small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?`<div class="n-time-tools">${uiButton('Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text')}<span class="n-time-help">Por tiempo: no se usa RIR.</span></div>`:`<div class="n-rir"><span>Reps en reserva</span><button aria-label="Repeticiones en reserva: ${st.rir!==''&&st.rir!==undefined?esc(st.rir):'sin anotar'}" onclick="uiRIR(${xi},${si})">${st.rir!==''&&st.rir!==undefined?`${Number(st.rir)>=5?'5+':esc(st.rir)}`:'Opcional'}${uiIcon('chevron')}</button></div>`}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status"></span></div>`;
  }
  const logged=ex.sets.map((st,i)=>st.done?`<button class="n-set-chip" onclick="uiEditSet(${xi},${i})" aria-label="Editar serie ${i+1}: ${uiSetDisplay(ex.key,st)}"><span>${i+1}</span>${uiSetDisplay(ex.key,st)}${uiIcon('check')}</button>`:'').join('');
- return `<div class="n-focus">${title}${m.notes?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(m.notes)}">${uiIcon('pin')}<span><small>Tu nota · ajuste del equipo</small><strong>${esc(m.notes)}</strong></span>${uiIcon('edit')}</button>`:''}${!resting&&!complete&&!preparing?uiWarmupPrompt(xi):''}${work}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
-}
-function uiWarmupPrompt(xi){
- const ex=db.active.exercises[xi];
- if(ex.sets.some(st=>st.done))return '';
- const skipped=ex.warmup?.phase==='skipped';
- return `<button class="n-warmup-prompt is-done" onclick="showWarmup(${xi})">${uiIcon('check')}<span><b>${skipped?'Directo a tus series':'Calentamiento completado'}</b><small>${skipped?esc(ex.warmup.plan.note):'Tu carga de trabajo te espera.'}</small></span>${uiIcon('info')}</button>`;
+ return `<div class="n-focus">${title}${m.notes&&!resting&&!complete?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(m.notes)}">${uiIcon('pin')}<span><small>Tu nota</small><strong>${esc(m.notes)}</strong></span>${uiIcon('edit')}</button>`:''}${work}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
 }
 function uiWarmup(xi){
  const ex=db.active.exercises[xi],w=ensureWarmup(xi),key=ex.key;
@@ -813,7 +819,7 @@ function uiRemoveSet(xi,si){const ex=db.active.exercises[xi];ex.sets.splice(si,1
 function uiEditSets(xi){const ex=db.active.exercises[xi];openModal(`<h2>Series del ejercicio</h2>${ex.sets.map((st,i)=>uiRow(`Serie ${i+1}`,uiSetDisplay(ex.key,st),uiAction('uiEditSet',xi,i),'edit')).join('')}${uiButton('Añadir serie',uiAction('uiAddSet',xi),'plus','secondary')}${uiButton('Listo','closeModal()','check','text')}`);}
 function uiSessionOptions(xi){
  const ex=db.active.exercises[xi];
- openModal(`<h2>${esc(exBaseName(ex.name))}</h2>${ex.sugg?uiRow('Entender la propuesta','Qué cambia y por qué',uiAction('uiSuggestionInfo',xi),'spark'):''}${uiRow('Calentamiento','Preparar antes de cargar',`closeModal();showWarmup(${xi})`,'barbell')}${!warmupRequired(xi)?uiRow('Series','Editar, añadir o quitar',uiAction('uiEditSets',xi),'list'):''}${uiRow('Notas','Asiento, agarre y recordatorios',`closeModal();editExNotes(${xi})`,'edit')}${uiRow('Equipo y objetivos','Ajustes de este ejercicio',`closeModal();openExFromSession(${xi},'equipment')`,'settings')}${uiRow('Quitar ejercicio de la sesión','',`closeModal();removeSessionEx(${xi})`,'trash')}${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
+ openModal(`<h2>${esc(exBaseName(ex.name))}</h2>${ex.sugg?uiRow('Entender la propuesta','Qué cambia y por qué',uiAction('uiSuggestionInfo',xi),'spark'):''}${uiRow('Calentamiento',ex.warmupDone?'Completado · ver detalle':ex.warmup?.phase==='skipped'?'Ver criterio de preparación':'Preparar antes de cargar',`closeModal();showWarmup(${xi})`,'barbell')}${!warmupRequired(xi)?uiRow('Series','Editar, añadir o quitar',uiAction('uiEditSets',xi),'list'):''}${uiRow('Notas','Asiento, agarre y recordatorios',`closeModal();editExNotes(${xi})`,'edit')}${uiRow('Equipo y objetivos','Ajustes de este ejercicio',`closeModal();openExFromSession(${xi},'equipment')`,'settings')}${uiRow('Quitar ejercicio de la sesión','',`closeModal();removeSessionEx(${xi})`,'trash')}${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
 }
 
 /* Exercise information is split by the decision being made. */

@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.3.0">
+<link rel="stylesheet" href="ui.css?v=3.3.1">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,7 +664,7 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.3.0"></script>
+<script src="ui.js?v=3.3.1"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -684,7 +684,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.3.0';
+const APP_VERSION = '3.3.1';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -2894,18 +2894,18 @@ function showLoad(xi){
       'Dime cómo se carga este ejercicio en su ficha (tócalo desde la rutina) y aquí te enseño cómo montarlo.');
     return;
   }
-  const title = esc(exBaseName(ex.name));
+  const title = esc(exBaseName(ex.name)), differs = uiLoadDiffers(key,p);
 
   if(p.kind === 'placas'){
     openModal(`
-      <h2>Placa ${p.stack.index}${stackExtraLabel(p.stack)} · ${fmtStackNum(p.stack.value)} ${p.stack.unit}</h2>
+      <h2>Placa ${p.stack.index} · ${fmtStackNum(p.stack.value)} ${p.stack.unit}</h2>
       <p class="muted">${title} · serie de trabajo</p>
       <div style="display:flex;justify-content:center;margin:6px 0 4px">${stackSVG(p.stack.index, p.stack.plates||Math.max(p.stack.index + 4, 14), { h:190 })}</div>
       <div class="hint">Cuenta ${p.stack.index} placa${p.stack.index === 1 ? '' : 's'} desde arriba.
         ${p.stack.extra > 0 ? `Y pon el ajuste fino (los discos, la palanca o el pin extra) en <b>+${fmtStackNum(p.stack.extra)} ${p.stack.unit}</b>.` : ''}
         La torre empieza en ${fmtStackNum(p.stack.start)} y sube de
         ${fmtNum(p.stack.step)} en ${fmtNum(p.stack.step)} ${p.stack.unit}.
-        ${p.exact ? '' : `El objetivo era ${fmtWEx(key, p.target)} ${uLabelEx(key)}; esta es la placa más cercana.`}</div>
+        ${!differs ? '' : `El objetivo era ${fmtWEx(key, p.target)} ${uLabelEx(key)}; esta es la placa más cercana.`}</div>
       <button class="btn" style="margin-top:18px" onclick="closeModal()">Listo</button>
       <button class="btn ghost" onclick="closeModal(); openExFromSession(${xi},'equipment')">Ajustar la torre</button>`);
     return;
@@ -2918,7 +2918,7 @@ function showLoad(xi){
       <div class="hint">${ p.points === 2
         ? `Una mancuerna de <b>${fmtW(p.dumbbell)}</b> en cada mano. En la app anotas el <b>total de las dos</b>: ${fmtW(p.total)} ${uLabel()}.`
         : `Una sola mancuerna de <b>${fmtW(p.dumbbell)} ${uLabel()}</b>.` }
-        ${p.exact ? '' : ` El salto exacto pedía ${fmtW(p.target)} ${uLabel()}, pero con las mancuernas de tu gimnasio no se puede armar.`}</div>
+        ${!differs ? '' : ` El salto exacto pedía ${fmtW(p.target)} ${uLabel()}, pero con las mancuernas de tu gimnasio no se puede armar.`}</div>
       <button class="btn" style="margin-top:18px" onclick="closeModal()">Listo</button>
       <button class="btn ghost" onclick="closeModal(); go({name:'gym', kind:'dumbbells'})">Editar mancuernas</button>`);
     return;
@@ -2946,7 +2946,7 @@ function showLoad(xi){
       `<div class="line"><div class="l-t">Sin discos</div><div class="l-v">${p.kind === 'barra' ? 'solo la barra' : 'aparato vacío'}</div></div>`}</div>
     <div class="hint">${cuenta} = <b>${fmtW(p.total)} ${uLabel()}</b>.
       ${ p.base > 0 ? `En la app anotas <b>solo los discos</b> (${fmtW(p.total - p.base)} ${uLabel()}): ${p.kind === 'barra' ? 'la barra' : 'el aparato'} se suma sol${p.kind === 'barra' ? 'a' : 'o'} y tu historial guarda el total real.` : '' }
-      ${p.exact ? '' : `El objetivo era ${fmtW(p.target)} ${uLabel()}; esto es lo más cercano que puedes armar.`}</div>
+      ${!differs ? '' : `El objetivo era ${fmtW(p.target)} ${uLabel()}; esto es lo más cercano que puedes armar.`}</div>
     <button class="btn" style="margin-top:18px" onclick="closeModal()">Listo</button>
     ${ p.kind === 'barra' ? `<button class="btn ghost" onclick="closeModal(); pickBar('${uiInlineKey(key)}')">Cambiar de barra</button>` : '' }`);
 }

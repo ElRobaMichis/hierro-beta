@@ -2821,7 +2821,7 @@ setVal(0,0,'r','8');db.settings.rest='auto';uiLogSet(0,0);
 chk(warmEx.sets[0].done&&db.active.uiRest&&restUntil>warmClock,'registrar trabajo mantiene su descanso habitual');
 chk(collectEntries(db.active)[0].loadContext===warmupLoadContext(warmEx.key),'el historial confirmado conserva el contexto para comparar cargas equivalentes');
 uiSelectExercise(1);db.active.exercises[1].sets[0].w='40';
-chk(warmupPlan(1).reason==='prepared'&&!warmupRequired(1)&&uiSession().includes('Directo a tus series'),'trabajo confirmado del mismo músculo permite el acceso directo en rango moderado');
+chk(warmupPlan(1).reason==='prepared'&&!warmupRequired(1)&&uiSession().includes('Registrar serie'),'trabajo confirmado del mismo músculo permite el acceso directo en rango moderado');
 uiSelectExercise(2);db.active.exercises[2].sets[0].w='40';
 chk(warmupRequired(2)&&warmupPlan(2).first,'un grupo diferente prepara desde su primer escalón');
 Object.assign(exMeta('warm-b'),{lo:4,hi:6});chk(warmupPlan(1).steps.length===2,'otro ejercicio de fuerza conserva dos aproximaciones aunque su músculo tenga trabajo');
@@ -2904,6 +2904,22 @@ save();db=normalize(JSON.parse(localStorage.getItem(LS_KEY)));tickRest();chk(war
 beep=originalWarmBeep;wg=ensureWarmup(0);uiWarmupNext(0,wg.id,wg.completed);
 chk(uiSession().includes('Medir esta serie')&&!uiSession().includes('Iniciar 10 segundos'),'al completar la preparación aparece el temporizador normal del ejercicio');
 Date.now=warmRealNow;uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
+
+suite('3.3.1 — avisos de carga según la precisión real del equipo');
+resetDB();db.gym=defaultGym('kg');
+const visualTower='visual-tower';
+Object.assign(exMeta(visualTower),{equip:'placas',stack:{unit:'lb',start:2.5,step:5,extra:1.5,extraMax:3},cap:250*.45359237});
+let visualPlan=loadPlan(visualTower,toKgEx(visualTower,65.5));
+chk(!uiLoadDiffers(visualTower,visualPlan),'65,5 lb disponibles no disparan un aviso por su conversión a kg');
+chk(!uiLoadDiffers(visualTower,loadPlan(visualTower,visualPlan.total)),'el peso canónico guardado tampoco genera una diferencia ficticia');
+chk(uiLoadDiffers(visualTower,loadPlan(visualTower,toKgEx(visualTower,65))),'65 lb frente a 65,5 lb disponibles sí se explica como carga cercana');
+exMeta(visualTower).stack={unit:'lb',start:.625,step:5,extra:.625,extraMax:1.25};
+visualPlan=loadPlan(visualTower,toKgEx(visualTower,65.625));
+chk(!uiLoadDiffers(visualTower,visualPlan)&&!uiLoadDiffers(visualTower,loadPlan(visualTower,visualPlan.total)),'los ajustes finos de tres decimales conservan su valor de etiqueta');
+chk(uiProposalValue({key:visualTower,sugg:{w:toKgEx(visualTower,65.625),reps:6}}).includes('65,625 lb'),'la propuesta visible respeta los tres decimales del ajuste fino');
+exMeta('visual-bar').equip='barra';
+chk(uiLoadDiffers('visual-bar',loadPlan('visual-bar',142)),'una diferencia física en los discos sigue siendo visible');
+chk(!uiLoadDiffers('visual-bar',loadPlan('visual-bar',140)),'una barra que se puede montar exactamente no muestra aviso');
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));

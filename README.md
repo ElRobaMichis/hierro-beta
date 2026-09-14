@@ -8,6 +8,8 @@ Los planes y el historial se guardan en tu dispositivo. Puedes restaurar un resp
 
 Desde la versión 3.3.0, los ejercicios que requieren calentamiento empiezan con una preparación guiada y descansos de 30 segundos, ampliables a un minuto. Al terminar aparecen las series de trabajo. Consulta los [criterios y funcionamiento del calentamiento](docs/warmups.md).
 
+La versión 3.3.1 simplifica la pantalla de series y mantiene los dibujos de carga en «Ver montaje». El [análisis de la interfaz](docs/session-review.md) recoge los problemas observados, las decisiones y la verificación visual.
+
 ## Desarrollo
 
 El código de la aplicación está en la raíz. No requiere instalar dependencias de npm. Usa Node.js 24 para las comprobaciones:
