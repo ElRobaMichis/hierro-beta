@@ -18,7 +18,7 @@ export default {
     const origin=request.headers.get('Origin'),allowed=(env.ALLOWED_ORIGINS||'https://elrobamichis.github.io').split(',').map(s=>s.trim());
     const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Vary':'Origin','Content-Security-Policy':"default-src 'none'"};
     if(origin&&allowed.includes(origin))Object.assign(headers,{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'GET, POST, PUT, DELETE, OPTIONS','Access-Control-Allow-Headers':'Authorization, Content-Type, If-Match, If-None-Match','Access-Control-Expose-Headers':'ETag, Retry-After','Access-Control-Max-Age':'600'});
-    const reply=(status,body='',extra={})=>new Response(body,{status,headers:{...headers,...extra}});
+    const reply=(status,body=null,extra={})=>new Response(body,{status,headers:{...headers,...extra}});
     if(origin&&!allowed.includes(origin))return reply(403);
     if(request.method==='OPTIONS')return reply(204);
     const url=new URL(request.url);
