@@ -1,4 +1,4 @@
-# Notificaciones de entrenamiento · 3.5.0
+# Notificaciones de entrenamiento · 3.5.1
 
 Hierro conserva su frontend en GitHub Pages. El Worker existente programa los avisos en Durable Objects con almacenamiento SQLite y alarmas, disponibles en Cloudflare Free. El navegador no necesita permanecer abierto ni la computadora encendida.
 
@@ -36,7 +36,7 @@ Las solicitudes llevan una secuencia por dispositivo, y los cambios de responsab
 
 ## Verificación
 
-`npm run test:push` verifica cifrado con un receptor independiente, firma VAPID, validación de endpoints, cálculo de cargas y calentamientos, programación, cambios sin conexión, cancelación durante cifrado, transferencia, orden de solicitudes, alarmas reales de workerd y comportamiento del service worker. El workflow también conserva las pruebas del motor, sincronización, instalación y actualización offline.
+`npm run test:push` verifica cifrado con un receptor independiente, firma VAPID, validación de endpoints, cálculo de cargas y calentamientos, programación, cambios sin conexión, cancelación durante cifrado, recuperación tras arrancar sin conexión, transferencia, orden de solicitudes, alarmas reales de workerd y comportamiento del service worker. El workflow también conserva las pruebas del motor, sincronización, instalación y actualización offline.
 
 La revisión visual usó datos sintéticos aislados a 375 y 1265 px, con temas claro y oscuro. Se comprobó el cambio del modo privado y el acceso desde Tú. No se modificaron datos personales.
 

@@ -1,6 +1,6 @@
 /* Optional device notifications. Saving a workout never waits for a push request. */
 let pushPrefs={enabled:false,rest:true,idle:true,details:true,seq:0},pushReady=false,pushRegistered=false,pushSub=null,pushReg=null,pushConfig=null;
-let pushTimer=null,pushRunning=false,pushDirty=false,pushFingerprint='',pushMessage='',pushRetry=0,pushEnabling=false,pushCanceling=false;
+let pushTimer=null,pushRunning=false,pushDirty=false,pushFingerprint='',pushMessage='',pushRetry=0,pushEnabling=false,pushCanceling=false,pushRestoring=false;
 function pushSupported(){return typeof Notification!=='undefined'&&typeof PushManager!=='undefined'&&!!navigator.serviceWorker&&!!crypto?.subtle;}
 function pushSavePrefs(){localStorage.setItem(LS_KEY+'.push',JSON.stringify(pushPrefs));}
 function pushActive(){return pushPrefs.enabled&&pushRegistered&&typeof Notification!=='undefined'&&Notification.permission==='granted'&&pushPrefs.vault===hierroSync?.keys?.id;}
@@ -64,7 +64,7 @@ async function pushAPI(action,input,keepalive=false){
   return r.json();
 }
 async function pushRegistration(){
-  if(!pushReg)pushReg=await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Abre de nuevo Hierro cuando termine de instalar su actualización.')),8000))]);
+  if(!pushReg){let timer;try{pushReg=await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Abre de nuevo Hierro cuando termine de instalar su actualización.')),8000);})]);}finally{clearTimeout(timer);}}
   return pushReg;
 }
 async function pushGetConfig(){
@@ -160,21 +160,35 @@ function pushOpen(data){
   if(xi>=0&&exDone(db.active.exercises[sessionOpenIdx()])&&(!db.active.restUntil||db.active.restUntil<Date.now())){db.active.open=xi;uiResetRest();save();}
   go({name:'session'});
 }
+async function pushRestoreSubscription(){
+  if(pushRestoring||pushEnabling||pushCanceling||!pushPrefs.enabled||!pushSupported()||!hierroSync?.keys||pushPrefs.vault!==hierroSync.keys.id)return;
+  pushRestoring=true;
+  try{
+    if(navigator.onLine===false)throw new Error('Sin conexión. Recuperaremos los avisos cuando vuelva internet.');
+    if(Notification.permission!=='granted')throw new Error('Revisa el permiso y vuelve a activar los avisos en este dispositivo.');
+    const reg=await pushRegistration();pushSub=await reg.pushManager.getSubscription();
+    if(!pushSub)throw new Error('Desactiva y vuelve a activar los avisos para renovar el permiso de este dispositivo.');
+    const result=await pushAPI('register',{endpoint:pushSub.endpoint});
+    if(!pushPrefs.enabled)return;
+    pushPrefs.seq=Math.max(pushPrefs.seq||0,result.seq||0);pushSavePrefs();pushRegistered=true;pushRetry=0;pushStatus('Avisos activos en este dispositivo.');
+  }catch(e){pushStatus(e.message);pushRetry=Date.now()+60000;}
+  finally{pushRestoring=false;}
+}
 async function pushInit(){
   try{
     const saved=JSON.parse(localStorage.getItem(LS_KEY+'.push')||'null');if(saved)pushPrefs={...pushPrefs,...saved};
     pushReady=true;
+    // Register recovery listeners before any request: starting offline must not
+    // strand the subscription until a manual reload.
+    window.addEventListener('online',async()=>{pushFingerprint='';if(pushPrefs.enabled&&!pushRegistered)await pushRestoreSubscription();pushChanged(true);});
+    document.addEventListener('visibilitychange',()=>pushChanged(true));
+    setInterval(async()=>{if(pushRetry&&Date.now()>=pushRetry){if(pushPrefs.enabled&&!pushRegistered)await pushRestoreSubscription();pushChanged(true);}},15000);
     navigator.serviceWorker?.addEventListener('message',e=>{if(e.data?.tipo==='hierro-push-open')pushOpen(e.data.data);});
     const hash=location.hash.match(/^#aviso=(.+)$/);if(hash){history.replaceState(null,'',location.pathname+location.search);try{pushOpen(JSON.parse(decodeURIComponent(hash[1])));}catch{}}
     if(pushSupported()){
-      pushReg=await pushRegistration();pushSub=await pushReg.pushManager.getSubscription();
-      if(pushPrefs.enabled&&Notification.permission==='granted'&&pushSub&&hierroSync?.keys&&pushPrefs.vault===hierroSync.keys.id){const result=await pushAPI('register',{endpoint:pushSub.endpoint});pushPrefs.seq=Math.max(pushPrefs.seq||0,result.seq||0);pushSavePrefs();pushRegistered=true;pushStatus('Avisos activos en este dispositivo.');}
-      else if(pushPrefs.enabled)pushStatus('Revisa el permiso y vuelve a activar los avisos en este dispositivo.');
+      if(pushPrefs.enabled)await pushRestoreSubscription();
       void pushGetConfig().catch(()=>{});
     }
-    window.addEventListener('online',()=>{pushFingerprint='';pushChanged(true);});
-    document.addEventListener('visibilitychange',()=>pushChanged(true));
-    setInterval(()=>{if(pushRetry&&Date.now()>=pushRetry)pushChanged(true);},15000);
     pushChanged();
   }catch(e){pushStatus(e.message);}
 }

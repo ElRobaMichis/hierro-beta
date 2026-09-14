@@ -68,6 +68,21 @@ const run=s=>vm.runInContext(s,context);let count=0;const ok=(v,m)=>{assert.ok(v
  run('pushPrefs.enabled=false;pushChanged(true)');releaseEncryption();
  for(let i=0;i<30&&run('pushRunning');i++)await new Promise(r=>setTimeout(r,10));
  ok(requests.length===beforeCancel&&!states.at(-1).state.enabled,'desactivar durante el cifrado impide que salga un plan nuevo');
+ const events={};context.HierroPushCore=P;context.PushManager=class{};context.setInterval=()=>1;
+ context.addEventListener=(name,fn)=>events[name]=fn;context.navigator.serviceWorker.addEventListener=()=>{};
+ const registration={active:context.navigator.serviceWorker.controller,pushManager:{getSubscription:async()=>({endpoint:'https://web.push.apple.com/qa',toJSON:()=>context.subscription})}};
+ context.navigator.serviceWorker.ready=Promise.resolve(registration);
+ context.fetch=async(url,options={})=>{
+  if(!context.navigator.onLine)throw Error('Offline');
+  if(!options.body)return new Response(JSON.stringify({publicKey:'public'}));
+  requests.push({url,input:JSON.parse(options.body)});return new Response(JSON.stringify({accepted:true,seq:0}));
+ };
+ run('pushPrefs.enabled=true;pushSavePrefs();pushRegistered=false;pushReg=null;pushSub=null;navigator.onLine=false;clearTimeout(pushTimer)');
+ await run('pushInit()');
+ ok(typeof events.online==='function'&&!run('pushRegistered'),'un arranque offline conserva el listener que reactivará los avisos');
+ context.navigator.onLine=true;await events.online();
+ for(let i=0;i<30&&run('pushRunning');i++)await new Promise(r=>setTimeout(r,10));
+ ok(run('pushRegistered')&&requests.some(r=>r.url.endsWith('/push/register')),'al recuperar internet renueva la suscripción sin recargar la app');
  run('clearTimeout(pushTimer)');
  console.log(`PRUEBAS ADAPTADOR PUSH OK (${count})`);
 })().catch(e=>{console.error(e);run('clearTimeout(pushTimer)');process.exitCode=1;});
