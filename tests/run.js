@@ -981,15 +981,17 @@ chk(cabe(1, 12, 104), 'también con el pin en la primera placa');
 /* el pin se dibuja dentro de la placa que toca */
 function pinEnPlaca(sel, total, h){
   const svg = stackSVG(sel, total, { h });
-  const rects = [...svg.matchAll(/<rect x="18" y="([\d.]+)" width="\d+" height="([\d.]+)"/g)]
+  const rects = [...svg.matchAll(/<rect data-plate="\d+" x="[\d.]+" y="([\d.]+)" width="\d+" height="([\d.]+)"/g)]
     .map(m => [+m[1], +m[1] + +m[2]]);
-  const cy = +/circle cx="\d+" cy="([\d.]+)"/.exec(svg)[1];
+  const cy = +/circle data-pin="true" cx="\d+" cy="([\d.]+)"/.exec(svg)[1];
   const i = rects.findIndex(([a, b]) => cy >= a && cy <= b);
   return i + 1;
 }
 chk(pinEnPlaca(4, 12, 104) === 4, 'el pin cae en la placa 4, no en otra');
 chk(pinEnPlaca(1, 12, 104) === 1, 'y en la 1 cuando toca la primera');
 chk(pinEnPlaca(12, 12, 104) === 12, 'y en la última cuando toca el final');
+chk(cabe(50, 50, 106) && pinEnPlaca(50, 50, 106) === 50, 'torre de 50 placas: pin final visible dentro del alto de calentamiento');
+chk(cabe(13, 50, 190) && pinEnPlaca(13, 50, 190) === 13, 'el indicador de placa 13 sigue en su posición real en una torre larga');
 
 suite('Configurar sin parar la sesión');
 resetDB();
@@ -2920,6 +2922,37 @@ chk(uiProposalValue({key:visualTower,sugg:{w:toKgEx(visualTower,65.625),reps:6}}
 exMeta('visual-bar').equip='barra';
 chk(uiLoadDiffers('visual-bar',loadPlan('visual-bar',142)),'una diferencia física en los discos sigue siendo visible');
 chk(!uiLoadDiffers('visual-bar',loadPlan('visual-bar',140)),'una barra que se puede montar exactamente no muestra aviso');
+
+suite('Volumen semanal — una referencia sin semanas futuras ni porcentajes engañosos');
+resetDB();
+function volumeWeekFixture(ago,volume){
+  const start=weekStart(new Date());start.setDate(start.getDate()-ago*7);start.setHours(12);
+  db.history.push({id:'vol-'+ago,date:start.toISOString(),entries:[{key:'banca',name:'Banca',sets:volume?[S(volume/10,10)]:[]}]});
+}
+volumeWeekFixture(5,16000);volumeWeekFixture(3,6000);volumeWeekFixture(2,6000);volumeWeekFixture(1,12000);volumeWeekFixture(0,2000);
+let volumeRef=weeklyVolumeReference(weeklyVolumes(8));
+chk(volumeRef.count===4 && volumeRef.mean===6000,'media de cuatro semanas completas: incluye la semana sin sesiones, excluye la actual y la quinta');
+chk(uiWeekComparison(weeklyVolumes(8).at(-1),volumeRef).includes('33%'),'2000 de 6000 es el 33% del promedio semanal');
+chk(uiWeekComparison({vol:7200,current:true},volumeRef).includes('20%'),'7200 supera el promedio de 6000 en un 20%');
+chk(uiWeekComparison({vol:6000,current:true},volumeRef).includes('alcanzaste'),'alcanzar exactamente el promedio tiene su propio estado');
+chk(uiWeekComparison({vol:5999,current:true},volumeRef).includes('casi el 100%'),'el redondeo no anuncia que se alcanzó un promedio pendiente');
+chk(uiWeekComparison({vol:10,current:true},volumeRef).includes('menos del 1%'),'un volumen positivo pequeño no se presenta como cero');
+db.settings.unit='lb';
+chk(weeklyVolumeReference(weeklyVolumes(8)).mean===6000 && uiWeekComparison({vol:2000,current:true},volumeRef).includes('33%'),'cambiar a libras no altera la media almacenada ni la proporción');
+resetDB();volumeWeekFixture(1,6000);volumeWeekFixture(0,2000);
+volumeRef=weeklyVolumeReference(weeklyVolumes(8));
+chk(volumeRef.count===1 && volumeRef.mean===6000,'un historial corto no se rellena con ceros anteriores a su primer registro');
+resetDB();volumeWeekFixture(0,2000);
+volumeRef=weeklyVolumeReference(weeklyVolumes(8));
+chk(volumeRef.count===0 && volumeRef.mean===null,'la primera semana en curso todavía no tiene referencia');
+chk(uiWeekComparison({vol:2000,current:true},volumeRef).includes('primera semana'),'sin referencia explica cuándo aparecerá, sin inventar un porcentaje');
+resetDB();volumeWeekFixture(20,6000);
+volumeRef=weeklyVolumeReference(weeklyVolumes(8));
+chk(volumeRef.count===4 && volumeRef.mean===0,'una pausa larga conserva las semanas recientes sin actividad');
+chk(!/NaN|Infinity|%/.test(uiWeekComparison({vol:2000,current:true},volumeRef)),'un promedio cero nunca divide entre cero ni anuncia porcentajes infinitos');
+resetDB();
+volumeRef=weeklyVolumeReference(weeklyVolumes(8));
+chk(volumeRef.count===0 && volumeRef.mean===null,'sin historial no hay media numérica');
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));

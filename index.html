@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.3.1">
+<link rel="stylesheet" href="ui.css?v=3.3.2">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,7 +664,7 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.3.1"></script>
+<script src="ui.js?v=3.3.2"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -684,7 +684,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.3.1';
+const APP_VERSION = '3.3.2';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -1749,75 +1749,63 @@ function plateDims(kg){
   for(const [w, d, t] of PLATE_DIMS) if(kg >= w - 0.01) return { d, t };
   return { d:36, t:5 };
 }
-/* la barra de frente: los discos de un lado se espejan en el otro */
-function barbellSVG(perSide, opts){
-  opts = opts || {};
-  const scale = opts.scale || 1, h = opts.h || 116;
-  const W = 340, cx = W/2, cy = h/2, collar = 30 * scale;
-  let out = `<rect x="10" y="${cy - 2.5*scale}" width="${W-20}" height="${5*scale}" rx="${2.5*scale}" fill="#6E727A"/>`;
-  for(const dir of [-1, 1])
-    out += `<rect x="${cx + dir*collar - (dir < 0 ? 5*scale : 0)}" y="${cy - 9*scale}" width="${5*scale}" height="${18*scale}" rx="1.5" fill="#8B8F96"/>`;
-  for(const dir of [-1, 1]){
-    let x = cx + dir*(collar + 3*scale);
+/* Equipment illustrations use their own strokes and materials, independent
+   of the interface icon styles. The numeric instructions remain authoritative. */
+function equipmentSVG(body,w,h,kind){
+  return `<svg class="n-equipment-art n-equipment-${kind}" viewBox="0 0 ${w} ${h}" style="width:${kind==='stack'?w+'px':'100%'};max-width:100%;height:${h}px;display:block;flex:none" aria-hidden="true">${body}</svg>`;
+}
+function equipmentGrip(x,y,w){
+  let lines='';
+  for(let i=3;i<w-3;i+=5)lines+=`M${x+i} ${y-3}l-3 6`;
+  return `<rect x="${x}" y="${y-5}" width="${w}" height="10" rx="3" class="n-eq-metal"/><path d="${lines}" stroke="#40564d" stroke-opacity=".3" stroke-width="1"/><path d="M${x+2} ${y-4}h${w-4}" stroke="#fff" stroke-opacity=".6" stroke-width="1"/>`;
+}
+function equipmentPlateEdge(kg,x,cy,scale){
+  const dm=plateDims(kg),w=dm.t*scale,h=dm.d*scale,round=Math.min(3,w/3);
+  return `<rect x="${x}" y="${cy-h/2}" width="${w}" height="${h}" rx="${round}" class="n-eq-rubber"/><rect x="${x+w*.2}" y="${cy-h/2+2}" width="${Math.max(1,w*.28)}" height="${Math.max(1,h-4)}" rx="1" fill="${plateColor(kg)}"/><path d="M${x+w-1} ${cy-h/2+4}v${Math.max(1,h-8)}" stroke="#fff" stroke-opacity=".18" stroke-width="1"/>`;
+}
+/* Symmetric load; scale the entire set of plates to keep every disc visible. */
+function barbellSVG(perSide,opts={}){
+  const h=opts.h||116,W=340,cy=h/2;
+  const load=perSide.reduce((n,kg)=>n+plateDims(kg).t+3,0);
+  const scale=Math.min(opts.scale||1,(h-18)/96,112/(load+12));
+  let body=`<rect x="12" y="${cy-4}" width="316" height="8" rx="4" class="n-eq-metal"/><path d="M16 ${cy-3}h308" stroke="#fff" stroke-opacity=".65" stroke-width="1"/>${equipmentGrip(133,cy,74)}`;
+  for(const dir of [-1,1]){
+    const collar=170+dir*46;
+    body+=`<rect x="${collar-3}" y="${cy-10}" width="6" height="20" rx="2" class="n-eq-metal-dark"/>`;
+    let x=collar+dir*6;
     for(const kg of perSide){
-      const dm = plateDims(kg);
-      /* a escala pequeña un disco de 1,25 sería un pelo: se le da grosor mínimo visible */
-      const t = Math.max(dm.t*scale, 4), d = dm.d*scale;
-      const px = dir > 0 ? x : x - t;
-      out += `<rect x="${px.toFixed(1)}" y="${(cy - d/2).toFixed(1)}" width="${t.toFixed(1)}" height="${d.toFixed(1)}" rx="${(2.5*scale).toFixed(1)}" fill="${plateColor(kg)}" stroke="rgba(0,0,0,.35)" stroke-width="1"/>`;
-      x += dir*(t + 2*scale);
+      const width=plateDims(kg).t*scale;
+      body+=equipmentPlateEdge(kg,dir>0?x:x-width,cy,scale);
+      x+=dir*(width+3*scale);
     }
-    const cl = dir > 0 ? x : x - 6*scale;
-    out += `<rect x="${cl.toFixed(1)}" y="${(cy - 11*scale).toFixed(1)}" width="${Math.max(6*scale, 4).toFixed(1)}" height="${(22*scale).toFixed(1)}" rx="2" fill="#3E4247"/>`;
+    body+=`<rect x="${dir>0?x:x-6}" y="${cy-12}" width="6" height="24" rx="2" class="n-eq-rubber"/><path d="M${dir>0?x+3:x-3} ${cy-13}v-4h${dir*6}" stroke="var(--green)" stroke-width="3"/>`;
   }
-  return `<svg viewBox="0 0 ${W} ${h}" style="width:100%;height:${h}px;display:block" aria-hidden="true">${out}</svg>`;
+  return equipmentSVG(body,W,h,'bar');
 }
-/* un pitón corto con sus discos: aparatos de un lado y prensas */
-function postSVG(perPost, opts){
-  opts = opts || {};
-  const scale = opts.scale || 1, h = opts.h || 92;
-  const W = 340, cy = h/2;
-  const dims = perPost.map(plateDims);
-  const load = dims.reduce((a, d) => a + Math.max(d.t*scale, 4) + 2*scale, 0);
-  const rod = 8*scale + load + Math.max(6*scale, 4) + 12*scale;
-  const x0 = (W - (13 + rod)) / 2;
-  let out = `<rect x="${x0}" y="${cy-34*scale}" width="13" height="${68*scale}" rx="4" fill="#2A2D31"/>`;
-  out += `<rect x="${x0+13}" y="${cy-2.5*scale}" width="${rod}" height="${5*scale}" rx="${2.5*scale}" fill="#6E727A"/>`;
-  out += `<rect x="${x0+13}" y="${cy-9*scale}" width="${5*scale}" height="${18*scale}" rx="1.5" fill="#8B8F96"/>`;
-  let x = x0 + 13 + 8*scale;
-  perPost.forEach((kg, i) => {
-    const t = Math.max(dims[i].t*scale, 4), d = dims[i].d*scale;
-    out += `<rect x="${x.toFixed(1)}" y="${(cy-d/2).toFixed(1)}" width="${t.toFixed(1)}" height="${d.toFixed(1)}" rx="${(2.5*scale).toFixed(1)}" fill="${plateColor(kg)}" stroke="rgba(0,0,0,.35)"/>`;
-    x += t + 2*scale;
-  });
-  out += `<rect x="${x.toFixed(1)}" y="${(cy-11*scale).toFixed(1)}" width="${Math.max(6*scale,4).toFixed(1)}" height="${(22*scale).toFixed(1)}" rx="2" fill="#3E4247"/>`;
-  return `<svg viewBox="0 0 ${W} ${h}" style="width:100%;height:${h}px;display:block" aria-hidden="true">${out}</svg>`;
+/* A single loading horn, also used for each support on four-point machines. */
+function postSVG(perPost,opts={}){
+  const h=opts.h||92,W=340,cy=h/2,load=perPost.reduce((n,kg)=>n+plateDims(kg).t+3,0);
+  const scale=Math.min(opts.scale||1,(h-18)/96,220/(load+35));
+  const start=(W-(load*scale+62))/2;
+  let body=`<rect x="${start}" y="${cy-29*scale}" width="22" height="${58*scale}" rx="7" class="n-eq-rubber"/><rect x="${start+20}" y="${cy-4}" width="${load*scale+42}" height="8" rx="4" class="n-eq-metal"/><path d="M${start+8} ${cy-20*scale}h6m-6 ${40*scale}h6" stroke="#a8b6ae" stroke-width="3"/>`;
+  let x=start+26;
+  for(const kg of perPost){body+=equipmentPlateEdge(kg,x,cy,scale);x+=(plateDims(kg).t+3)*scale;}
+  body+=`<rect x="${x}" y="${cy-12}" width="6" height="24" rx="2" class="n-eq-rubber"/>`;
+  return equipmentSVG(body,W,h,'post');
 }
-/* la torre de placas con el pin puesto.
-   Las placas se estrechan para que la torre entera quepa en el alto que
-   se pida: si se saliera, se recortaría y el pin parecería estar en otra
-   placa — que es justo lo que hay que evitar. */
-function stackSVG(sel, total, opts){
-  opts = opts || {};
-  const h = opts.h || 150, W = 110;
-  const n = Math.max(total, sel, 1);
-  const gapR = 0.28;
-  const slab = Math.min(9, (h - 12) / (n + gapR * (n - 1)));
-  const gap = slab * gapR;
-  const alto = n*slab + (n-1)*gap;
-  const top = (h - alto) / 2;
-  const pin = Math.max(3, slab * 0.55);
-
-  let out = `<rect x="${W/2-4}" y="${(top-6).toFixed(1)}" width="8" height="${(alto+12).toFixed(1)}" rx="3" fill="#2A2D31"/>`;
-  for(let i = 0; i < n; i++){
-    const y = top + i*(slab+gap), on = i < sel;
-    out += `<rect x="18" y="${y.toFixed(1)}" width="${W-36}" height="${slab.toFixed(1)}" rx="2.5"
-      fill="${on ? '#8B8F96' : '#1B1E22'}" stroke="${on ? 'rgba(0,0,0,.35)' : 'rgba(255,255,255,.07)'}"/>`;
+/* Every plate keeps its real position. A numbered callout makes the chosen
+   pin legible even when a long tower has to fit inside a small illustration. */
+function stackSVG(sel,total,opts={}){
+  const h=opts.h||150,W=220,n=Math.max(total,sel,1),slab=Math.min(10,(h-22)/(n+.28*(n-1))),gap=slab*.28;
+  const height=n*slab+(n-1)*gap,top=(h-height)/2;
+  let body=`<rect x="64" y="${top-7}" width="5" height="${height+14}" rx="2" class="n-eq-metal"/><rect x="130" y="${top-7}" width="5" height="${height+14}" rx="2" class="n-eq-metal"/>`;
+  for(let i=0;i<n;i++){
+    const y=top+i*(slab+gap);
+    body+=`<rect data-plate="${i+1}" x="52" y="${y.toFixed(3)}" width="95" height="${slab.toFixed(3)}" rx="${Math.min(3,slab*.25)}" class="${i+1===sel?'n-eq-selected':i<sel?'n-eq-lifted':'n-eq-idle'}"/>`;
   }
-  const py = top + (sel-1)*(slab+gap) + slab/2;
-  out += `<rect x="${W-22}" y="${(py-pin/2).toFixed(1)}" width="20" height="${pin.toFixed(1)}" rx="${(pin/2).toFixed(1)}" fill="#D7A44B"/>`;
-  out += `<circle cx="${W-4}" cy="${py.toFixed(1)}" r="${Math.max(3, pin*0.8).toFixed(1)}" fill="#D7A44B"/>`;
-  return `<svg viewBox="0 0 ${W} ${h}" style="width:${W}px;height:${h}px;display:block;flex:none" aria-hidden="true">${out}</svg>`;
+  const py=top+(sel-1)*(slab+gap)+slab/2,labelY=Math.max(18,Math.min(h-18,py));
+  body+=`<path d="M108 ${py}h51" stroke="#bb8731" stroke-width="${Math.min(3,slab*.7)}"/><circle data-pin="true" cx="157" cy="${py.toFixed(3)}" r="4" fill="#e6b85a" stroke="#785821" stroke-width="1.5"/><path d="M162 ${py}l8 ${labelY-py}" stroke="var(--green)" stroke-width="1"/><rect x="170" y="${labelY-13}" width="38" height="26" rx="13" class="n-eq-selected"/><text x="189" y="${labelY+4}" text-anchor="middle" class="n-eq-pin-label">${sel}</text>`;
+  return equipmentSVG(body,W,h,'stack');
 }
 /* «25 + 10 + 1,25 kg» */
 function pointTextHTML(perPoint){
@@ -1825,17 +1813,16 @@ function pointTextHTML(perPoint){
     ? perPoint.map(k => `<b>${fmtW(k)}</b>`).join(' + ') + ' ' + uLabel()
     : '<b>sin discos</b>';
 }
-function dumbbellSVG(kg, opts){
-  const h = (opts && opts.h) || 76;
-  const W = 340, cx = W/2, cy = h/2;
-  const v = fromKg(kg);
-  const d = v >= 20 ? 56 : (v >= 12 ? 48 : 40), t = 16;
-  let out = `<rect x="${cx-46}" y="${cy-4}" width="92" height="8" rx="4" fill="#6E727A"/>`;
-  for(const dir of [-1, 1]){
-    out += `<rect x="${dir > 0 ? cx+40 : cx-40-t}" y="${cy-d/2}" width="${t}" height="${d}" rx="4" fill="#8B8F96" stroke="rgba(0,0,0,.35)"/>`;
-    out += `<rect x="${dir > 0 ? cx+40+t+2 : cx-42-t*2}" y="${cy-d/2-5}" width="${t}" height="${d+10}" rx="4" fill="#A2A6AC" stroke="rgba(0,0,0,.35)"/>`;
-  }
-  return `<svg viewBox="0 0 ${W} ${h}" style="width:100%;height:${h}px;display:block" aria-hidden="true">${out}</svg>`;
+function dumbbellSVG(kg,opts={}){
+  const h=opts.h||76,W=340,cy=h/2,r=Math.min(29,(h-16)/2),offset=9;
+  const hex=(cx,dx=0)=>`${cx-r*.7+dx},${cy-r} ${cx+r*.7+dx},${cy-r} ${cx+r+dx},${cy} ${cx+r*.7+dx},${cy+r} ${cx-r*.7+dx},${cy+r} ${cx-r+dx},${cy}`;
+  let body=`<rect x="93" y="${cy-6}" width="154" height="12" rx="6" class="n-eq-metal-dark"/>${equipmentGrip(131,cy,78)}`;
+  for(const cx of [106,234])body+=`<polygon points="${hex(cx,offset)}" class="n-eq-rubber-side"/><polygon points="${hex(cx)}" class="n-eq-rubber"/><polygon points="${hex(cx)}" fill="none" stroke="#b1c0b7" stroke-opacity=".28" stroke-width="1"/><path d="M${cx-r*.55} ${cy-r+4}h${r*1.1}" stroke="#fff" stroke-opacity=".3" stroke-width="1"/><text x="${cx}" y="${cy+4}" text-anchor="middle" class="n-eq-weight">${fmtW(kg)}</text>`;
+  return equipmentSVG(body,W,h,'dumbbell');
+}
+function plateFaceSVG(kg){
+  const handles=kg>=10?'<path d="M11 9q7-6 14 0M9 21q1 8 8 9M27 21q-1 8-8 9" fill="none" stroke="#a6b6ac" stroke-opacity=".65" stroke-width="3"/>':'';
+  return `<svg class="n-equipment-art n-equipment-plate" viewBox="0 0 36 36" style="width:36px;height:36px;flex:none" aria-hidden="true"><circle cx="18" cy="18" r="16" class="n-eq-rubber"/><circle cx="18" cy="18" r="14.5" fill="none" stroke="${plateColor(kg)}" stroke-width="2"/>${handles}<circle cx="18" cy="18" r="5" class="n-eq-metal"/><circle cx="18" cy="18" r="2.7" fill="var(--surface)"/></svg>`;
 }
 /* «20 + 5 + 1,25 kg» */
 function sideTextHTML(perSide){
@@ -1854,7 +1841,7 @@ function plateListHTML(perSide, points){
   return counts.map(c => `
     <div class="line">
       <div class="row grow" style="gap:13px">
-        <i class="plate-dot" style="background:${plateColor(c.kg)}"></i>
+        ${plateFaceSVG(c.kg)}
         <div class="l-t">${fmtW(c.kg)} ${uLabel()}</div>
       </div>
       <div class="l-v">×${c.n} <span style="color:var(--dim)">${sufijo}</span></div>
@@ -3160,6 +3147,17 @@ function weeklyVolumes(n){
     out.push({ start:a, vol, ses, current: i === 0 });
   }
   return out;
+}
+/* A calendar-week reference: include quiet weeks after the first record,
+   never dates before the history began or the still-open current week. */
+function weeklyVolumeReference(weeks){
+  const first = db.history.reduce((earliest,h)=>{
+    const time = new Date(h.date).getTime();
+    return Number.isFinite(time) ? Math.min(earliest,time) : earliest;
+  },Infinity);
+  const start = Number.isFinite(first) ? weekStart(new Date(first)) : null;
+  const sample = start ? weeks.filter(w=>!w.current && w.start>=start).slice(-4) : [];
+  return { count:sample.length, mean:sample.length ? sample.reduce((sum,w)=>sum+w.vol,0)/sample.length : null };
 }
 /* tus levantamientos principales: los que más repites, con su 1RM estimado */
 function topLifts(n){

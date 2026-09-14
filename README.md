@@ -10,6 +10,8 @@ Desde la versión 3.3.0, los ejercicios que requieren calentamiento empiezan con
 
 La versión 3.3.1 simplifica la pantalla de series y mantiene los dibujos de carga en «Ver montaje». El [análisis de la interfaz](docs/session-review.md) recoge los problemas observados, las decisiones y la verificación visual.
 
+La versión 3.3.2 permite explorar el volumen semanal dentro de la gráfica y compararlo con el promedio de hasta cuatro semanas completas anteriores. También renueva los dibujos del equipo, muestra la versión en móvil y mejora el espacio en el diario y en el encabezado de cada día. Consulta los [criterios del promedio y la revisión visual](docs/evolution-review.md).
+
 ## Desarrollo
 
 El código de la aplicación está en la raíz. No requiere instalar dependencias de npm. Usa Node.js 24 para las comprobaciones:
