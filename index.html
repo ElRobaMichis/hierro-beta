@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.2.4">
+<link rel="stylesheet" href="ui.css?v=3.2.5">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,7 +664,7 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.2.4"></script>
+<script src="ui.js?v=3.2.5"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -684,7 +684,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.2.4';
+const APP_VERSION = '3.2.5';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -944,8 +944,13 @@ function pinnedUnit(key){
 function uLabelEx(key){ return exUnit(key); }
 function fromKgEx(key, kg){ return exUnit(key) === 'lb' ? kg / LB_KG : kg; }
 function toKgEx(key, x){ return exUnit(key) === 'lb' ? x * LB_KG : x; }
-function fmtWEx(key, kg){ return fmtNum(fromKgEx(key, kg)); }
-function inputWEx(key, kg){ return String(Math.round(fromKgEx(key, kg) * 100) / 100); }
+function inputWEx(key, kg){
+  const m = exMeta(key), st = m.stack || {};
+  const fine = m.equip === 'placas' && [st.start, st.step, st.extra].some(v => Number.isFinite(Number(v)) && Math.abs(Number(v) * 100 - Math.round(Number(v) * 100)) > 1e-8);
+  const scale = fine ? 1000 : 100;
+  return String(Math.round(fromKgEx(key, kg) * scale) / scale);
+}
+function fmtWEx(key, kg){ return inputWEx(key, kg).replace('.',','); }
 /* valor para atributos value= de inputs (punto decimal, en unidad activa) */
 function inputW(kg){ return String(Math.round(fromKg(kg)*100)/100); }
 function fmtClock(sec){ return `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`; }
@@ -1028,7 +1033,7 @@ function effStep(key, w){
      (el peso final se ancla a la placa exacta más adelante) */
   if(eq === 'placas'){
     const c = stackConf(key);
-    if(c) return (c.extra > 0 ? c.extra : c.step) * stackFactor(c);
+    if(c) return (stackExtraCount(c) > 0 ? c.extra : c.step) * stackFactor(c);
   }
   return roundStep(w);
 }
@@ -1185,26 +1190,49 @@ function barFor(key){
 /* ---------- torre de placas ----------
    Unas suben de 5 en 5 lb y otras de 5 en 5 kg: la unidad es de la
    máquina, no del usuario. */
+function stackCapValue(key){
+  const meta = exMeta(key), cap = parseFloat(meta.cap);
+  if(!Number.isFinite(cap) || cap <= 0)return null;
+  const factor = meta.stack?.unit === 'lb' ? LB_KG : 1;
+  let native = cap / factor;
+  // Old backups rounded kg to three decimals. Recover their displayed lb
+  // value when the discrepancy is only that rounding (200, not 199.999).
+  const cents = Math.round(native * 100) / 100;
+  if(factor !== 1 && Math.abs(cap - Math.round(cap * 1000) / 1000) < 1e-10 && Math.abs(cents * factor - cap) <= 0.000500001)native = cents;
+  return Math.round(native * 1000) / 1000;
+}
 function stackConf(key){
-  const st = exMeta(key).stack || {};
+  const meta = exMeta(key), st = meta.stack || {};
   const step = parseFloat(st.step);
-  if(isNaN(step) || step <= 0) return null;
+  if(!Number.isFinite(step) || step <= 0) return null;
   const start = parseFloat(st.start);
   /* ajuste fino: discos añadidos, palanca o pin giratorio que suman
      peso ENCIMA de la placa elegida (ej. torre de 10 en 10 lb con dos
      discos de 5,5 al costado → puedes sumar 5,5 u 11) */
   const extra = parseFloat(st.extra);
-  const hasExtra = !isNaN(extra) && extra > 0;
+  const hasExtra = Number.isFinite(extra) && extra > 0;
   const exMax = parseFloat(st.extraMax);
+  const unit = st.unit === 'lb' ? 'lb' : 'kg';
   return {
-    unit: st.unit === 'lb' ? 'lb' : 'kg',
+    unit,
     step,
     start: (!isNaN(start) && start > 0) ? start : step,
+    max: stackCapValue(key),
     extra: hasExtra ? extra : 0,
-    extraMax: hasExtra ? ((!isNaN(exMax) && exMax >= extra) ? exMax : extra) : 0,
+    extraMax: hasExtra ? (Number.isFinite(exMax) && exMax >= 0 ? exMax : extra) : 0,
   };
 }
 function stackFactor(conf){ return conf.unit === 'lb' ? LB_KG : 1; }
+function stackExtraCount(conf){return conf.extra > 0 ? Math.floor(conf.extraMax / conf.extra + 1e-9) : 0;}
+function stackLastIndex(conf){return conf.max === null ? Infinity : Math.max(0, Math.ceil((conf.max - conf.start) / conf.step - 1e-9));}
+/* A tower's stored cap is its last main plate. Add only the fine weights that
+   physically exist; other equipment keeps its original total-cap semantics. */
+function equipmentCap(key){
+  const cap = parseFloat(exMeta(key).cap);
+  if(!Number.isFinite(cap) || cap <= 0)return null;
+  const c = effEquip(key) === 'placas' ? stackConf(key) : null;
+  return c ? Math.round((c.max + stackExtraCount(c) * c.extra) * stackFactor(c) * 1000) / 1000 : cap;
+}
 /* peso en kg → la combinación placa + ajuste fino más cercana de esa torre.
    En empate gana la más pesada (sobrecarga), igual que en el resto del equipo. */
 function stackSnap(key, kg){
@@ -1212,28 +1240,33 @@ function stackSnap(key, kg){
   if(!c) return null;
   const f = stackFactor(c);
   const want = kg / f;
-  const nJ = c.extra > 0 ? Math.floor(c.extraMax / c.extra + 1e-9) : 0;
+  const nJ = stackExtraCount(c), last = stackLastIndex(c);
   let best = null;
   for(let j = 0; j <= nJ; j++){
     const add = Math.round(j * c.extra * 1000) / 1000;
-    let i = Math.round((want - add - c.start) / c.step);
-    if(i < 0) i = 0;
-    const value = Math.round((c.start + i * c.step + add) * 1000) / 1000;
-    const d = Math.abs(value - want);
-    if(!best || d < best.d - 1e-9 || (Math.abs(d - best.d) < 1e-9 && value > best.value))
-      best = { d, unit:c.unit, step:c.step, index:i + 1, value, extra:add,
-               kg: Math.round(value * f * 1000) / 1000 };
+    const below = Math.floor((want - add - c.start) / c.step);
+    // The labelled last plate can make a shorter final step (e.g. 247.5 → 250).
+    for(const i of new Set([below, below + 1].map(n => Math.max(0, Math.min(last, n))))){
+      const plateValue = Math.min(c.start + i * c.step, c.max ?? Infinity);
+      const value = Math.round((plateValue + add) * 1000) / 1000;
+      const d = Math.abs(value - want);
+      if(!best || d < best.d - 1e-9 || (Math.abs(d - best.d) < 1e-9 && value > best.value))
+        best = { d, unit:c.unit, step:c.step, start:c.start, index:i + 1, value, extra:add,
+                 plateValue, plates:Number.isFinite(last) ? last + 1 : null,
+                 kg: Math.round(value * f * 1000) / 1000 };
+    }
   }
   delete best.d;
   return best;
 }
 /* «Placa 3 + 5,5» — el sufijo solo cuando hay ajuste fino puesto */
-function stackExtraLabel(sn){ return sn.extra > 0 ? ` + ${fmtNum(sn.extra)}` : ''; }
+function fmtStackNum(value){return (Math.round(value * 1000) / 1000).toString().replace('.',',');}
+function stackExtraLabel(sn){ return sn.extra > 0 ? ` + ${fmtStackNum(sn.extra)}` : ''; }
 /* los primeros escalones, para compararlos con lo que dice la máquina */
 function stackPreview(key, n){
   const c = stackConf(key);
   if(!c) return [];
-  return Array.from({length: n || 7}, (_, i) => Math.round((c.start + i * c.step) * 1000) / 1000);
+  return Array.from({length: Math.min(n || 7, stackLastIndex(c) + 1)}, (_, i) => Math.round(Math.min(c.start + i * c.step, c.max ?? Infinity) * 1000) / 1000);
 }
 
 /* ---------- discos ----------
@@ -1486,7 +1519,7 @@ function computeSuggestion(key){
     }
   } else {
     /* normal: doble progresión reps → peso, modulada por RIR si lo registras */
-    const cap = parseFloat(meta.cap);
+    const cap = equipmentCap(key);
     const hasCap = !isNaN(cap) && cap > 0;
     const atCap = hasCap && w >= cap - 1e-9;
     if(minR >= hi){
@@ -1555,7 +1588,7 @@ function computeSuggestion(key){
     if(sugg.type === 'reps' && flat && minR >= lo){
       nwC = roundToStep(w * (1 + p.inc), step);
       if(nwC - w < step/2) nwC = w + step;
-      const capC = parseFloat(meta.cap);
+      const capC = equipmentCap(key);
       if(!isNaN(capC) && capC > 0 && nwC > capC) nwC = capC;   /* respeta el tope de la máquina */
     }
     if(nwC > w + 1e-9){
@@ -1572,6 +1605,7 @@ function computeSuggestion(key){
   if(p.stall >= 6 && sugg.type !== 'up'){
     sugg.why = `Lleva ${p.stall} sesiones estancado: considera rotarlo por una variante del mismo músculo durante 4–6 semanas — un estímulo nuevo suele reactivar el progreso. ` + sugg.why;
   }
+  if(effEquip(key) === 'placas')fitSuggestion(key, sugg);
   return sugg;
 }
 
@@ -2550,7 +2584,7 @@ function setExStack(key, field, v){
     if(field === 'unit') st.unit = v;
     else {
       const x = parseFloat(v);
-      st[field] = (isNaN(x) || x <= 0) ? null : x;
+      st[field] = (!Number.isFinite(x) || x < 0 || (x === 0 && field !== 'extraMax')) ? null : x;
     }
   });
   if(field === 'unit') render(); else renderStackHint(key);
@@ -2559,11 +2593,19 @@ function setExStack(key, field, v){
 function renderStackHint(key){
   const el = document.getElementById('stackhint');
   if(!el) return;
+  el.innerHTML = stackHintHTML(key);
+}
+function stackHintHTML(key){
   const c = stackConf(key);
-  const u = uLabelEx(key);
-  el.innerHTML = c
-    ? `Así queda la torre: <b>${stackPreview(key, 7).map(fmtNum).join(' · ')} …</b> ${u}.`
-    : 'Escribe de cuánto en cuánto sube y te enseño la torre entera.';
+  if(!c)return 'Escribe la primera placa y el salto para ver la secuencia de la máquina.';
+  if(c.max !== null && c.max < c.start)return 'El peso máximo debe ser igual o mayor que la primera placa.';
+  const extraCount = stackExtraCount(c), extra = extraCount * c.extra;
+  const sequence = stackPreview(key, 7).map(fmtStackNum).join(' · ');
+  return `Placas: <b>${sequence}${stackLastIndex(c) >= 7 ? ' …' : ''}</b> ${c.unit}.`+
+    (c.max !== null ? ` Última placa: <b>${fmtStackNum(c.max)} ${c.unit}</b>.` : '')+
+    (extraCount ? ` Ajuste fino: ${extraCount} ${extraCount === 1 ? 'paso' : 'pasos'} de ${fmtStackNum(c.extra)} ${c.unit}, hasta <b>+${fmtStackNum(extra)} ${c.unit}</b>.` : '')+
+    (c.max !== null ? ` Máximo total: <b>${fmtStackNum(c.max + extra)} ${c.unit}</b>.` : '')+
+    (c.max !== null && Math.abs((c.max - c.start) / c.step - Math.round((c.max - c.start) / c.step)) > 1e-6 ? ' El último salto es menor para llegar a la placa máxima indicada.' : '');
 }
 function setExEquip(key, v){
   withExChange(key, () => {
@@ -2643,8 +2685,10 @@ function setExMuscle(key, val){ exMeta(key).muscle = val; save(); }
 function setExCap(key, val){
   withExChange(key, () => {
     const v = parseFloat(val);
-    exMeta(key).cap = (isNaN(v) || v <= 0) ? null : Math.round(toKgEx(key, v)*1000)/1000;
+    const kg = toKgEx(key, v);
+    exMeta(key).cap = (!Number.isFinite(v) || v <= 0) ? null : effEquip(key) === 'placas' ? kg : Math.round(kg*1000)/1000;
   });
+  renderStackHint(key);
 }
 
 /* ---------- SESIÓN ACTIVA ---------- */
@@ -2797,9 +2841,9 @@ function loadStripHTML(xi){
     return wrap(`
       <div class="load-row">
         <span class="load-l">Pon el pin en</span>
-        <span class="load-v">Placa ${p.stack.index}${stackExtraLabel(p.stack)} · <b>${fmtNum(p.stack.value)} ${p.stack.unit}</b> <span class="chev">›</span></span>
+        <span class="load-v">Placa ${p.stack.index}${stackExtraLabel(p.stack)} · <b>${fmtStackNum(p.stack.value)} ${p.stack.unit}</b> <span class="chev">›</span></span>
       </div>
-      <div class="ui-machine-visual" style="display:flex;justify-content:center;padding:10px 0 2px">${stackSVG(p.stack.index, Math.max(p.stack.index + 4, 12), { h:140 })}</div>`);
+      <div class="ui-machine-visual" style="display:flex;justify-content:center;padding:10px 0 2px">${stackSVG(p.stack.index, p.stack.plates||Math.max(p.stack.index + 4, 12), { h:140 })}</div>`);
   }
   if(p.kind === 'mancuerna'){
     return wrap(`
@@ -2852,12 +2896,12 @@ function showLoad(xi){
 
   if(p.kind === 'placas'){
     openModal(`
-      <h2>Placa ${p.stack.index}${stackExtraLabel(p.stack)} · ${fmtNum(p.stack.value)} ${p.stack.unit}</h2>
+      <h2>Placa ${p.stack.index}${stackExtraLabel(p.stack)} · ${fmtStackNum(p.stack.value)} ${p.stack.unit}</h2>
       <p class="muted">${title} · serie de trabajo</p>
-      <div style="display:flex;justify-content:center;margin:6px 0 4px">${stackSVG(p.stack.index, Math.max(p.stack.index + 4, 14), { h:190 })}</div>
+      <div style="display:flex;justify-content:center;margin:6px 0 4px">${stackSVG(p.stack.index, p.stack.plates||Math.max(p.stack.index + 4, 14), { h:190 })}</div>
       <div class="hint">Cuenta ${p.stack.index} placa${p.stack.index === 1 ? '' : 's'} desde arriba.
-        ${p.stack.extra > 0 ? `Y pon el ajuste fino (los discos, la palanca o el pin extra) en <b>+${fmtNum(p.stack.extra)} ${p.stack.unit}</b>.` : ''}
-        La torre empieza en ${fmtNum(p.stack.value - (p.stack.index-1)*p.stack.step)} y sube de
+        ${p.stack.extra > 0 ? `Y pon el ajuste fino (los discos, la palanca o el pin extra) en <b>+${fmtStackNum(p.stack.extra)} ${p.stack.unit}</b>.` : ''}
+        La torre empieza en ${fmtStackNum(p.stack.start)} y sube de
         ${fmtNum(p.stack.step)} en ${fmtNum(p.stack.step)} ${p.stack.unit}.
         ${p.exact ? '' : `El objetivo era ${fmtWEx(key, p.target)} ${uLabelEx(key)}; esta es la placa más cercana.`}</div>
       <button class="btn" style="margin-top:18px" onclick="closeModal()">Listo</button>
@@ -4878,7 +4922,7 @@ function warmStepHTML(key, label, value, w, work){
   let body = '';
   if(p && p.kind === 'placas'){
     body = `<div style="display:flex;justify-content:center;padding:6px 0 2px">
-        ${stackSVG(p.stack.index, Math.max(p.stack.index + 4, 12), { h:104 })}</div>
+        ${stackSVG(p.stack.index, p.stack.plates||Math.max(p.stack.index + 4, 12), { h:104 })}</div>
       <div class="load-row"><span class="load-l">Pon el pin en</span>
         <span class="load-v">Placa <b>${p.stack.index}</b>${stackExtraLabel(p.stack)}</span></div>`;
   } else if(p && (p.kind === 'barra' || p.kind === 'discos')){

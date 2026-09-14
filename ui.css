@@ -124,6 +124,10 @@ small{color:var(--muted)}
 
 /* Real application shell and compatibility primitives. */
 :root{--void:var(--paper);--surface:var(--white);--surface-2:#eaece2;--well:#e2e7da;--line-2:#c9d0c0;--bone:var(--ink);--ash:#536257;--dim:#687363;--up:var(--green);--hold:#8a5c27;--danger:#a5382b;--blue:var(--green);--blue-light:var(--green);--sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--mono:ui-monospace,SFMono-Regular,Consolas,monospace}
+.toast .go{background:var(--green);color:var(--paper)}
+.n-stack-adjustment{margin-top:24px;padding-top:24px;border-top:1px solid var(--line)}
+.n-stack-adjustment h3{font-size:16px;margin-bottom:8px}
+.n-stack-adjustment>.hint{margin-bottom:16px}
 
 html{color-scheme:light;scroll-padding-top:110px}
 body{background:var(--void);color:var(--bone);font-family:var(--sans);font-size:15px;line-height:1.55;font-stretch:normal}
@@ -951,7 +955,7 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 
 /* One palette for surfaces, forms, charts and the anatomical map. */
-:root{--ui-version:"3.2.4";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
+:root{--ui-version:"3.2.5";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
 :root[data-theme=dark]{color-scheme:dark;--paper:#111b17;--white:#1b2a23;--ink:#ecf2e7;--muted:#acb8a8;--line:#35473b;--green:#c1dfa0;--lime:#d8ef96;--soft:#27382c;--surface-2:#24372b;--well:#2c4031;--line-2:#52664e;--ash:#bcc8b4;--dim:#a4b49e;--hold:#f0c08b;--danger:#ffb2a0;--muscle-zero:#1a2a21;--muscle-low:#405c3d;--muscle-medium:#77945d;--muscle-high:#c1dfa0}
 [data-theme=dark] nav.tabs{background:var(--paper)}
 [data-theme=dark] .n-primary{color:var(--paper)}
