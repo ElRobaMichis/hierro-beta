@@ -57,7 +57,7 @@ function request(file,navigate=false){
  for(const name of ['ui.js','ui.css']){
   const req=request(name);ok((await (await req.response).text())===fs.readFileSync(path.join(root,name),'utf8'),'sin conexión conserva '+name);
  }
- const versioned=[...app.matchAll(/(?:href|src)="(ui\.(?:css|js)\?v=[^"]+)"/g)].map(m=>m[1]);
+ const versioned=beta?[...workerSource.matchAll(/'\.\/(ui\.(?:css|js)\?v=[^']+)'/g)].map(m=>m[1]):[...app.matchAll(/(?:href|src)="(ui\.(?:css|js)\?v=[^"]+)"/g)].map(m=>m[1]);
  ok(versioned.length===2&&versioned.every(p=>p.endsWith('?v='+app.match(/const APP_VERSION = '([^']+)'/)[1])),'el documento identifica la misma versión de CSS, JS y motor');
  for(const asset of versioned){const req=request(asset);ok((await(await req.response).text())===fs.readFileSync(path.join(root,asset.split('?')[0]),'utf8'),'sin conexión conserva '+asset);}
  const currentCache=await caches.open(declaredCache);

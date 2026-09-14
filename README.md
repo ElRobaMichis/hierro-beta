@@ -26,7 +26,7 @@ Para probar la distribución exacta que se publica:
 python -m http.server 4174 --directory dist
 ```
 
-La construcción cambia el nombre instalable y los espacios de almacenamiento/caché, conservando el formato de los respaldos y el motor de entrenamiento. La aplicación base mantiene la versión 3.2.2.
+La construcción cambia el nombre instalable y los espacios de almacenamiento/caché, conservando el formato de los respaldos y el motor de entrenamiento. La versión 3.2.3 entrega el motor, la interfaz y los estilos en un mismo documento para evitar bloqueos al abrir o actualizar. Los archivos separados se conservan para la compatibilidad con instalaciones anteriores.
 
 ## Publicación
 

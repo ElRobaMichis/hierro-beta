@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.2.2">
+<link rel="stylesheet" href="ui.css?v=3.2.3">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,7 +664,7 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.2.2"></script>
+<script src="ui.js?v=3.2.3"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -684,7 +684,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.2.2';
+const APP_VERSION = '3.2.3';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -5522,8 +5522,15 @@ function migrateTypes(){
 /* ---------- arranque ---------- */
 function presentationReady(){
   if(typeof UI_VERSION!=='string'||UI_VERSION!==APP_VERSION)return false;
+  /* Store the CSS version as a string, without depending on the browser's
+     serialization of adjacent numeric tokens. Accept legacy unquoted values. */
   return typeof getComputedStyle==='function'&&document.documentElement
-    ?getComputedStyle(document.documentElement).getPropertyValue('--ui-version').trim()===APP_VERSION:true;
+    ?getComputedStyle(document.documentElement).getPropertyValue('--ui-version').trim().replace(/^(["'])(.*)\1$/,'$2')===APP_VERSION:true;
+}
+function retryStartup(){
+  const url=new URL(location.href);
+  url.searchParams.set('recargar',Date.now().toString(36));
+  location.replace(url.href);
 }
 (function init(){
   const ready=presentationReady();
@@ -5570,7 +5577,11 @@ function presentationReady(){
   if(!ready){
     document.getElementById('topbar').innerHTML='';
     document.getElementById('tabs').innerHTML='';
-    document.getElementById('main').innerHTML='<section class="n-panel" role="status"><h1>Preparando la actualización.</h1><p>Se está renovando la interfaz. Tus planes y tu historial siguen guardados en este dispositivo.</p><p>Si no continúa, comprueba la conexión y vuelve a intentar.</p><button class="btn" onclick="location.reload()">Volver a intentar</button></section>';
+    const recovery='<p>Tus planes y tu historial siguen guardados en este dispositivo.</p><button class="btn" onclick="retryStartup()">Volver a intentar</button>';
+    document.getElementById('main').innerHTML='<section class="n-panel" role="status"><h1>Preparando la actualización.</h1><p>Estamos cargando la interfaz.</p>'+recovery+'</section>';
+    setTimeout(()=>{
+      document.getElementById('main').innerHTML='<section class="n-panel" role="status"><h1>No pudimos cargar la interfaz.</h1><p>Comprueba la conexión y vuelve a intentar.</p>'+recovery+'</section>';
+    },8000);
     return;
   }
   uiApplyAppearance();

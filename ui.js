@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.2.2';
+const UI_VERSION = '3.2.3';
 const UI_ICONS = {
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/>',
  pin:'<path d="M9 3h6l-1 7 4 4v2H6v-2l4-4-1-7zM12 16v5"/>',
