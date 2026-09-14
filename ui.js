@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.2.3';
+const UI_VERSION = '3.2.4';
 const UI_ICONS = {
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/>',
  pin:'<path d="M9 3h6l-1 7 4 4v2H6v-2l4-4-1-7zM12 16v5"/>',
@@ -885,6 +885,17 @@ function uiAfterRender(){
 
 function uiWelcome(){
  const selected=window.__welcomeGoal||'ambas';
- openModal(`<div class="n-welcome-brand">${uiBrand()}</div><span class="n-eyebrow">Bienvenido a tu espacio</span><h2>Tu esfuerzo <br>merece memoria.</h2><p class="muted">Entrena, registra una serie y encuentra tu siguiente paso. Incluso sin conexión.</p><p class="n-eyebrow">¿Qué buscas?</p><div class="n-goals">${Object.entries(GOALS).map(([k,v])=>`<button class="${selected===k?'on':''}" aria-pressed="${selected===k}" onclick="window.__welcomeGoal='${k}';uiWelcome()"><b>${v.label}</b><small>${v.lo}–${v.hi} reps</small></button>`).join('')}</div><p class="hint">Es un punto de partida. Puedes ajustarlo por ejercicio.</p>${uiButton('Crear mi primer día',"uiWelcomeContinue(false)",'plus')}${uiButton('Ya tengo un plan o un respaldo',"uiWelcomeContinue(true)",'download','text')}`);
+ openModal(`<div class="n-welcome-brand">${uiBrand()}</div><span class="n-eyebrow">Bienvenido a tu espacio</span><h2>Tu esfuerzo <br>merece memoria.</h2><p class="muted">Entrena, registra una serie y encuentra tu siguiente paso. Incluso sin conexión.</p><p class="n-eyebrow">¿Qué buscas?</p><div class="n-goals">${Object.entries(GOALS).map(([k,v])=>`<button type="button" data-welcome-goal="${k}" class="${selected===k?'on':''}" aria-pressed="${selected===k}" onclick="uiSelectWelcomeGoal('${k}')"><b>${v.label}</b><small>${v.lo}–${v.hi} reps</small></button>`).join('')}</div><p class="hint">Es un punto de partida. Puedes ajustarlo por ejercicio.</p>${uiButton('Crear mi primer día',"uiWelcomeContinue(false)",'plus')}${uiButton('Ya tengo un plan o un respaldo',"uiWelcomeContinue(true)",'download','text')}`);
+}
+function uiSelectWelcomeGoal(goal){
+ if(!Object.keys(GOALS).includes(goal))return;
+ window.__welcomeGoal=goal;
+ // Keep the dialog mounted: choosing a goal must not replay its entrance,
+ // move focus or reset the user's scroll position.
+ document.querySelectorAll('#modalhost [data-welcome-goal]').forEach(button=>{
+  const selected=button.dataset.welcomeGoal===goal;
+  button.classList.toggle('on',selected);
+  button.setAttribute('aria-pressed',String(selected));
+ });
 }
 function uiWelcomeContinue(importing){db.settings.goal=window.__welcomeGoal||'ambas';save();closeModal();if(importing)go({name:'settings',section:'data'});else promptNewRoutine();}
