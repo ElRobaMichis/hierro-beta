@@ -29,6 +29,10 @@ jobs:
           node tests/run.js
           node tests/offline.js
           node tests/upgrade.js
+      - name: Verify encrypted synchronization and transactional storage
+        run: |
+          npm ci --ignore-scripts
+          npm run test:sync
       - name: Build and verify isolated beta
         run: |
           node scripts/build-beta.js

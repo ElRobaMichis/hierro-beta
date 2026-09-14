@@ -13,6 +13,42 @@ h1{font-size:clamp(34px,4.8vw,64px);letter-spacing:-.05em;line-height:1.04;font-
 h2{font-size:26px;letter-spacing:-.03em;font-weight:620}
 small{color:var(--muted)}
 .n-unused-shell{max-width:1120px;margin:auto;padding:0 42px 60px}
+/* Sync surfaces use the same spacing and focus language as training. */
+.n-sync-grid{align-items:start}
+.n-sync-intro{display:flex;flex-direction:column;gap:22px;min-width:0}
+.n-sync-intro h2{font-size:clamp(29px,4vw,42px);line-height:1.08}
+.n-sync-intro p{font-size:14px}
+.n-sync-devices{display:flex;gap:18px;align-items:center;color:var(--green)}
+.n-sync-devices svg{width:32px;height:32px}
+.n-sync-actions{display:flex;flex-direction:column;gap:12px;margin:16px 0;align-items:stretch}
+.n-sync-actions>button{width:100%;justify-content:space-between;margin:0!important}
+.n-sync-explain{display:flex;flex-direction:column;gap:26px;padding:14px 0}
+.n-sync-explain b{display:block;margin-bottom:7px}
+.n-sync-explain p{font-size:14px}
+.n-sync-state{display:flex;align-items:center;gap:10px;padding:15px;border:1px solid var(--line);border-radius:16px;font-size:14px}
+.n-sync-state i{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none}
+.n-sync-key{width:100%;resize:vertical;min-height:92px;font-family:var(--mono);font-size:15px;line-height:1.5;overflow-wrap:anywhere;word-break:break-all;padding:14px;border-radius:14px;background:var(--well);color:var(--ink);border:1px solid var(--line-2)}
+.n-sync-qr{display:flex;justify-content:center;margin:20px 0}
+.n-sync-qr svg{width:208px;height:208px;max-width:100%;border-radius:10px;stroke:none;shape-rendering:crispEdges;background:white;padding:5px}
+.n-sync-comparison{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}
+.n-sync-comparison section{padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--well)}
+.n-sync-comparison p{font-size:13px;margin-top:8px}
+.n-sync-error{color:var(--danger)!important;font-size:14px;line-height:1.5;margin:14px 0}
+.n-sync-error:empty{display:none}
+.n-sync-conflicts{display:flex;flex-direction:column;gap:24px;margin:24px 0}
+.n-sync-conflicts fieldset{border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}
+.n-sync-conflicts legend{padding:0 5px;font-size:14px;font-weight:650;overflow-wrap:anywhere}
+.n-sync-conflicts label{display:flex;align-items:start;gap:12px;padding:12px 0;cursor:pointer}
+.n-sync-conflicts input{width:20px;height:20px;min-height:20px;flex:none;margin:0;accent-color:var(--green)}
+.n-sync-conflicts label span{min-width:0}
+.n-sync-conflicts small{display:block;margin-top:6px;overflow-wrap:anywhere;font-size:13px;line-height:1.5}
+.n-sync-tab-notice{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:24px;background:var(--paper)}
+.n-sync-tab-notice>.n-panel{max-width:450px;display:flex;flex-direction:column;gap:22px}
+.n-sync-badge{min-height:32px;text-align:left}
+.n-sync-badge[data-status=conflict] i,.n-sync-badge[data-status=error] i{background:var(--danger)}
+.n-sync-badge[data-status=offline] i,.n-sync-badge[data-status=waiting] i{background:var(--hold)}
+[data-sync-review][hidden]{display:none!important}
+@media(max-width:400px){.n-sync-comparison{grid-template-columns:1fr}.n-sync-key{font-size:14px}.n-mobile-brand .n-sync-badge{font-size:9px;letter-spacing:.02em;max-width:52%}}
 .n-unused-top{display:flex;align-items:center;justify-content:space-between;padding:28px 0;border-bottom:1px solid var(--line);gap:20px}
 .n-brand{font-size:28px;letter-spacing:-1.5px;font-weight:850;display:flex;align-items:center;gap:9px}
 .n-brand svg{width:28px;height:28px;stroke-width:2.5}
@@ -955,7 +991,7 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 
 /* One palette for surfaces, forms, charts and the anatomical map. */
-:root{--ui-version:"3.3.2";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
+:root{--ui-version:"3.4.0";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
 :root[data-theme=dark]{color-scheme:dark;--paper:#111b17;--white:#1b2a23;--ink:#ecf2e7;--muted:#acb8a8;--line:#35473b;--green:#c1dfa0;--lime:#d8ef96;--soft:#27382c;--surface-2:#24372b;--well:#2c4031;--line-2:#52664e;--ash:#bcc8b4;--dim:#a4b49e;--hold:#f0c08b;--danger:#ffb2a0;--muscle-zero:#1a2a21;--muscle-low:#405c3d;--muscle-medium:#77945d;--muscle-high:#c1dfa0}
 [data-theme=dark] nav.tabs{background:var(--paper)}
 [data-theme=dark] .n-primary{color:var(--paper)}
@@ -1260,3 +1296,7 @@ svg.n-equipment-art{stroke:none;fill:none;overflow:hidden}
 .n-save-status:empty{display:none}
 .n-proposal-help{font-size:13px;line-height:1.65;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
 @media(max-width:360px){.ui-load-card{padding:13px 12px}.ui-load-number{font-size:19px}.ui-load-detail,.ui-load-nearest{font-size:11px}.ui-load-link{gap:3px}.ui-load-link>span{font-size:10px}.n-set-proposal{padding:9px 10px;gap:8px}.n-set-target>strong{font-size:15px}.n-set-proposal .n-proposal-actions button{padding:8px;font-size:11px}.n-set-proposal .n-proposal-actions svg{width:13px}.n-set-field label{font-size:10px}.n-rir>span,.n-rir>button{font-size:12px}}
+
+/* Explicit margins keep sync cards compact on the phone. */
+.n-sync-grid>.n-sync-intro>h2,.n-sync-grid>.n-sync-intro>p,.n-sync-grid>.n-sync-intro>.n-eyebrow,.n-sync-grid>.n-sync-intro>.n-sync-actions{margin:0}
+.n-sync-grid>.n-sync-intro{gap:20px}

@@ -14,5 +14,6 @@ ok(html.indexOf('<script id="hierro-ui">')<html.indexOf('<script>'),'la interfaz
 const url=new URL('https://elrobamichis.github.io/hierro-beta/');
 const links=[...html.matchAll(/(?:src|href)="([^"<>]+)"/g)].map(m=>m[1]).filter(v=>!/[{}$]/.test(v)&&!v.startsWith('#')&&!/^(?:https?:|blob:|data:)/.test(v));
 for(const link of links){const asset=new URL(link,url);ok(asset.pathname.startsWith('/hierro-beta/')&&fs.existsSync(path.join(root,decodeURIComponent(asset.pathname.slice('/hierro-beta/'.length)))),'recurso relativo disponible: '+link);}
-ok(fs.readdirSync(root).length===10&&!fs.existsSync(path.join(root,'tests'))&&!fs.existsSync(path.join(root,'mockups')),'la web publica solo los diez recursos de la app');
+ok(fs.readdirSync(root).length===14&&!fs.existsSync(path.join(root,'tests'))&&!fs.existsSync(path.join(root,'sync-worker'))&&!fs.existsSync(path.join(root,'mockups')),'la web publica solo los recursos de la app, sin backend ni credenciales');
+for(const name of ['sync-core','sync-engine','qr','sync'])ok(html.match(new RegExp('<script id="hierro-'+name+'">\\n([\\s\\S]*?)\\n</script>'))?.[1]===read(name+'.js'),'incluye de forma atómica '+name);
 console.log(`\nTODOS LOS TESTS BETA OK (${checks})`);

@@ -1,6 +1,8 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.3.2';
+const UI_VERSION = '3.4.0';
 const UI_ICONS = {
+ phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
+ computer:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M9 21h6M12 17v4"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/>',
  pin:'<path d="M9 3h6l-1 7 4 4v2H6v-2l4-4-1-7zM12 16v5"/>',
  home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
@@ -404,13 +406,13 @@ function uiResume(){
 function uiTop(){
  const top=document.getElementById('topbar');top.className='app';top.style.display='';
  if(document.body.dataset)document.body.dataset.view=view.name;
- const local=`<span class="n-local"><i></i>En tu dispositivo</span>`;
+ const local=typeof syncBadge==='function'?syncBadge():`<span class="n-local"><i></i>En tu dispositivo</span>`;
  let h='';
  if(view.name==='session'&&db.active){top.innerHTML=uiSessionHead();return;}
  if(view.name==='home')h=uiTitle(new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'}),'Un rato para ti.  <br>Un paso más fuerte.',uiGymButton());
  else if(view.name==='history')h=uiTitle('Tu esfuerzo, en perspectiva','Cada sesión deja huella.');
  else if(view.name==='settings'){
- const names={session:'Preferencias de sesión',appearance:'Tu apariencia',data:'Tus datos, contigo',help:'Aprender con Hierro',gyms:'Tus lugares'};
+ const names={session:'Preferencias de sesión',appearance:'Tu apariencia',data:'Tus datos, contigo',help:'Aprender con Hierro',gyms:'Tus lugares',sync:'Tu espacio, contigo.'};
   h=view.section?uiBack('Tu espacio',uiGo({name:'settings'}))+uiTitle('A tu manera',names[view.section]||'Tu espacio'):uiTitle('Tu espacio','Hecho a tu manera.');
  } else if(view.name==='splits')h=uiBack('Entrenar',uiGo({name:'home'}))+uiTitle('Organizar entrenamiento','Tu plan, a tu ritmo.');
  else if(view.name==='split'){
@@ -429,7 +431,7 @@ function uiTabs(){
  const active=view.name==='history'||view.from==='history'?'history':['settings','gym'].includes(view.name)?'settings':'home';
  const nav=[['home','barbell','Entrenar'],['history','progress','Evolución'],['settings','user','Tú']].map(([id,ic,label])=>`<button class="${active===id?'on':''}" ${active===id?'aria-current="page"':''} onclick="${uiGo({name:id})}">${uiIcon(ic)}<span>${label}</span></button>`).join('');
  const tabs=document.getElementById('tabs');tabs.setAttribute?.('aria-label','Navegación principal');
- tabs.innerHTML=`<div class="n-nav-inner">${uiBrand()}<div class="n-nav-links">${nav}</div><span class="n-local"><i></i>En tu dispositivo</span></div>`;
+ tabs.innerHTML=`<div class="n-nav-inner">${uiBrand()}<div class="n-nav-links">${nav}</div>${typeof syncBadge==='function'?syncBadge():'<span class="n-local"><i></i>En tu dispositivo</span>'}</div>`;
 }
 function uiWeek(){
  const w=weekStats(),today=new Date();today.setHours(0,0,0,0);
@@ -444,6 +446,8 @@ function uiHome(){
  const sp=activeSplit(),nx=nextDay();let hero='';
  if(db.active){
   hero=`<section class="n-hero"><span class="n-eyebrow">Tu sesión sigue aquí</span><h2>${esc(db.active.routineName)}</h2><p>Retoma la serie en la que te quedaste.</p><span class="n-tag">Guardada en este dispositivo</span>${uiButton('Continuar',uiGo({name:'session'}))}</section>`;
+ }else if(typeof syncForeign!=='undefined'&&syncForeign){
+  hero=syncForeignCard();
  }else if(nx?.routine.exercises.length){
   const r=nx.routine;
   hero=`<section class="n-hero">${uiIcon('barbell')}<span class="n-eyebrow">Tu siguiente entrenamiento</span><h2>${esc(r.name)}</h2><p>${r.exercises.length} ejercicio${r.exercises.length===1?'':'s'} · ${esc(sp.name)}</p><span class="n-tag">Día ${nx.idx+1} de ${nx.total}</span>${uiButton('Empezar',uiAction('startSession',r.id))}</section>`;
@@ -904,13 +908,14 @@ function uiTargets(key){
 /* Three personal task categories, each with its own short page. */
 function uiSettings(){
  const section=view.section;
+ if(section==='sync'&&typeof uiSync==='function')return uiSync();
  if(section==='gyms')return uiGyms();
  if(section==='session')return uiPreferences();
  if(section==='appearance')return uiAppearance();
  if(section==='data')return uiData();
  if(section==='help')return `<div class="n-help-grid">${[['spark','Entender la progresión','Cuándo subir, repetir o descargar','coachInfo()'],['muscle','Repeticiones en reserva','Registrar el esfuerzo con RIR','rirInfo()'],['progress','Tu fuerza estimada','Qué significa el 1RM estimado','e1rmInfo()'],['user','Ejercicios asistidos','Menos ayuda, más trabajo tuyo','asistInfo()'],['shield','Usar sin conexión','Instalación y guardado local','uiOfflineInfo()'],['heart','Apple Salud','Configurar el atajo en iPhone o iPad','healthInfo()']].map(([i,t,s,a])=>`<section class="n-panel">${uiIcon(i)}<h2>${t}</h2><p>${s}</p>${uiButton('Abrir guía',a,'arrow','text')}</section>`).join('')}</div>`;
  const dsb=daysSinceBackup();
- return `<div class="n-you-grid"><aside class="n-app-identity">${uiBrand()}<span class="n-app-version">Hierro ${APP_VERSION}</span><p>Tus lugares, tu entrenamiento y lo que funciona para ti.</p></aside><section>${uiRow('Tu entrenamiento',`${esc(activeSplit()?.name||'Crea tu primer plan')}`,uiGo({name:'splits'}),'chevron',`<span class="n-row-icon">${uiIcon('barbell')}</span>`)}${uiRow('Mis gimnasios',`${esc(db.gym.name)}${db.gyms.length>1?` y ${db.gyms.length-1} más`:''}`,uiGo({name:'settings',section:'gyms'}),'chevron',`<span class="n-row-icon">${uiIcon('gym')}</span>`)}${uiRow('Preferencias de sesión','Objetivo, descanso, unidades y pantalla',uiGo({name:'settings',section:'session'}),'chevron',`<span class="n-row-icon">${uiIcon('settings')}</span>`)}${uiRow('Apariencia','Claro, oscuro y animaciones',uiGo({name:'settings',section:'appearance'}),'chevron',`<span class="n-row-icon">${uiIcon('moon')}</span>`)}${uiRow('Datos y respaldos',dsb===null?'Todavía no has descargado un respaldo':`Último respaldo hace ${dsb} días`,uiGo({name:'settings',section:'data'}),'chevron',`<span class="n-row-icon">${uiIcon('shield')}</span>`)}${uiRow('Aprender con Hierro','Progresión, carga y esfuerzo',uiGo({name:'settings',section:'help'}),'chevron',`<span class="n-row-icon">${uiIcon('book')}</span>`)}</section></div>`;
+ return `<div class="n-you-grid"><aside class="n-app-identity">${uiBrand()}<span class="n-app-version">Hierro ${APP_VERSION}</span><p>Tus lugares, tu entrenamiento y lo que funciona para ti.</p></aside><section>${uiRow('Tu entrenamiento',`${esc(activeSplit()?.name||'Crea tu primer plan')}`,uiGo({name:'splits'}),'chevron',`<span class="n-row-icon">${uiIcon('barbell')}</span>`)}${uiRow('Mis gimnasios',`${esc(db.gym.name)}${db.gyms.length>1?` y ${db.gyms.length-1} más`:''}`,uiGo({name:'settings',section:'gyms'}),'chevron',`<span class="n-row-icon">${uiIcon('gym')}</span>`)}${uiRow('Preferencias de sesión','Objetivo, descanso, unidades y pantalla',uiGo({name:'settings',section:'session'}),'chevron',`<span class="n-row-icon">${uiIcon('settings')}</span>`)}${uiRow('Apariencia','Claro, oscuro y animaciones',uiGo({name:'settings',section:'appearance'}),'chevron',`<span class="n-row-icon">${uiIcon('moon')}</span>`)}${uiRow('Sincronización','Tu espacio en el teléfono y la computadora',uiGo({name:'settings',section:'sync'}),'chevron',`<span class="n-row-icon">${uiIcon('shield')}</span>`)}${uiRow('Datos y respaldos',dsb===null?'Todavía no has descargado un respaldo':`Último respaldo hace ${dsb} días`,uiGo({name:'settings',section:'data'}),'chevron',`<span class="n-row-icon">${uiIcon('shield')}</span>`)}${uiRow('Aprender con Hierro','Progresión, carga y esfuerzo',uiGo({name:'settings',section:'help'}),'chevron',`<span class="n-row-icon">${uiIcon('book')}</span>`)}</section></div>`;
 }
 function uiToggle(label,sub,on,action,disabled=false){return `<div class="line"><div><div class="l-t">${label}</div><div class="l-d">${sub}</div></div><button class="tog ${on?'on':''}" role="switch" aria-checked="${on}" aria-label="${label}" ${disabled?'disabled':''} onclick="${action}"><i></i></button></div>`;}
 function uiPreferences(){
@@ -1027,7 +1032,7 @@ function uiAfterRender(){
 
 function uiWelcome(){
  const selected=window.__welcomeGoal||'ambas';
- openModal(`<div class="n-welcome-brand">${uiBrand()}</div><span class="n-eyebrow">Bienvenido a tu espacio</span><h2>Tu esfuerzo <br>merece memoria.</h2><p class="muted">Entrena, registra una serie y encuentra tu siguiente paso. Incluso sin conexión.</p><p class="n-eyebrow">¿Qué buscas?</p><div class="n-goals">${Object.entries(GOALS).map(([k,v])=>`<button type="button" data-welcome-goal="${k}" class="${selected===k?'on':''}" aria-pressed="${selected===k}" onclick="uiSelectWelcomeGoal('${k}')"><b>${v.label}</b><small>${v.lo}–${v.hi} reps</small></button>`).join('')}</div><p class="hint">Es un punto de partida. Puedes ajustarlo por ejercicio.</p>${uiButton('Crear mi primer día',"uiWelcomeContinue(false)",'plus')}${uiButton('Ya tengo un plan o un respaldo',"uiWelcomeContinue(true)",'download','text')}`);
+ openModal(`<div class="n-welcome-brand">${uiBrand()}</div><span class="n-eyebrow">Bienvenido a tu espacio</span><h2>Tu esfuerzo <br>merece memoria.</h2><p class="muted">Entrena, registra una serie y encuentra tu siguiente paso. Incluso sin conexión.</p><p class="n-eyebrow">¿Qué buscas?</p><div class="n-goals">${Object.entries(GOALS).map(([k,v])=>`<button type="button" data-welcome-goal="${k}" class="${selected===k?'on':''}" aria-pressed="${selected===k}" onclick="uiSelectWelcomeGoal('${k}')"><b>${v.label}</b><small>${v.lo}–${v.hi} reps</small></button>`).join('')}</div><p class="hint">Es un punto de partida. Puedes ajustarlo por ejercicio.</p>${uiButton('Crear mi primer día',"uiWelcomeContinue(false)",'plus')}${uiButton('Ya tengo un plan o un respaldo',"uiWelcomeContinue(true)",'download','text')}${uiButton('Ya tengo una clave de sincronización',"closeModal();go({name:'settings',section:'sync'});uiSyncLink()",'shield','text')}`);
 }
 function uiSelectWelcomeGoal(goal){
  if(!Object.keys(GOALS).includes(goal))return;

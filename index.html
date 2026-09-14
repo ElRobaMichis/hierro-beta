@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.3.2">
+<link rel="stylesheet" href="ui.css?v=3.4.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,7 +664,11 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.3.2"></script>
+<script src="ui.js?v=3.4.0"></script>
+<script src="sync-core.js?v=3.4.0"></script>
+<script src="sync-engine.js?v=3.4.0"></script>
+<script src="qr.js?v=3.4.0"></script>
+<script src="sync.js?v=3.4.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -684,7 +688,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.3.2';
+const APP_VERSION = '3.4.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -892,7 +896,10 @@ function load(){
 }
 function save(){
   try{
+    if(typeof syncBeforeSave==='function'&&!syncBeforeSave())return false;
     localStorage.setItem(LS_KEY, JSON.stringify(db));
+    if(typeof syncSaved==='function')syncSaved();
+    return true;
   }catch(e){
     /* la cuota (~5 MB) equivale a décadas de sesiones, pero si el navegador
        rechaza la escritura que no sea en silencio: sin guardar, todo lo que
@@ -903,6 +910,7 @@ function save(){
         Descarga un respaldo desde Ajustes ahora mismo y libera espacio del sitio; sin espacio,
         lo que registres se pierde al cerrar la app.`);
     }
+    return false;
   }
 }
 function uid(){ return Math.random().toString(36).slice(2,10); }
@@ -3320,14 +3328,14 @@ function viewHistory(){
 }
 
 /* ---------- editar / borrar sesiones ---------- */
-function rebuildProgress(){
+function rebuildProgress(persist=true){
   db.history.sort((a,b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
   db.progress = {};
   for(const h of db.history){
     if(h.deload) continue;   /* las descargas no alimentan la progresión */
     for(const e of h.entries) updateProgress(e.key, e.sets, h.date);
   }
-  save();
+  if(persist)save();
 }
 function deleteSession(id){
   const h = db.history.find(x => x.id === id);
@@ -4019,6 +4027,7 @@ function duplicateRoutine(rid){
 }
 
 function startSession(rid, deload){
+  if(typeof syncForeign!=='undefined'&&syncForeign){syncOfferContinue();return;}
   if(db.active){ go({name:'session'}); return; }
   const r = db.routines.find(x => x.id === rid);
   if(!r) return;
@@ -4837,6 +4846,7 @@ function setScreenOn(v){
   if(v === 'off') releaseWake(); else acquireWake();
 }
 function askWipe(){
+  if(typeof hierroSync!=='undefined'&&hierroSync?.state?.key){syncConfirmWipe();return;}
   confirmModal('¿Borrar todos los datos?', 'Se eliminan rutinas, historial y ajustes de este dispositivo. No se puede deshacer. Tip: descarga antes un respaldo.',
     'Borrar todo', () => {
       localStorage.removeItem(LS_KEY);
@@ -5198,6 +5208,7 @@ function importBackup(file){
       if(d && d.kind === 'split' && d.split && typeof d.split === 'object'){ confirmSplitImport(d); return; }
       if(!d || !Array.isArray(d.routines) || !Array.isArray(d.history)) throw new Error('estructura');
       window.__backup = d;
+      if(typeof hierroSync!=='undefined'&&hierroSync?.state?.key){syncConfirmRestore();return;}
       confirmModal('¿Restaurar este respaldo?',
         `Contiene ${d.routines.length} rutina${d.routines.length===1?'':'s'} y ${d.history.length} sesiones. REEMPLAZA todo lo que hay ahora en este dispositivo.`,
         'Restaurar', applyBackup, true);
@@ -5208,6 +5219,7 @@ function importBackup(file){
   reader.readAsText(file);
 }
 function applyBackup(){
+  if(typeof hierroSync!=='undefined'&&hierroSync?.state?.key){syncConfirmRestore();return;}
   db = normalize(window.__backup);
   window.__backup = null;
   save(); closeModal(); go({name:'home'});
@@ -5521,7 +5533,7 @@ function afterRender(){
 /* el historial anterior a 2.1 no guarda sus récords: se reconstruyen una vez
    recorriendo las sesiones en orden y llevando la mejor marca viva de cada
    ejercicio — una sola pasada, sin volver a mirar atrás en cada sesión */
-function migratePRs(){
+function migratePRs(persist=true){
   if(!db.history.length) return;
   if(db.history.every(h => h.prs !== undefined)) return;
   const best = new Map();
@@ -5552,7 +5564,7 @@ function migratePRs(){
     }
     h.prs = prs;
   }
-  save();
+  if(persist)save();
 }
 function migrateTypes(){
   const traits = new Map();
@@ -5662,6 +5674,7 @@ function retryStartup(){
   render();
   if(!db.settings.goal) uiWelcome();
   if(db.active) go({name:'session'});
+  if(typeof syncInit==='function')syncInit();
 })();
 </script>
 </body>
