@@ -1,7 +1,7 @@
 /* Build the independently installable Pages beta from the tested app source. */
 const fs=require('fs'),path=require('path'),assert=require('assert/strict');
 const root=path.join(__dirname,'..'),out=path.join(root,'dist');
-const assets=['index.html','ui.js','ui.css','sync-core.js','sync-engine.js','sync.js','qr.js','sw.js','manifest.webmanifest','icon.svg','icon-180.png','icon-192.png','icon-512.png','.nojekyll'];
+const assets=['index.html','ui.js','ui.css','sync-core.js','sync-engine.js','sync.js','qr.js','push-core.js','push.js','sw.js','manifest.webmanifest','icon.svg','icon-180.png','icon-192.png','icon-512.png','.nojekyll'];
 fs.mkdirSync(out,{recursive:true});
 for(const file of assets)fs.copyFileSync(path.join(root,file),path.join(out,file));
 function transform(file,fn){const target=path.join(out,file);fs.writeFileSync(target,fn(fs.readFileSync(target,'utf8')));}
@@ -27,7 +27,7 @@ transform('index.html',text=>{
  assert(!/<\/style/i.test(css)&&!/<\/script/i.test(ui),'Inline assets must not close their HTML element');
  text=replaceOnce(text,`<link rel="stylesheet" href="ui.css?v=${version}">`,`<style id="hierro-ui-styles">\n${css}\n</style>`);
  text=replaceOnce(text,`<script src="ui.js?v=${version}"></script>`,`<script id="hierro-ui">\n${ui}\n</script>`);
- for(const name of ['sync-core','sync-engine','qr','sync']){
+ for(const name of ['sync-core','sync-engine','qr','sync','push-core','push']){
   const js=fs.readFileSync(path.join(out,name+'.js'),'utf8');
   assert(!/<\/script/i.test(js),'Inline scripts must not close their HTML element');
   text=replaceOnce(text,`<script src="${name}.js?v=${version}"></script>`,`<script id="hierro-${name}">\n${js}\n</script>`);

@@ -15,19 +15,21 @@
    tardara dos arranques en verse: el primero servía la vieja y dejaba
    la nueva lista para el siguiente. */
 /* va siempre igual que APP_VERSION en index.html — hay un test que lo verifica */
-const CACHE = 'hierro-3.4.0';
+const CACHE = 'hierro-3.5.0';
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 const ASSETS = [
   './',
   './index.html',
   './ui.css',
   './ui.js',
-  './ui.css?v=3.4.0',
-  './ui.js?v=3.4.0',
-  './sync-core.js?v=3.4.0',
-  './sync-engine.js?v=3.4.0',
-  './sync.js?v=3.4.0',
-  './qr.js?v=3.4.0',
+  './ui.css?v=3.5.0',
+  './ui.js?v=3.5.0',
+  './sync-core.js?v=3.5.0',
+  './sync-engine.js?v=3.5.0',
+  './sync.js?v=3.5.0',
+  './qr.js?v=3.5.0',
+  './push-core.js?v=3.5.0',
+  './push.js?v=3.5.0',
   './icon.svg',
   './manifest.webmanifest',
   './icon-180.png',
@@ -38,6 +40,40 @@ const RED_MS = 3000;   /* lo que se espera a la red antes de tirar de copia */
 
 self.addEventListener('message', e => {
   if(e.data?.tipo==='consultar-version')e.source?.postMessage({tipo:'version-disponible',version:CACHE.replace('hierro-','')});
+  if(e.data?.tipo==='hierro-push-state'&&e.source?.url?.startsWith(self.registration.scope))e.waitUntil(pushStore('state',e.data.state));
+});
+
+function pushStore(key,value){
+  return new Promise((resolve,reject)=>{
+    const request=indexedDB.open('hierro-push:'+self.registration.scope,1);
+    request.onupgradeneeded=()=>request.result.createObjectStore('state');
+    request.onerror=()=>reject(request.error);
+    request.onsuccess=()=>{
+      const db=request.result,tx=db.transaction('state',value===undefined?'readonly':'readwrite'),store=tx.objectStore('state');
+      const r=value===undefined?store.get(key):store.put(value,key);
+      tx.oncomplete=()=>{db.close();resolve(r.result);};tx.onerror=()=>{db.close();reject(tx.error);};
+    };
+  });
+}
+self.addEventListener('push',e=>{
+  e.waitUntil((async()=>{
+    let message;try{message=e.data.json();}catch{}
+    const valid=message?.v===1&&typeof message.id==='string'&&message.id.length<=180&&typeof message.body==='string'&&typeof message.title==='string';
+    const state=await pushStore('state').catch(()=>null),seen=await pushStore('seen').catch(()=>[])||[];
+    const stale=!valid||message.expires<Date.now()||(state&&(!state.enabled||(message.kind!=='test'&&(state.session!==message.session||!state.ids?.includes(message.id)))));
+    const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    const visible=windows.some(c=>c.url?.startsWith(self.registration.scope)&&c.visibilityState==='visible');
+    const data=valid?{session:message.session,target:message.target,kind:message.kind}:{};
+    // WebKit requires a visible notification for every push. An in-flight stale
+    // message must never tell someone to perform an obsolete set or load.
+    await self.registration.showNotification(stale?'Tu entrenamiento, actualizado':message.title.slice(0,100),{
+      body:stale?'Este aviso ya pasó. Abre Hierro para ver el estado actual de tu sesión.':message.body.slice(0,500),
+      icon:new URL('icon-192.png',self.registration.scope).href,badge:new URL('icon-192.png',self.registration.scope).href,
+      tag:'hierro-session'+(message?.kind==='test'?'-test':''),renotify:false,silent:stale||visible||seen.includes(message?.id),data,
+      actions:[{action:'open',title:'Abrir mi sesión'}]
+    });
+    if(valid)await pushStore('seen',[...seen,message.id].slice(-100)).catch(()=>{});
+  })());
 });
 
 self.addEventListener('install', e => {
@@ -58,8 +94,9 @@ self.addEventListener('notificationclick', e => {
   e.notification.close();
   e.waitUntil(
     clients.matchAll({ type:'window', includeUncontrolled:true }).then(list => {
-      for(const c of list){ if('focus' in c) return c.focus(); }
-      return clients.openWindow('./');
+      const data=e.notification.data;
+      for(const c of list){ if(c.url?.startsWith(self.registration.scope)&&'focus' in c)return c.focus().then(()=>{if(data)c.postMessage({tipo:'hierro-push-open',data});}); }
+      return clients.openWindow(data?'./#aviso='+encodeURIComponent(JSON.stringify(data)):'./');
     })
   );
 });

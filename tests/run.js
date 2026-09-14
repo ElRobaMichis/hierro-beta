@@ -61,7 +61,7 @@ code = code
            'globalThis.updateReady = false; globalThis.updateDismissed = false;')
   /* los const del módulo no se filtran del eval: se exponen a propósito */
   + '\nglobalThis.APP_VERSION = APP_VERSION; globalThis.LS_KEY = LS_KEY;';
-eval(fs.readFileSync(path.join(__dirname, '..', 'sync.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, '..', 'ui.js'), 'utf8') + '\n' + code);
+eval(fs.readFileSync(path.join(__dirname, '..', 'push.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, '..', 'sync.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, '..', 'ui.js'), 'utf8') + '\n' + code);
 window.scrollTo = () => {};
 
 /* ---------- mini-framework ---------- */
@@ -2426,7 +2426,7 @@ function auditActions(label,markup){
 }
 const screens=[['home',uiHome],['splits',uiPlans],['split',uiPlan],['routine',uiRoutine],['session',uiSession],['exercise',uiExercise],['history',uiProgress],['settings',uiSettings],['gym',uiGym]];
 for(const [name,make] of screens){
- const variants=name==='exercise'?['progress','equipment','targets']:name==='history'?['summary','exercises','body','diary']:name==='settings'?['','session','appearance','data','help','gyms','sync']:name==='gym'?['plates','bars','dumbbells','machines']:[''];
+ const variants=name==='exercise'?['progress','equipment','targets']:name==='history'?['summary','exercises','body','diary']:name==='settings'?['','session','appearance','data','help','gyms','sync','notifications']:name==='gym'?['plates','bars','dumbbells','machines']:[''];
  for(const variant of variants){view={name,id:name==='split'?'audit-sp':'audit-day',rid:'audit-day',key:'press audit',exname:'Press auditoría',exTab:variant,progressTab:variant,section:variant,kind:variant||'plates'};auditActions(name+'/'+variant,make());uiTop();auditActions(name+'/cabecera',els.topbar.innerHTML);}
 }
 view={name:'routine',id:'audit-day',sort:true};auditActions('Ordenar y quitar',uiRoutine());

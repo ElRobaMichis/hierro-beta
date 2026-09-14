@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.4.0">
+<link rel="stylesheet" href="ui.css?v=3.5.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,11 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.4.0"></script>
-<script src="sync-core.js?v=3.4.0"></script>
-<script src="sync-engine.js?v=3.4.0"></script>
-<script src="qr.js?v=3.4.0"></script>
-<script src="sync.js?v=3.4.0"></script>
+<script src="ui.js?v=3.5.0"></script>
+<script src="sync-core.js?v=3.5.0"></script>
+<script src="sync-engine.js?v=3.5.0"></script>
+<script src="qr.js?v=3.5.0"></script>
+<script src="sync.js?v=3.5.0"></script>
+<script src="push-core.js?v=3.5.0"></script>
+<script src="push.js?v=3.5.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -688,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.4.0';
+const APP_VERSION = '3.5.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -899,6 +901,7 @@ function save(){
     if(typeof syncBeforeSave==='function'&&!syncBeforeSave())return false;
     localStorage.setItem(LS_KEY, JSON.stringify(db));
     if(typeof syncSaved==='function')syncSaved();
+    if(typeof pushChanged==='function')pushChanged();
     return true;
   }catch(e){
     /* la cuota (~5 MB) equivale a décadas de sesiones, pero si el navegador
@@ -5037,6 +5040,7 @@ function canNotify(){
 }
 /* solo avisa cuando la app NO está a la vista: en pantalla, el sonido/vibración bastan */
 function notify(title, body, tag){
+  if(typeof pushActive==='function'&&pushActive())return;
   if(!canNotify()) return;
   if(typeof document !== 'undefined' && document.visibilityState === 'visible') return;
   try{
@@ -5050,6 +5054,7 @@ function notify(title, body, tag){
   }catch(e){}
 }
 function enableNotifications(){
+  if(typeof pushSettings==='function'){go({name:'settings',section:'notifications'});return;}
   if(typeof Notification === 'undefined'){
     infoModal('No disponible en este navegador',
       'En iPhone, las notificaciones solo funcionan con la app instalada en la pantalla de inicio (Safari → Compartir → Añadir a pantalla de inicio) y iOS 16.4 o más nuevo. Instálala y actívalas desde ahí.');
@@ -5674,7 +5679,7 @@ function retryStartup(){
   render();
   if(!db.settings.goal) uiWelcome();
   if(db.active) go({name:'session'});
-  if(typeof syncInit==='function')syncInit();
+  if(typeof syncInit==='function')syncInit().then(()=>{if(typeof pushInit==='function')pushInit();});
 })();
 </script>
 </body>

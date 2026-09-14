@@ -2,7 +2,8 @@ import {Miniflare,convertV4MiniflareOptions} from 'miniflare';
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import C from '../sync-core.js';
-const mf=new Miniflare(convertV4MiniflareOptions({name:'sync',modules:true,scriptPath:new URL('../sync-worker/worker.mjs',import.meta.url).pathname.replace(/^\/(?=[A-Za-z]:)/,''),compatibilityDate:'2026-09-14',d1Databases:{DB:'sync-test'},bindings:{ALLOWED_ORIGINS:'https://elrobamichis.github.io'}}));
+const modules=['worker','push-delivery','push-scheduler'].map(name=>({type:'ESModule',path:new URL('../sync-worker/'+name+'.mjs',import.meta.url).pathname.replace(/^\/(?=[A-Za-z]:)/,'')}));
+const mf=new Miniflare(convertV4MiniflareOptions({name:'sync',modules,compatibilityDate:'2026-09-14',d1Databases:{DB:'sync-test'},bindings:{ALLOWED_ORIGINS:'https://elrobamichis.github.io'}}));
 let tests=0;
 const ok=(v,m)=>{assert.ok(v,m);tests++;console.log('OK '+m);};
 try{

@@ -57,6 +57,7 @@ function syncApply(doc){
 function syncBadge(){return `<span class="n-local n-sync-badge"><i></i><span data-sync-short>${esc(hierroSync?.state?.key?syncShortStatus():'En tu dispositivo')}</span></span>`;}
 function syncShortStatus(){return {synced:'Sincronizado',working:'Sincronizando',pending:'Cambios pendientes',offline:'Guardado aquí',waiting:'Cambios por recibir',conflict:'Revisar cambios',error:'Revisar sincronización'}[hierroSync?.status]||'En tu dispositivo';}
 function syncNotify(){
+  if(typeof pushChanged==='function')pushChanged();
   if(['offline','error'].includes(hierroSync?.status))syncRetryAt=Date.now()+60000;
   if(hierroSync?.status==='synced')syncRetryAt=0;
   document.querySelectorAll('[data-sync-short]').forEach(el=>el.textContent=syncShortStatus());
@@ -181,6 +182,7 @@ function syncCounts(doc){return `${doc.routines.length} ${doc.routines.length===
 async function uiSyncConfirmLink(mode){
   if(!syncInspection||syncConnecting)return;syncLinkMode=mode;syncConnecting=true;
   try{
+    if(hierroSync.keys&&hierroSync.keys.id!==syncInspection.keys.id&&typeof pushDisconnect==='function')await pushDisconnect();
     const result=await hierroSync.link(syncInspection,mode,syncChoices);
     if(result.conflicts?.length){uiSyncConflictDialog(result.conflicts,true);return;}
     syncInspection=null;syncChoices={};closeModal();go({name:'settings',section:'sync'});syncSchedule(100);
@@ -224,7 +226,7 @@ async function uiSyncClaim(){
 function uiSyncDisconnect(){
   const pending=hierroSync?.status!=='synced';
   confirmModal('¿Desvincular este dispositivo?',`${pending?'Hay cambios pendientes. Sincroniza o descarga un respaldo si quieres llevarlos contigo. ':''}Tus planes e historial se conservan aquí. La copia en la nube y los demás dispositivos siguen vinculados.`, 'Desvincular',async()=>{
-    try{await hierroSync.disconnect();syncForeign=null;closeModal();render();}catch(e){syncUIError(e);}
+    try{if(typeof pushDisconnect==='function')await pushDisconnect();await hierroSync.disconnect();syncForeign=null;closeModal();render();}catch(e){syncUIError(e);}
   });
 }
 function uiSyncCheckpoints(){
@@ -244,6 +246,6 @@ function syncConfirmRestore(){
 }
 function syncConfirmWipe(){
   confirmModal('¿Borrar los datos de este dispositivo?','Primero lo desvincularemos. Tus datos de la nube y de los demás dispositivos se conservan. Descarga un respaldo si tienes cambios pendientes.', 'Desvincular y borrar aquí',async()=>{
-    try{await hierroSync.disconnect();syncForeign=null;localStorage.removeItem(LS_KEY);syncSavedRaw=null;db=load();closeModal();go({name:'home'});}catch(e){syncUIError(e);}
+    try{if(typeof pushDisconnect==='function')await pushDisconnect();await hierroSync.disconnect();syncForeign=null;localStorage.removeItem(LS_KEY);syncSavedRaw=null;db=load();closeModal();go({name:'home'});}catch(e){syncUIError(e);}
   },true);
 }

@@ -991,7 +991,7 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 
 /* One palette for surfaces, forms, charts and the anatomical map. */
-:root{--ui-version:"3.4.0";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
+:root{--ui-version:"3.5.0";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
 :root[data-theme=dark]{color-scheme:dark;--paper:#111b17;--white:#1b2a23;--ink:#ecf2e7;--muted:#acb8a8;--line:#35473b;--green:#c1dfa0;--lime:#d8ef96;--soft:#27382c;--surface-2:#24372b;--well:#2c4031;--line-2:#52664e;--ash:#bcc8b4;--dim:#a4b49e;--hold:#f0c08b;--danger:#ffb2a0;--muscle-zero:#1a2a21;--muscle-low:#405c3d;--muscle-medium:#77945d;--muscle-high:#c1dfa0}
 [data-theme=dark] nav.tabs{background:var(--paper)}
 [data-theme=dark] .n-primary{color:var(--paper)}
@@ -1300,3 +1300,18 @@ svg.n-equipment-art{stroke:none;fill:none;overflow:hidden}
 /* Explicit margins keep sync cards compact on the phone. */
 .n-sync-grid>.n-sync-intro>h2,.n-sync-grid>.n-sync-intro>p,.n-sync-grid>.n-sync-intro>.n-eyebrow,.n-sync-grid>.n-sync-intro>.n-sync-actions{margin:0}
 .n-sync-grid>.n-sync-intro{gap:20px}
+
+/* A lock-screen preview explains the opt-in without another modal. */
+.n-push-intro{display:flex;flex-direction:column;gap:22px;align-self:start}
+.n-push-intro>h2,.n-push-intro>p,.n-push-intro>.n-sync-actions{margin:0}
+.n-push-intro>h2{font-size:clamp(28px,4vw,42px);line-height:1.08;letter-spacing:-.045em}
+.n-push-preview{padding:22px;border-radius:24px;background:var(--surface-2);border:1px solid var(--line);box-shadow:0 10px 32px rgba(0,0,0,.05)}
+.n-push-preview>span{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.12em;color:var(--dim);margin-bottom:14px}
+.n-push-preview>span svg{width:18px;height:18px}.n-push-preview>span small{margin-left:auto;letter-spacing:0}
+.n-push-preview>b{font-size:17px;display:block}.n-push-preview>p{font-size:15px;line-height:1.55;margin:8px 0 14px;overflow-wrap:anywhere}
+.n-push-preview>small{font-size:11px;color:var(--dim);line-height:1.5;display:block}
+.n-push-status{font-size:13px;line-height:1.6;color:var(--ink)}
+.n-push-guide ol{padding-left:21px;font-size:14px;line-height:1.6}.n-push-guide li+li{margin-top:12px}
+.n-push-guide p{font-size:13px;line-height:1.6;color:var(--dim)}
+.n-push-session{margin:18px 0 0;text-align:center;font-size:12px;line-height:1.5;color:var(--dim)}
+@media(max-width:600px){.n-push-intro{gap:18px}.n-push-preview{padding:19px;border-radius:21px}.n-push-grid .n-sync-actions{display:grid;grid-template-columns:1fr;width:100%}.n-push-grid .n-sync-actions>*{width:100%}}

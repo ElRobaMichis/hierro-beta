@@ -47,7 +47,7 @@ function request(file,navigate=false){
  listeners.message({data:{tipo:'consultar-version'},source:{postMessage:m=>workerReply=m}});
  ok(workerReply?.tipo==='version-disponible'&&workerReply.version===app.match(/const APP_VERSION = '([^']+)'/)[1],'el worker comunica la versión instalada, sin pedir una actualización repetida');
  for(const asset of ['./','index.html','ui.css','ui.js','icon.svg','manifest.webmanifest','icon-180.png','icon-192.png','icon-512.png'])ok(await caches.match(asset),'precargado '+asset);
- for(const name of ['sync-core','sync-engine','sync','qr'])ok(await caches.match(name+'.js?v='+version),'sincronización y QR disponibles sin red: '+name);
+ for(const name of ['sync-core','sync-engine','sync','qr','push-core','push'])ok(await caches.match(name+'.js?v='+version),'sincronización y QR disponibles sin red: '+name);
  buckets.set(cachePrefix+'previous',new Map());buckets.set('otra-app',new Map());
  if(beta)buckets.set('hierro-2.0.0',new Map());
  await lifecycle('activate');

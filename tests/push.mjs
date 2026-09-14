@@ -1,0 +1,45 @@
+import assert from 'node:assert/strict';
+import {createECDH,hkdfSync,createDecipheriv,randomBytes} from 'node:crypto';
+import P from '../push-core.js';
+import {endpointOK,vapid,publicKey,validatePlan} from '../sync-worker/push-delivery.mjs';
+let checks=0;const ok=(value,name)=>{assert.ok(value);checks++;console.log('OK '+name);};
+const receiver=createECDH('prime256v1');receiver.generateKeys();const auth=randomBytes(16);
+const sub={endpoint:'https://web.push.apple.com/QaEndpoint',keys:{p256dh:receiver.getPublicKey().toString('base64url'),auth:auth.toString('base64url')}};
+const message={v:1,title:'Descanso listo',body:'Jalón · 65 lb. Placa 13 + ajuste fino 2.5 lb.'};
+const packet=await P.encrypt(sub,message),buf=Buffer.from(packet,'base64url');
+// Independent Node crypto receiver validates the complete RFC 8291 wire format.
+function decrypt(value){
+ const input=Buffer.from(value,'base64url'),salt=input.subarray(0,16),sender=input.subarray(21,86),shared=receiver.computeSecret(sender);
+ assert.equal(input.readUInt32BE(16),4096);assert.equal(input[20],65);
+ const ikm=hkdfSync('sha256',shared,auth,Buffer.concat([Buffer.from('WebPush: info\0'),receiver.getPublicKey(),sender]),32);
+ const key=hkdfSync('sha256',ikm,salt,Buffer.from('Content-Encoding: aes128gcm\0'),16),iv=hkdfSync('sha256',ikm,salt,Buffer.from('Content-Encoding: nonce\0'),12);
+ const dec=createDecipheriv('aes-128-gcm',key,iv);dec.setAuthTag(input.subarray(-16));
+ const plain=Buffer.concat([dec.update(input.subarray(86,-16)),dec.final()]);assert.equal(plain.at(-1),2);return JSON.parse(plain.subarray(0,-1));
+}
+ok(JSON.stringify(decrypt(packet))===JSON.stringify(message),'otro receptor descifra el protocolo Web Push completo');
+ok(!buf.includes(Buffer.from('Jalón'))&&!packet.includes('65 lb'),'el servidor recibe solo el contenido cifrado');
+ok(packet!==await P.encrypt(sub,message),'cada aviso usa claves efímeras y salt aleatorios');
+const corrupt=Buffer.from(buf);corrupt[100]^=1;assert.throws(()=>decrypt(corrupt.toString('base64url')));ok(true,'alterar el aviso invalida la autenticación AES-GCM');
+await assert.rejects(()=>P.encrypt(sub,{body:'x'.repeat(3100)}));ok(true,'rechaza avisos mayores que un registro Web Push');
+for(const endpoint of ['http://web.push.apple.com/a','https://127.0.0.1/a','https://web.push.apple.com.evil.example/a','https://user@web.push.apple.com/a','https://web.push.apple.com:8443/a','https://example.org/a'])ok(!endpointOK(endpoint),'no permite reenvío a '+new URL(endpoint).hostname);
+for(const endpoint of ['https://fcm.googleapis.com/fcm/send/a','https://web.push.apple.com/a','https://updates.push.services.mozilla.com/wpush/v2/a'])ok(endpointOK(endpoint),'admite proveedor '+new URL(endpoint).hostname);
+const signing=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']),jwk=await crypto.subtle.exportKey('jwk',signing.privateKey);
+const header=await vapid(jwk,sub.endpoint),jwt=header.match(/t=([^,]+)/)[1],parts=jwt.split('.'),claims=JSON.parse(Buffer.from(parts[1],'base64url'));
+ok(await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},signing.publicKey,Buffer.from(parts[2],'base64url'),Buffer.from(parts[0]+'.'+parts[1])),'la firma VAPID se verifica con la clave pública');
+ok(claims.aud==='https://web.push.apple.com'&&claims.exp<Date.now()/1000+86400,'VAPID identifica al proveedor y caduca antes de 24 h');
+ok(publicKey(jwk)===header.split('k=')[1]&&!header.includes(jwk.d),'VAPID publica exclusivamente la clave pública');
+const now=1000000,prefs={rest:true,idle:true,details:true},snap={id:'session1',lastSetAt:now,rest:{kind:'rest',at:now+90000,next:{target:'jalon',body:message.body}},next:{target:'jalon',body:message.body}};
+let events=P.schedule(snap,prefs,now);
+ok(events.length===2&&events[0].at===now+90000&&events[1].at===now+300000,'programa descanso y un único recordatorio de cinco minutos');
+const earlier=events[0].id;events=P.schedule({...snap,rest:{...snap.rest,at:now+120000}},prefs,now);
+ok(events[0].id!==earlier&&events[0].at===now+120000,'ampliar descanso reemplaza su identificador y hora');
+events=P.schedule({...snap,rest:{...snap.rest,at:now+300000}},prefs,now);
+ok(events[1].at===now+360000,'un descanso de cinco minutos recibe al menos otro minuto antes del recordatorio');
+ok(P.schedule(null,prefs,now).length===0,'terminar la sesión cancela el plan completo');
+ok(P.schedule(snap,{...prefs,rest:false,idle:false},now).length===0,'se respetan ambos avisos desactivados');
+ok(P.schedule(snap,{...prefs,details:false},now).every(e=>!e.message.body.includes('lb')),'el modo privado omite ejercicio, peso y montaje');
+ok(P.schedule(snap,prefs,now+400000).length===0,'volver tarde no programa recordatorios vencidos');
+const input={session:'session1',seq:1,revision:1,now:Date.now(),events:[{id:'event',at:Date.now()+30000,expires:Date.now()+120000,body:packet}]};
+ok(validatePlan(input).events.length===1,'el servidor valida un mensaje cifrado antes de programarlo');
+assert.throws(()=>validatePlan({...input,events:[{...input.events[0],body:'peso 65 lb'}]}));ok(true,'el servidor rechaza un aviso sin cifrar');
+console.log(`PRUEBAS WEB PUSH OK (${checks})`);
