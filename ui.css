@@ -285,6 +285,10 @@ nav.tabs{position:fixed;z-index:30;top:0;bottom:auto;left:0;right:0;background:v
 .n-plan p{font-size:13px;margin:0 0 26px}
 .n-editor-grid,.n-detail-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:35px;align-items:start}
 .n-editor-grid>*,.n-detail-grid>*{min-width:0}
+.n-panel-stack{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:24px;min-width:0}
+.n-panel-stack>.n-panel{width:100%;margin:0}
+.n-panel-stack>.n-panel>:is(h2,.field):first-child{margin-top:0}
+.n-panel-stack>.n-panel>p:last-child{margin-bottom:0}
 .n-plan-aside h2{margin-top:20px}
 .n-plan-aside p,.n-preparation p{font-size:14px}
 .n-plan-day{display:flex;align-items:center}
@@ -317,7 +321,6 @@ nav.tabs{position:fixed;z-index:30;top:0;bottom:auto;left:0;right:0;background:v
 .n-place-label svg{width:15px;height:15px}
 .n-disclosure{border-top:1px solid var(--line);padding-top:12px;font-size:13px}
 .n-disclosure summary{min-height:44px;cursor:pointer;padding:9px 0}
-.n-notes{margin-top:22px}
 .n-type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .n-type-grid button{padding:14px;border:1px solid var(--line-2);border-radius:15px;font-size:13px;min-height:58px;text-align:left}
 .n-type-grid button.on{background:var(--blue);color:var(--surface);border-color:var(--blue)}
@@ -969,8 +972,12 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 .n-theme-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:26px}
 .n-theme-options button{display:flex;flex-direction:column;align-items:center;gap:14px;border:1px solid var(--line-2);border-radius:18px;padding:20px 8px;font-size:13px}
 .n-theme-options .on{background:var(--well);border-color:var(--green);color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
-.n-preference-panels{display:grid;gap:24px}
 .n-preference-panels h2{font-size:23px}
+.n-preference-panels>.n-panel>.n-row:first-child{padding-top:0;min-height:0}
+.n-cue-actions{margin-top:22px}
+.n-cue-actions>.n-secondary{margin:0}
+.n-cue-actions>.hint{margin:12px 0 0}
+.n-cue-actions>.hint:empty{display:none}
 .n-inline-status{display:flex;align-items:center;gap:12px;padding:16px 18px;margin-bottom:24px;border:1px solid var(--line-2);border-radius:16px;background:var(--well);font-size:14px;color:var(--ink)}
 .n-preference-panels .line>div,.modal .line>div{min-width:0}
 .n-preference-panels .line,.modal .line{align-items:center}
@@ -991,7 +998,7 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 
 /* One palette for surfaces, forms, charts and the anatomical map. */
-:root{--ui-version:"3.6.0";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
+:root{--ui-version:"3.6.1";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
 :root[data-theme=dark]{color-scheme:dark;--paper:#111b17;--white:#1b2a23;--ink:#ecf2e7;--muted:#acb8a8;--line:#35473b;--green:#c1dfa0;--lime:#d8ef96;--soft:#27382c;--surface-2:#24372b;--well:#2c4031;--line-2:#52664e;--ash:#bcc8b4;--dim:#a4b49e;--hold:#f0c08b;--danger:#ffb2a0;--muscle-zero:#1a2a21;--muscle-low:#405c3d;--muscle-medium:#77945d;--muscle-high:#c1dfa0}
 [data-theme=dark] nav.tabs{background:var(--paper)}
 [data-theme=dark] .n-primary{color:var(--paper)}

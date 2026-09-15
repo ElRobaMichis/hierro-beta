@@ -1,0 +1,227 @@
+[
+  {
+    "label": "preferences-1440",
+    "cueGap": 22,
+    "overflow": false,
+    "panelGap": 24,
+    "panels": [
+      {
+        "bottom": 741.984375,
+        "contentInset": 27,
+        "left": 813.40625,
+        "right": 1230.484375,
+        "top": 321.046875,
+        "width": 417.078125
+      },
+      {
+        "bottom": 1043.984375,
+        "contentInset": 27,
+        "left": 813.40625,
+        "right": 1230.484375,
+        "top": 765.984375,
+        "width": 417.078125
+      }
+    ],
+    "viewport": 1440
+  },
+  {
+    "label": "preferences-1024",
+    "cueGap": 22,
+    "overflow": false,
+    "panelGap": 24,
+    "panels": [
+      {
+        "bottom": 745.484375,
+        "contentInset": 27,
+        "left": 596.15625,
+        "right": 966.984375,
+        "top": 305.359375,
+        "width": 370.828125
+      },
+      {
+        "bottom": 1084.671875,
+        "contentInset": 27,
+        "left": 596.15625,
+        "right": 966.984375,
+        "top": 769.484375,
+        "width": 370.828125
+      }
+    ],
+    "viewport": 1024
+  },
+  {
+    "label": "preferences-390",
+    "cueGap": 22,
+    "overflow": false,
+    "panelGap": 24,
+    "panels": [
+      {
+        "bottom": 1262.65625,
+        "contentInset": 23,
+        "left": 22,
+        "right": 353,
+        "top": 830.53125,
+        "width": 331
+      },
+      {
+        "bottom": 1589.28125,
+        "contentInset": 23,
+        "left": 22,
+        "right": 353,
+        "top": 1286.65625,
+        "width": 331
+      }
+    ],
+    "viewport": 390
+  },
+  {
+    "label": "preferences-390-status",
+    "cueGap": 22,
+    "overflow": false,
+    "panelGap": 24,
+    "panels": [
+      {
+        "bottom": 600.03125,
+        "contentInset": 23,
+        "left": 22,
+        "right": 353,
+        "top": 117.53125,
+        "width": 331
+      },
+      {
+        "bottom": 926.65625,
+        "contentInset": 23,
+        "left": 22,
+        "right": 353,
+        "top": 624.03125,
+        "width": 331
+      }
+    ],
+    "viewport": 390
+  },
+  {
+    "label": "preferences-320",
+    "cueGap": 22,
+    "overflow": false,
+    "panelGap": 24,
+    "panels": [
+      {
+        "bottom": 719.734375,
+        "contentInset": 20,
+        "left": 18,
+        "right": 287,
+        "top": 161.328125,
+        "width": 269
+      },
+      {
+        "bottom": 1059.546875,
+        "contentInset": 20,
+        "left": 18,
+        "right": 287,
+        "top": 743.734375,
+        "width": 269
+      }
+    ],
+    "viewport": 320
+  },
+  {
+    "label": "targets-320",
+    "cueGap": null,
+    "overflow": false,
+    "panelGap": 24,
+    "panels": [
+      {
+        "bottom": 1197.4375,
+        "contentInset": 20,
+        "left": 18,
+        "right": 287,
+        "top": 1014.28125,
+        "width": 269
+      },
+      {
+        "bottom": 1628.1875,
+        "contentInset": 20,
+        "left": 18,
+        "right": 287,
+        "top": 1221.4375,
+        "width": 269
+      }
+    ],
+    "viewport": 320
+  },
+  {
+    "label": "targets-390",
+    "cueGap": null,
+    "overflow": false,
+    "panelGap": 24,
+    "panels": [
+      {
+        "bottom": 1196.875,
+        "contentInset": 23,
+        "left": 22,
+        "right": 353,
+        "top": 1026.90625,
+        "width": 331
+      },
+      {
+        "bottom": 1633.625,
+        "contentInset": 23,
+        "left": 22,
+        "right": 353,
+        "top": 1220.875,
+        "width": 331
+      }
+    ],
+    "viewport": 390
+  },
+  {
+    "label": "targets-1024",
+    "cueGap": null,
+    "overflow": false,
+    "panelGap": 24,
+    "panels": [
+      {
+        "bottom": 263.015625,
+        "contentInset": 27,
+        "left": 596.15625,
+        "right": 966.984375,
+        "top": 85.046875,
+        "width": 370.828125
+      },
+      {
+        "bottom": 707.765625,
+        "contentInset": 27,
+        "left": 596.15625,
+        "right": 966.984375,
+        "top": 287.015625,
+        "width": 370.828125
+      }
+    ],
+    "viewport": 1024
+  },
+  {
+    "label": "targets-1440",
+    "cueGap": null,
+    "overflow": false,
+    "panelGap": 24,
+    "panels": [
+      {
+        "bottom": 362.703125,
+        "contentInset": 27,
+        "left": 813.40625,
+        "right": 1230.484375,
+        "top": 184.734375,
+        "width": 417.078125
+      },
+      {
+        "bottom": 807.453125,
+        "contentInset": 27,
+        "left": 813.40625,
+        "right": 1230.484375,
+        "top": 386.703125,
+        "width": 417.078125
+      }
+    ],
+    "viewport": 1440
+  }
+]
