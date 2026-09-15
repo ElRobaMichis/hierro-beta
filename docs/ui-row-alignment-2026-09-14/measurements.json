@@ -1,0 +1,610 @@
+[
+  {
+    "label": "targets-dark-1440",
+    "cards": {
+      "form": {
+        "bottom": 1181.890625,
+        "height": 500.21875,
+        "top": 681.671875,
+        "width": 583.90625,
+        "x": 194.5
+      },
+      "intro": {
+        "bottom": 657.671875,
+        "height": 259.9375,
+        "top": 397.734375,
+        "width": 583.90625,
+        "x": 194.5
+      },
+      "side-bottom": {
+        "bottom": 1181.890625,
+        "height": 500.21875,
+        "top": 681.671875,
+        "width": 417.078125,
+        "x": 813.40625
+      },
+      "side-top": {
+        "bottom": 657.671875,
+        "height": 259.9375,
+        "top": 397.734375,
+        "width": 417.078125,
+        "x": 813.40625
+      }
+    },
+    "columns": "583.906px 417.078px",
+    "cueGap": null,
+    "overflow": false,
+    "width": 1440,
+    "aligned": true
+  },
+  {
+    "label": "targets-dark-1024",
+    "cards": {
+      "form": {
+        "bottom": 1166.203125,
+        "height": 500.21875,
+        "top": 665.984375,
+        "width": 519.15625,
+        "x": 42
+      },
+      "intro": {
+        "bottom": 641.984375,
+        "height": 259.9375,
+        "top": 382.046875,
+        "width": 519.15625,
+        "x": 42
+      },
+      "side-bottom": {
+        "bottom": 1166.203125,
+        "height": 500.21875,
+        "top": 665.984375,
+        "width": 370.828125,
+        "x": 596.15625
+      },
+      "side-top": {
+        "bottom": 641.984375,
+        "height": 259.9375,
+        "top": 382.046875,
+        "width": 370.828125,
+        "x": 596.15625
+      }
+    },
+    "columns": "519.156px 370.828px",
+    "cueGap": null,
+    "overflow": false,
+    "width": 1024,
+    "aligned": true
+  },
+  {
+    "label": "targets-dark-768",
+    "cards": {
+      "form": {
+        "bottom": 1210.234375,
+        "height": 524.21875,
+        "top": 686.015625,
+        "width": 352.90625,
+        "x": 42
+      },
+      "intro": {
+        "bottom": 664.015625,
+        "height": 282.03125,
+        "top": 381.984375,
+        "width": 352.90625,
+        "x": 42
+      },
+      "side-bottom": {
+        "bottom": 1210.234375,
+        "height": 524.21875,
+        "top": 686.015625,
+        "width": 294.09375,
+        "x": 416.90625
+      },
+      "side-top": {
+        "bottom": 664.015625,
+        "height": 282.03125,
+        "top": 381.984375,
+        "width": 294.09375,
+        "x": 416.90625
+      }
+    },
+    "columns": "352.906px 294.094px",
+    "cueGap": null,
+    "overflow": false,
+    "width": 768,
+    "aligned": true
+  },
+  {
+    "label": "targets-dark-701",
+    "cards": {
+      "form": {
+        "bottom": 1210.234375,
+        "height": 524.21875,
+        "top": 686.015625,
+        "width": 316.359375,
+        "x": 42
+      },
+      "intro": {
+        "bottom": 664.015625,
+        "height": 282.03125,
+        "top": 381.984375,
+        "width": 316.359375,
+        "x": 42
+      },
+      "side-bottom": {
+        "bottom": 1210.234375,
+        "height": 524.21875,
+        "top": 686.015625,
+        "width": 263.640625,
+        "x": 380.359375
+      },
+      "side-top": {
+        "bottom": 664.015625,
+        "height": 282.03125,
+        "top": 381.984375,
+        "width": 263.640625,
+        "x": 380.359375
+      }
+    },
+    "columns": "316.359px 263.641px",
+    "cueGap": null,
+    "overflow": false,
+    "width": 701,
+    "aligned": true
+  },
+  {
+    "label": "targets-dark-700",
+    "cards": {
+      "form": {
+        "bottom": 953.8125,
+        "height": 485.53125,
+        "top": 468.28125,
+        "width": 506,
+        "x": 89.5
+      },
+      "intro": {
+        "bottom": 446.28125,
+        "height": 194.78125,
+        "top": 251.5,
+        "width": 506,
+        "x": 89.5
+      },
+      "side-bottom": {
+        "bottom": 1561.34375,
+        "height": 393.5625,
+        "top": 1167.78125,
+        "width": 506,
+        "x": 89.5
+      },
+      "side-top": {
+        "bottom": 1145.78125,
+        "height": 169.96875,
+        "top": 975.8125,
+        "width": 506,
+        "x": 89.5
+      }
+    },
+    "columns": "506px",
+    "cueGap": null,
+    "overflow": false,
+    "width": 700,
+    "aligned": true
+  },
+  {
+    "label": "targets-dark-390",
+    "cards": {
+      "form": {
+        "bottom": 999.90625,
+        "height": 509.53125,
+        "top": 490.375,
+        "width": 331,
+        "x": 22
+      },
+      "intro": {
+        "bottom": 468.375,
+        "height": 216.875,
+        "top": 251.5,
+        "width": 331,
+        "x": 22
+      },
+      "side-bottom": {
+        "bottom": 1626.625,
+        "height": 412.75,
+        "top": 1213.875,
+        "width": 331,
+        "x": 22
+      },
+      "side-top": {
+        "bottom": 1191.875,
+        "height": 169.96875,
+        "top": 1021.90625,
+        "width": 331,
+        "x": 22
+      }
+    },
+    "columns": "331px",
+    "cueGap": null,
+    "overflow": false,
+    "width": 390,
+    "aligned": true
+  },
+  {
+    "label": "targets-dark-320",
+    "cards": {
+      "form": {
+        "bottom": 987.28125,
+        "height": 503.53125,
+        "top": 483.75,
+        "width": 269,
+        "x": 18
+      },
+      "intro": {
+        "bottom": 461.75,
+        "height": 215.734375,
+        "top": 246.015625,
+        "width": 269,
+        "x": 18
+      },
+      "side-bottom": {
+        "bottom": 1621.1875,
+        "height": 406.75,
+        "top": 1214.4375,
+        "width": 269,
+        "x": 18
+      },
+      "side-top": {
+        "bottom": 1192.4375,
+        "height": 183.15625,
+        "top": 1009.28125,
+        "width": 269,
+        "x": 18
+      }
+    },
+    "columns": "269px",
+    "cueGap": null,
+    "overflow": false,
+    "width": 320,
+    "aligned": true
+  },
+  {
+    "label": "preferences-dark-1440",
+    "cards": {
+      "form": {
+        "bottom": 1043.984375,
+        "height": 278,
+        "top": 765.984375,
+        "width": 583.90625,
+        "x": 194.5
+      },
+      "intro": {
+        "bottom": 741.984375,
+        "height": 420.9375,
+        "top": 321.046875,
+        "width": 583.90625,
+        "x": 194.5
+      },
+      "side-bottom": {
+        "bottom": 1043.984375,
+        "height": 278,
+        "top": 765.984375,
+        "width": 417.078125,
+        "x": 813.40625
+      },
+      "side-top": {
+        "bottom": 741.984375,
+        "height": 420.9375,
+        "top": 321.046875,
+        "width": 417.078125,
+        "x": 813.40625
+      }
+    },
+    "columns": "583.906px 417.078px",
+    "cueGap": 22,
+    "overflow": false,
+    "width": 1440,
+    "aligned": true
+  },
+  {
+    "label": "preferences-dark-1440-status",
+    "cards": {
+      "form": {
+        "bottom": 1029.359375,
+        "height": 278,
+        "top": 751.359375,
+        "width": 583.90625,
+        "x": 194.5
+      },
+      "intro": {
+        "bottom": 727.359375,
+        "height": 471.3125,
+        "top": 256.046875,
+        "width": 583.90625,
+        "x": 194.5
+      },
+      "side-bottom": {
+        "bottom": 1029.359375,
+        "height": 278,
+        "top": 751.359375,
+        "width": 417.078125,
+        "x": 813.40625
+      },
+      "side-top": {
+        "bottom": 727.359375,
+        "height": 471.3125,
+        "top": 256.046875,
+        "width": 417.078125,
+        "x": 813.40625
+      }
+    },
+    "columns": "583.906px 417.078px",
+    "cueGap": 22,
+    "overflow": false,
+    "width": 1440,
+    "aligned": true
+  },
+  {
+    "label": "preferences-dark-1024-status",
+    "cards": {
+      "form": {
+        "bottom": 1070.046875,
+        "height": 315.1875,
+        "top": 754.859375,
+        "width": 519.15625,
+        "x": 42
+      },
+      "intro": {
+        "bottom": 730.859375,
+        "height": 490.5,
+        "top": 240.359375,
+        "width": 519.15625,
+        "x": 42
+      },
+      "side-bottom": {
+        "bottom": 1070.046875,
+        "height": 315.1875,
+        "top": 754.859375,
+        "width": 370.828125,
+        "x": 596.15625
+      },
+      "side-top": {
+        "bottom": 730.859375,
+        "height": 490.5,
+        "top": 240.359375,
+        "width": 370.828125,
+        "x": 596.15625
+      }
+    },
+    "columns": "519.156px 370.828px",
+    "cueGap": 22,
+    "overflow": false,
+    "width": 1024,
+    "aligned": true
+  },
+  {
+    "label": "preferences-dark-768-status",
+    "cards": {
+      "form": {
+        "bottom": 1151.984375,
+        "height": 334.375,
+        "top": 817.609375,
+        "width": 352.90625,
+        "x": 42
+      },
+      "intro": {
+        "bottom": 795.609375,
+        "height": 555.3125,
+        "top": 240.296875,
+        "width": 352.90625,
+        "x": 42
+      },
+      "side-bottom": {
+        "bottom": 1151.984375,
+        "height": 334.375,
+        "top": 817.609375,
+        "width": 294.09375,
+        "x": 416.90625
+      },
+      "side-top": {
+        "bottom": 795.609375,
+        "height": 555.3125,
+        "top": 240.296875,
+        "width": 294.09375,
+        "x": 416.90625
+      }
+    },
+    "columns": "352.906px 294.094px",
+    "cueGap": 22,
+    "overflow": false,
+    "width": 768,
+    "aligned": true
+  },
+  {
+    "label": "preferences-dark-701-status",
+    "cards": {
+      "form": {
+        "bottom": 1256.984375,
+        "height": 398.5,
+        "top": 858.484375,
+        "width": 316.359375,
+        "x": 42
+      },
+      "intro": {
+        "bottom": 836.484375,
+        "height": 596.1875,
+        "top": 240.296875,
+        "width": 316.359375,
+        "x": 42
+      },
+      "side-bottom": {
+        "bottom": 1256.984375,
+        "height": 398.5,
+        "top": 858.484375,
+        "width": 263.640625,
+        "x": 380.359375
+      },
+      "side-top": {
+        "bottom": 836.484375,
+        "height": 596.1875,
+        "top": 240.296875,
+        "width": 263.640625,
+        "x": 380.359375
+      }
+    },
+    "columns": "316.359px 263.641px",
+    "cueGap": 22,
+    "overflow": false,
+    "width": 701,
+    "aligned": true
+  },
+  {
+    "label": "preferences-dark-700-status",
+    "cards": {
+      "form": {
+        "bottom": 614.765625,
+        "height": 251.78125,
+        "top": 362.984375,
+        "width": 506,
+        "x": 89.5
+      },
+      "intro": {
+        "bottom": 340.984375,
+        "height": 163.78125,
+        "top": 177.203125,
+        "width": 506,
+        "x": 89.5
+      },
+      "side-bottom": {
+        "bottom": 1331.453125,
+        "height": 266.9375,
+        "top": 1064.515625,
+        "width": 506,
+        "x": 89.5
+      },
+      "side-top": {
+        "bottom": 1042.515625,
+        "height": 405.75,
+        "top": 636.765625,
+        "width": 506,
+        "x": 89.5
+      }
+    },
+    "columns": "506px",
+    "cueGap": 22,
+    "overflow": false,
+    "width": 700,
+    "aligned": true
+  },
+  {
+    "label": "preferences-dark-390-status",
+    "cards": {
+      "form": {
+        "bottom": 718.53125,
+        "height": 289.59375,
+        "top": 428.9375,
+        "width": 331,
+        "x": 22
+      },
+      "intro": {
+        "bottom": 406.9375,
+        "height": 185.875,
+        "top": 221.0625,
+        "width": 331,
+        "x": 22
+      },
+      "side-bottom": {
+        "bottom": 1547.65625,
+        "height": 302.625,
+        "top": 1245.03125,
+        "width": 331,
+        "x": 22
+      },
+      "side-top": {
+        "bottom": 1223.03125,
+        "height": 482.5,
+        "top": 740.53125,
+        "width": 331,
+        "x": 22
+      }
+    },
+    "columns": "331px",
+    "cueGap": 22,
+    "overflow": false,
+    "width": 390,
+    "aligned": true
+  },
+  {
+    "label": "preferences-dark-320-status",
+    "cards": {
+      "form": {
+        "bottom": 762.328125,
+        "height": 345.21875,
+        "top": 417.109375,
+        "width": 269,
+        "x": 18
+      },
+      "intro": {
+        "bottom": 395.109375,
+        "height": 184.734375,
+        "top": 210.375,
+        "width": 269,
+        "x": 18
+      },
+      "side-bottom": {
+        "bottom": 1680.546875,
+        "height": 315.8125,
+        "top": 1364.734375,
+        "width": 269,
+        "x": 18
+      },
+      "side-top": {
+        "bottom": 1342.734375,
+        "height": 558.40625,
+        "top": 784.328125,
+        "width": 269,
+        "x": 18
+      }
+    },
+    "columns": "269px",
+    "cueGap": 22,
+    "overflow": false,
+    "width": 320,
+    "aligned": true
+  },
+  {
+    "label": "preferences-light-1440",
+    "cards": {
+      "form": {
+        "bottom": 1043.984375,
+        "height": 278,
+        "top": 765.984375,
+        "width": 583.90625,
+        "x": 194.5
+      },
+      "intro": {
+        "bottom": 741.984375,
+        "height": 420.9375,
+        "top": 321.046875,
+        "width": 583.90625,
+        "x": 194.5
+      },
+      "side-bottom": {
+        "bottom": 1043.984375,
+        "height": 278,
+        "top": 765.984375,
+        "width": 417.078125,
+        "x": 813.40625
+      },
+      "side-top": {
+        "bottom": 741.984375,
+        "height": 420.9375,
+        "top": 321.046875,
+        "width": 417.078125,
+        "x": 813.40625
+      }
+    },
+    "columns": "583.906px 417.078px",
+    "cueGap": 22,
+    "overflow": false,
+    "width": 1440,
+    "aligned": true
+  }
+]

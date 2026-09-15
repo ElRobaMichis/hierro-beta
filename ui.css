@@ -285,10 +285,21 @@ nav.tabs{position:fixed;z-index:30;top:0;bottom:auto;left:0;right:0;background:v
 .n-plan p{font-size:13px;margin:0 0 26px}
 .n-editor-grid,.n-detail-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:35px;align-items:start}
 .n-editor-grid>*,.n-detail-grid>*{min-width:0}
-.n-panel-stack{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:24px;min-width:0}
-.n-panel-stack>.n-panel{width:100%;margin:0}
-.n-panel-stack>.n-panel>:is(h2,.field):first-child{margin-top:0}
-.n-panel-stack>.n-panel>p:last-child{margin-bottom:0}
+/* Both columns share rows, so a wrapped label or status cannot offset a card. */
+.n-aligned-details{grid-template-areas:'intro side-top' 'form side-bottom';align-items:stretch;row-gap:24px}
+.n-aligned-details>.n-detail-intro{grid-area:intro}
+.n-aligned-details>.n-detail-form{grid-area:form}
+.n-aligned-details>.n-detail-side-top{grid-area:side-top}
+.n-aligned-details>.n-detail-side-bottom{grid-area:side-bottom}
+.n-aligned-details>.n-panel{width:100%;margin:0}
+.n-aligned-details>.n-panel>:is(h2,.field):first-child{margin-top:0}
+.n-aligned-details>.n-panel>p:last-child{margin-bottom:0}
+@media(min-width:701px){
+ .n-detail-intro:has(>.n-goals){display:flex;flex-direction:column}
+ .n-detail-intro>.n-goals{grid-template-columns:1fr;flex:1}
+ .n-detail-intro>.n-goals>button{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;padding:16px 20px;text-align:left}
+ .n-detail-intro>.n-goals small{margin:0}
+}
 .n-plan-aside h2{margin-top:20px}
 .n-plan-aside p,.n-preparation p{font-size:14px}
 .n-plan-day{display:flex;align-items:center}
@@ -637,6 +648,8 @@ nav.tabs{top:auto;bottom:0;border-top:1px solid var(--line);border-bottom:0;padd
 .n-heading>.n-gym{margin:0}
 .n-heading .n-eyebrow{font-size:10px}
 .n-home-grid,.n-plan-grid,.n-editor-grid,.n-detail-grid,.n-you-grid,.n-progress-grid{grid-template-columns:1fr;gap:22px}
+.n-aligned-details{grid-template-areas:'intro' 'form' 'side-top' 'side-bottom'}
+.n-aligned-details>.n-detail-intro{padding:0;border:0;border-radius:0;background:transparent}
 .n-hero{min-height:345px;padding:25px;border-radius:27px}
 .n-hero h2{font-size:59px;margin:24px 0 10px}
 .n-hero p{max-width:85%;font-size:13px}
@@ -972,15 +985,15 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 .n-theme-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:26px}
 .n-theme-options button{display:flex;flex-direction:column;align-items:center;gap:14px;border:1px solid var(--line-2);border-radius:18px;padding:20px 8px;font-size:13px}
 .n-theme-options .on{background:var(--well);border-color:var(--green);color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
-.n-preference-panels h2{font-size:23px}
-.n-preference-panels>.n-panel>.n-row:first-child{padding-top:0;min-height:0}
+.n-preference-panel h2{font-size:23px}
+.n-preference-panel>.n-row:first-child{padding-top:0;min-height:0}
 .n-cue-actions{margin-top:22px}
 .n-cue-actions>.n-secondary{margin:0}
 .n-cue-actions>.hint{margin:12px 0 0}
 .n-cue-actions>.hint:empty{display:none}
 .n-inline-status{display:flex;align-items:center;gap:12px;padding:16px 18px;margin-bottom:24px;border:1px solid var(--line-2);border-radius:16px;background:var(--well);font-size:14px;color:var(--ink)}
-.n-preference-panels .line>div,.modal .line>div{min-width:0}
-.n-preference-panels .line,.modal .line{align-items:center}
+.n-preference-panel .line>div,.modal .line>div{min-width:0}
+.n-preference-panel .line,.modal .line{align-items:center}
 
 /* Motion signals a change of state; the logging fields never loop or bounce. */
 @keyframes hierro-sheet{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:none}}
@@ -998,7 +1011,7 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 
 /* One palette for surfaces, forms, charts and the anatomical map. */
-:root{--ui-version:"3.6.1";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
+:root{--ui-version:"3.6.2";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
 :root[data-theme=dark]{color-scheme:dark;--paper:#111b17;--white:#1b2a23;--ink:#ecf2e7;--muted:#acb8a8;--line:#35473b;--green:#c1dfa0;--lime:#d8ef96;--soft:#27382c;--surface-2:#24372b;--well:#2c4031;--line-2:#52664e;--ash:#bcc8b4;--dim:#a4b49e;--hold:#f0c08b;--danger:#ffb2a0;--muscle-zero:#1a2a21;--muscle-low:#405c3d;--muscle-medium:#77945d;--muscle-high:#c1dfa0}
 [data-theme=dark] nav.tabs{background:var(--paper)}
 [data-theme=dark] .n-primary{color:var(--paper)}
@@ -1025,7 +1038,7 @@ html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *:
 [data-theme=dark] :is(.fin-sub,.fin-sub.up,.fin-ax){color:#d1d5ba}
 [data-theme=dark] :is(input,textarea)::placeholder{color:#96a28f}
 [data-theme=dark] .ui-skip-link{color:var(--paper)}
-@media(max-width:360px){.n-theme-options{gap:8px}.n-theme-options button{font-size:12px}.n-preference-panels h2{font-size:21px}}
+@media(max-width:360px){.n-theme-options{gap:8px}.n-theme-options button{font-size:12px}.n-preference-panel h2{font-size:21px}}
 
 /* Looking ahead: real sets, visible milestones, no session started by browsing. */
 .n-home-with-days{grid-template-areas:'hero week' 'days days'}
