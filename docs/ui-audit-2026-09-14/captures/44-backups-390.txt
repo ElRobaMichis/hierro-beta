@@ -1,0 +1,39 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Tu espacio":
+    - text: Tu espacio
+  - generic: A tu manera
+  - heading "Tus datos, contigo" [level=1]
+- main:
+  - text: En este dispositivo
+  - heading "Tu historia merece una copia." [level=2]:
+    - text: Tu historia merece
+    - text: una copia.
+  - paragraph:
+    - text: 37 sesiones · 29 KB.
+    - text: Aún no has descargado un respaldo.
+  - button "Descargar respaldo":
+    - generic: Descargar respaldo
+  - paragraph: Incluye planes, historial, progreso, gimnasios y sesión en curso.
+  - button "Importar un plan Días y ejercicios de un archivo de Hierro":
+    - generic: Importar un plan
+    - generic: Días y ejercicios de un archivo de Hierro
+  - button "Restaurar respaldo Reemplaza los datos actuales después de confirmar":
+    - generic: Restaurar respaldo
+    - generic: Reemplaza los datos actuales después de confirmar
+  - button "Importar desde Hevy Añade tu historial desde un CSV":
+    - generic: Importar desde Hevy
+    - generic: Añade tu historial desde un CSV
+  - paragraph: "En Hevy: Perfil → Ajustes → Export data. Una importación repetida no duplica sesiones."
+  - button "Borrar todos mis datos":
+    - generic: Borrar todos mis datos
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

@@ -1,0 +1,32 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Tu espacio":
+    - text: Tu espacio
+  - generic: A tu manera
+  - heading "Tu espacio, contigo." [level=1]
+- main:
+  - generic: Tu esfuerzo te acompaña
+  - heading "Un mismo espacio. En todos tus dispositivos." [level=2]:
+    - text: Un mismo espacio.
+    - text: En todos tus dispositivos.
+  - paragraph: Crea tus días con el teclado. Entrena con tu teléfono. Tus planes, gimnasios, notas y sesiones viajan contigo.
+  - button "Crear mi espacio":
+    - generic: Crear mi espacio
+  - button "Ya tengo una clave":
+    - generic: Ya tengo una clave
+  - generic: Funciona sin conexión
+  - paragraph: Guarda aquí y sincroniza al abrir Hierro con internet. Tu computadora puede estar apagada.
+  - generic: Una clave, sin contraseña
+  - paragraph: "Vincula otro dispositivo con tu clave o su QR. Guárdala: quien la tenga puede abrir tu espacio."
+  - generic: Tu información, cifrada
+  - paragraph: Los datos se cifran en el dispositivo antes de enviarse. Sin correo, anuncios ni suscripción.
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

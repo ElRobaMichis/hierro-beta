@@ -1,0 +1,44 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - button "Minimizar":
+    - generic: Minimizar
+  - generic: Full body
+  - text: 0:06
+  - button "Terminar":
+    - generic: Terminar
+  - progressbar "Series confirmadas"
+- main:
+  - text: Ejercicio 01 / 05
+  - heading "Jalón en polea" [level=1]
+  - button "Ver cola de ejercicios":
+  - 'button "Editar tu nota: Asiento en 4. Rodillos ajustados al muslo. Agarre neutro; evita balancearte."':
+    - generic: Tu nota
+    - strong: Asiento en 4. Rodillos ajustados al muslo. Agarre neutro; evita balancearte.
+  - text: Preparación
+  - generic: Antes de tus series
+  - list "Progreso del calentamiento":
+    - generic: "1"
+    - generic: Calentar
+    - generic: "2"
+    - generic: Calentar
+    - generic: Trabajo
+  - text: Calentamiento 1 de 2
+  - heading "Entra en movimiento." [level=2]
+  - strong: "6"
+  - generic: repeticiones
+  - strong: 32,5
+  - generic: lb en total
+  - generic: Pin en la placa 7
+  - paragraph: Acércate a tu carga de trabajo, sin buscar fatiga.
+  - button "Completé este calentamiento":
+    - generic: Completé este calentamiento
+  - paragraph: Después, 30 segundos para respirar.
+  - generic: Tu objetivo de trabajo
+  - text: 65,5 lb totales · 6 reps
+  - button "Ajustar carga de trabajo":
+  - paragraph: La preparación no suma series, volumen ni récords.
+  - button "Ejercicio":
+    - generic: Ejercicio
+  - 'button "Cambiar de gimnasio: SmartFit · Buenavista"':
+    - generic: SmartFit · Buenavista

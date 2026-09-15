@@ -1,0 +1,156 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "skip-link",
+        "nodes": 1
+      }
+    ],
+    "passes": 31,
+    "time": "2026-09-14T23:24:37.275Z",
+    "version": "4.13.0",
+    "view": "history",
+    "violations": []
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 81,
+      "label": "Ver progreso de Curl de bíceps con barra Z",
+      "tag": "BUTTON",
+      "w": 337,
+      "x": 24,
+      "y": 255
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 81,
+      "label": "Ver progreso de Extensión de tríceps en polea",
+      "tag": "BUTTON",
+      "w": 337,
+      "x": 24,
+      "y": 336
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 81,
+      "label": "Ver progreso de Elevaciones laterales",
+      "tag": "BUTTON",
+      "w": 337,
+      "x": 24,
+      "y": 417
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 81,
+      "label": "Ver progreso de Dead hang",
+      "tag": "BUTTON",
+      "w": 337,
+      "x": 24,
+      "y": 497
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 58,
+      "label": "Guardar tarjeta",
+      "tag": "BUTTON",
+      "w": 337,
+      "x": 24,
+      "y": 603
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Editar sesión",
+      "tag": "BUTTON",
+      "w": 337,
+      "x": 24,
+      "y": 673
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Eliminar sesión",
+      "tag": "BUTTON",
+      "w": 337,
+      "x": 24,
+      "y": 774
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 48,
+      "label": "Cerrar",
+      "tag": "BUTTON",
+      "w": 337,
+      "x": 24,
+      "y": 852
+    }
+  ],
+  "documentHeight": 3515,
+  "documentWidth": 400,
+  "focused": "<div class=\"modal\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ui-dialog-title\" tabindex=\"-1\"><span class=\"n-eyebrow\">vie, 11 sept</span><h2 id=\"ui-dialog-title\">Arms &amp; delts</h2><p class=\"mu",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "27px",
+      "h": 30,
+      "text": "Arms & delts",
+      "w": 337,
+      "x": 24,
+      "y": 124
+    }
+  ],
+  "height": 907,
+  "scrollY": 118,
+  "smallText": [
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "VIE, 11 SEPT"
+    },
+    {
+      "color": "rgb(138, 92, 39)",
+      "font": "8px",
+      "text": "PR"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "22 × 10 · 10 · RIR 2·1"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "18 × 10 · 10 · RIR 2·1"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "12 × 10 · 10 · RIR 2·1"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "30s · 25s"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "history",
+  "width": 400,
+  "name": "21-diary-receipt-400",
+  "image": "21-diary-receipt-400.jpg",
+  "imageSize": [
+    400,
+    907
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

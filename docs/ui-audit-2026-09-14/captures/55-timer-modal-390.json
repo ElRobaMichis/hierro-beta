@@ -1,0 +1,73 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "skip-link",
+        "nodes": 1
+      }
+    ],
+    "passes": 31,
+    "signature": "[390,844,\"light\",\"session\",\"Dead hang|Dead hang · serie 1\",\"\\n       \\n    Dead hang · serie 1\\n    23\\n    ¡Sostén!\\n    Terminar antesCancelar\\n    \"]",
+    "theme": "light",
+    "time": "2026-09-14T23:35:27.449Z",
+    "version": "4.13.0",
+    "view": "session",
+    "violations": []
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 52,
+      "label": "Terminar antes",
+      "tag": "BUTTON",
+      "w": 342,
+      "x": 24,
+      "y": 706
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 48,
+      "label": "Cancelar",
+      "tag": "BUTTON",
+      "w": 342,
+      "x": 24,
+      "y": 769
+    }
+  ],
+  "documentHeight": 844,
+  "documentWidth": 390,
+  "focused": "<div class=\"modal\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ui-dialog-title\" tabindex=\"-1\">\n    <h2 style=\"text-align:center;font-size:17px\" id=\"ui-dialog-title\">Dead hang · serie 1</h2>\n    <",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "17px",
+      "h": 19,
+      "text": "Dead hang · serie 1",
+      "w": 342,
+      "x": 24,
+      "y": 552
+    }
+  ],
+  "height": 844,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11.5px",
+      "text": "¡Sostén!"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=timed",
+  "view": "session",
+  "width": 390,
+  "name": "55-timer-modal-390",
+  "image": "55-timer-modal-390.jpg",
+  "imageSize": [
+    390,
+    844
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

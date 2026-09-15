@@ -1,0 +1,29 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - generic: Tu esfuerzo, en perspectiva
+  - heading "Cada sesión deja huella." [level=1]
+- main:
+  - group "Secciones":
+    - button "Panorama"
+    - button "Ejercicios" [pressed]
+    - button "Tu cuerpo"
+    - button "Diario"
+  - heading "El progreso de cada ejercicio" [level=2]
+  - paragraph: Todos tus ejercicios, aunque ya no estén en el plan.
+  - generic: Buscar ejercicio
+  - searchbox "Buscar ejercicio" [active]: Jalón
+  - button "Jalón en polea 9 sesiones · 1RM estimado 85,1 lb Último registro":
+    - generic: Jalón en polea
+    - generic: 9 sesiones · 1RM estimado
+    - generic: 85,1 lb
+    - generic: Último registro
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

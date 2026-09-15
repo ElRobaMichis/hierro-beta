@@ -1,0 +1,71 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Mis gimnasios":
+    - text: Mis gimnasios
+  - generic: Equipo de este gimnasio
+  - heading "SmartFit · Buenavista" [level=1]
+  - 'button "Cambiar de gimnasio: SmartFit · Buenavista"':
+    - generic: SmartFit · Buenavista
+- main:
+  - group "Secciones":
+    - button "Discos"
+    - button "Barras" [pressed]
+    - button "Mancuernas"
+    - button "Máquinas"
+  - paragraph: La barra predeterminada se usa cuando el ejercicio no tiene otra elegida.
+  - generic: Tu barra predeterminada
+  - heading "Olímpica" [level=2]
+  - strong: 20kg
+  - button "Desactivar":
+    - generic: Desactivar
+  - button "Cambiar nombre":
+    - generic: Cambiar nombre
+  - generic: Disponible
+  - heading "Olímpica corta" [level=2]
+  - strong: 15kg
+  - button "Desactivar":
+    - generic: Desactivar
+  - button "Predeterminada":
+    - generic: Predeterminada
+  - button "Cambiar nombre":
+    - generic: Cambiar nombre
+  - generic: Disponible
+  - heading "Barra Z" [level=2]
+  - strong: 7kg
+  - button "Desactivar":
+    - generic: Desactivar
+  - button "Predeterminada":
+    - generic: Predeterminada
+  - button "Cambiar nombre":
+    - generic: Cambiar nombre
+  - generic: No disponible
+  - heading "Barra recta" [level=2]
+  - strong: 10kg
+  - button "Tengo esta barra":
+    - generic: Tengo esta barra
+  - button "Cambiar nombre":
+    - generic: Cambiar nombre
+  - generic: No disponible
+  - heading "Multipower" [level=2]
+  - strong: 20kg
+  - button "Tengo esta barra":
+    - generic: Tengo esta barra
+  - button "Cambiar nombre":
+    - generic: Cambiar nombre
+  - button "Añadir barra":
+    - generic: Añadir barra
+  - button "kg"
+  - button "lb"
+  - button "Restaurar juego estándar":
+    - generic: Restaurar juego estándar
+  - paragraph: Reemplaza esta lista por los pesos iniciales en kg. Te pediremos confirmar antes de cambiarla.
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

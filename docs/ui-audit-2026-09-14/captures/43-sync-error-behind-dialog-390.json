@@ -1,0 +1,177 @@
+{
+  "axe": {
+    "incomplete": [],
+    "passes": 35,
+    "time": "2026-09-14T23:30:40.027Z",
+    "version": "4.13.0",
+    "view": "settings",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span data-sync-short=\"\">En tu dispositivo</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.0pt (8px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-mobile-brand > .n-local.n-sync-badge > span[data-sync-short=\"\"]"
+            ]
+          },
+          {
+            "html": "<div class=\"n-eyebrow\">A tu manera</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              "div > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<span>Entrenar</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"home\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span>Evolución</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"history\\\"})\"] > span"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 44,
+      "label": "Tu espacio",
+      "tag": "BUTTON",
+      "w": 83,
+      "x": 22,
+      "y": -225
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 58,
+      "label": "Crear mi espacio",
+      "tag": "BUTTON",
+      "w": 285,
+      "x": 45,
+      "y": 293
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Ya tengo una clave",
+      "tag": "BUTTON",
+      "w": 285,
+      "x": 45,
+      "y": 363
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 12,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 131,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 250,
+      "y": 776
+    }
+  ],
+  "documentHeight": 1254,
+  "documentWidth": 375,
+  "focused": "<button type=\"button\" class=\"n-secondary\" onclick=\"uiSyncLink()\"><span>Ya tengo una clave</span><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" class=\"ui-icon\"><path d=\"M4 12h16m-6-6 6 6-6 6\"></path></svg",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "41px",
+      "h": 88,
+      "text": "Tu espacio, contigo.",
+      "w": 331,
+      "x": 22,
+      "y": -134
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "29px",
+      "h": 94,
+      "text": "Un mismo espacio.\nEn todos tus dispositivos.",
+      "w": 285,
+      "x": 45,
+      "y": 92
+    }
+  ],
+  "height": 844,
+  "scrollY": 306,
+  "smallText": [
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "TU ESFUERZO TE ACOMPAÑA"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Entrenar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Evolución"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Tú"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "settings",
+  "width": 390,
+  "name": "43-sync-error-behind-dialog-390",
+  "image": "43-sync-error-behind-dialog-390.jpg",
+  "imageSize": [
+    375,
+    812
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

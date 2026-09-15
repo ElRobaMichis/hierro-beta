@@ -1,0 +1,41 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Tu espacio":
+    - text: Tu espacio
+  - generic: A tu manera
+  - heading "Aprender con Hierro" [level=1]
+- main:
+  - heading "Entender la progresión" [level=2]
+  - paragraph: Cuándo subir, repetir o descargar
+  - button "Abrir guía":
+    - generic: Abrir guía
+  - heading "Repeticiones en reserva" [level=2]
+  - paragraph: Registrar el esfuerzo con RIR
+  - button "Abrir guía":
+    - generic: Abrir guía
+  - heading "Tu fuerza estimada" [level=2]
+  - paragraph: Qué significa el 1RM estimado
+  - button "Abrir guía":
+    - generic: Abrir guía
+  - heading "Ejercicios asistidos" [level=2]
+  - paragraph: Menos ayuda, más trabajo tuyo
+  - button "Abrir guía":
+    - generic: Abrir guía
+  - heading "Usar sin conexión" [level=2]
+  - paragraph: Instalación y guardado local
+  - button "Abrir guía":
+    - generic: Abrir guía
+  - heading "Apple Salud" [level=2]
+  - paragraph: Configurar el atajo en iPhone o iPad
+  - button "Abrir guía":
+    - generic: Abrir guía
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

@@ -1,0 +1,59 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Volver al día":
+    - text: Volver al día
+  - generic: Espalda
+  - heading "Jalón en polea" [level=1]
+- main:
+  - group "Secciones":
+    - button "Evolución" [pressed]
+    - button "Equipo"
+    - button "Objetivos"
+  - text: 1RM estimado
+  - generic: 85,1lb
+  - paragraph: Estimación a partir de tus series; no es un levantamiento medido.
+  - generic: Último registro
+  - text: 85,1 lb
+  - generic: Desde el primer registro
+  - text: +26,6 lb
+  - generic: Registro seleccionado
+  - status: 2 sept · 85,1 lb
+  - 'img "1RM estimado: 9 registros. Usa el control inferior para consultar cada valor."'
+  - generic: 29 may
+  - generic: 2 sept
+  - generic: Toca la gráfica o desliza para explorar cada sesión
+  - slider "Explorar registros de Jalón en polea": "8"
+  - paragraph: Escala ajustada a tus registros · lb.
+  - heading "Últimas veces" [level=2]
+  - generic: mié, 2 sept
+  - generic: 63,85×10 · 63,85×10
+  - generic: vie, 21 ago
+  - generic: 61,64×9 · 61,64×9
+  - generic: dom, 9 ago
+  - generic: 59,44×8 · 59,44×8
+  - generic: mar, 28 jul
+  - generic: 57,23×10 · 57,23×10
+  - generic: jue, 16 jul
+  - generic: 55,03×9 · 55,03×9
+  - generic: sáb, 4 jul
+  - generic: 52,82×8 · 52,82×8
+  - generic: lun, 22 jun
+  - generic: 50,62×10 · 50,62×10
+  - generic: mié, 10 jun
+  - generic: 48,41×9 · 48,41×9
+  - complementary:
+    - text: Tu siguiente paso
+    - generic: "Sube el peso: 65,5 lb × 6"
+    - generic: "La torre de esta máquina sube a saltos: 65,5 lb es lo más cercano a 66 lb. Llegaste a 10 reps en todas las series con 63,85 lb. Toca progresar la carga (~2.5 %)."
+    - button "Revisar objetivos":
+      - generic: Revisar objetivos
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

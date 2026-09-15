@@ -1,0 +1,85 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "skip-link",
+        "nodes": 1
+      }
+    ],
+    "passes": 35,
+    "time": "2026-09-14T23:26:11.323Z",
+    "version": "4.13.0",
+    "view": "gym",
+    "violations": []
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "Ej. Barra de trap",
+      "tag": "INPUT",
+      "w": 352,
+      "x": 24,
+      "y": 580
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "0",
+      "tag": "INPUT",
+      "w": 352,
+      "x": 24,
+      "y": 687
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 54,
+      "label": "Agregar",
+      "tag": "BUTTON",
+      "w": 352,
+      "x": 24,
+      "y": 756
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 48,
+      "label": "Cancelar",
+      "tag": "BUTTON",
+      "w": 352,
+      "x": 24,
+      "y": 832
+    }
+  ],
+  "documentHeight": 2562,
+  "documentWidth": 400,
+  "focused": "<input type=\"text\" id=\"gymName\" placeholder=\"Ej. Barra de trap\" autocomplete=\"off\">",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "27px",
+      "h": 30,
+      "text": "Agregar barra",
+      "w": 352,
+      "x": 24,
+      "y": 437
+    }
+  ],
+  "height": 907,
+  "scrollY": 1655,
+  "smallText": [],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "gym",
+  "width": 400,
+  "name": "29-add-bar-modal-400",
+  "image": "29-add-bar-modal-400.jpg",
+  "imageSize": [
+    400,
+    907
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

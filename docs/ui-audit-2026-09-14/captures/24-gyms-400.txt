@@ -1,0 +1,47 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Tu espacio":
+    - text: Tu espacio
+  - generic: A tu manera
+  - heading "Tus lugares" [level=1]
+- main:
+  - text: Entrenando aquí
+  - heading "SmartFit · Buenavista" [level=2]
+  - paragraph: Kilos · 10 ejercicios configurados
+  - generic: "7"
+  - text: Discos
+  - generic: "3"
+  - text: Barras
+  - generic: "32"
+  - text: Mancuernas
+  - button "Abrir equipo":
+    - generic: Abrir equipo
+  - button "Nombre, copia y opciones":
+    - generic: Nombre, copia y opciones
+  - text: Tu otro lugar
+  - heading "Gimnasio del barrio" [level=2]
+  - paragraph: Libras · máquinas sin configurar
+  - generic: "6"
+  - text: Discos
+  - generic: "3"
+  - text: Barras
+  - generic: "10"
+  - text: Mancuernas
+  - button "Usar este gimnasio":
+    - generic: Usar este gimnasio
+  - button "Nombre, copia y opciones":
+    - generic: Nombre, copia y opciones
+  - button "Nuevo gimnasio":
+    - generic: Nuevo gimnasio
+  - button "Importar gimnasio":
+    - generic: Importar gimnasio
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

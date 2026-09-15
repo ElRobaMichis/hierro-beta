@@ -1,0 +1,51 @@
+{
+  "tool": "axe-core 4.13.0",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21aa"
+  ],
+  "note": "Solo comprobaciones automáticas. Las capturas durante animación se excluyen; los dos contrastes claros detectados inicialmente se corrigieron y se volvieron a comprobar.",
+  "checks": [
+    {
+      "screen": "home-390",
+      "violations": []
+    },
+    {
+      "screen": "long-320",
+      "violations": []
+    },
+    {
+      "screen": "warmup-390",
+      "violations": []
+    },
+    {
+      "screen": "timer-390",
+      "violations": []
+    },
+    {
+      "screen": "work-dark-390-settled",
+      "violations": []
+    },
+    {
+      "screen": "day-390-final",
+      "violations": []
+    },
+    {
+      "screen": "sync-error-390",
+      "violations": []
+    },
+    {
+      "screen": "inventory-320",
+      "violations": []
+    },
+    {
+      "screen": "equipment-390-final",
+      "violations": []
+    },
+    {
+      "screen": "progress-390",
+      "violations": []
+    }
+  ]
+}

@@ -1,0 +1,249 @@
+{
+  "axe": {
+    "incomplete": [],
+    "passes": 38,
+    "signature": "[390,844,\"light\",\"history\",\"Cada sesión deja huella.|Ejercicios|El progreso de cada ejercicio\",\"\"]",
+    "theme": "light",
+    "time": "2026-09-14T23:41:21.532Z",
+    "version": "4.13.0",
+    "view": "history",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span data-sync-short=\"\">En tu dispositivo</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.0pt (8px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-mobile-brand > .n-local.n-sync-badge > span[data-sync-short=\"\"]"
+            ]
+          },
+          {
+            "html": "<div class=\"n-eyebrow\">Tu esfuerzo, en perspectiva</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-eyebrow"
+            ]
+          },
+          {
+            "html": "<button aria-pressed=\"false\" class=\"\" onclick=\"uiProgressTab(&quot;summary&quot;)\">Panorama</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiProgressTab(\\\"summary\\\")\"]"
+            ]
+          },
+          {
+            "html": "<button aria-pressed=\"false\" class=\"\" onclick=\"uiProgressTab(&quot;body&quot;)\">Tu cuerpo</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiProgressTab(\\\"body\\\")\"]"
+            ]
+          },
+          {
+            "html": "<button aria-pressed=\"false\" class=\"\" onclick=\"uiProgressTab(&quot;diary&quot;)\">Diario</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiProgressTab(\\\"diary\\\")\"]"
+            ]
+          },
+          {
+            "html": "<small>9 sesiones · 1RM estimado</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".grow > small"
+            ]
+          },
+          {
+            "html": "<small>Último registro</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-directory-result > small"
+            ]
+          },
+          {
+            "html": "<span>Entrenar</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"home\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span>Tú</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"settings\\\"})\"] > span"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 50,
+      "label": "Panorama",
+      "tag": "BUTTON",
+      "w": 81,
+      "x": 22,
+      "y": 228
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 50,
+      "label": "Ejercicios",
+      "tag": "BUTTON",
+      "w": 81,
+      "x": 111,
+      "y": 228
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 50,
+      "label": "Tu cuerpo",
+      "tag": "BUTTON",
+      "w": 81,
+      "x": 199,
+      "y": 228
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 50,
+      "label": "Diario",
+      "tag": "BUTTON",
+      "w": 81,
+      "x": 288,
+      "y": 228
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "Ej. Press de banca",
+      "tag": "INPUT",
+      "w": 346,
+      "x": 22,
+      "y": 404
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 85,
+      "label": "Jalón en polea\n9 sesiones · 1RM estimado\n85,1 lb\nÚltimo registro",
+      "tag": "BUTTON",
+      "w": 346,
+      "x": 22,
+      "y": 472
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 118,
+      "x": 12,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 118,
+      "x": 136,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 118,
+      "x": 260,
+      "y": 776
+    }
+  ],
+  "documentHeight": 844,
+  "documentWidth": 390,
+  "focused": "<input id=\"n-progress-search\" type=\"search\" value=\"\" placeholder=\"Ej. Press de banca\" oninput=\"view.exerciseQuery=this.value;uiFilterExercises()\">",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "41px",
+      "h": 88,
+      "text": "Cada sesión deja huella.",
+      "w": 346,
+      "x": 22,
+      "y": 114
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "24px",
+      "h": 28,
+      "text": "El progreso de cada ejercicio",
+      "w": 346,
+      "x": 22,
+      "y": 302
+    }
+  ],
+  "height": 844,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "9 sesiones · 1RM estimado"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Entrenar"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Evolución"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Tú"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=home&theme=light",
+  "view": "history",
+  "width": 390,
+  "name": "64-exercise-search-390",
+  "image": "64-exercise-search-390.jpg",
+  "imageSize": [
+    390,
+    844
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

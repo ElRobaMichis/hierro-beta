@@ -1,0 +1,77 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Volver al día":
+    - text: Volver al día
+  - generic: Espalda
+  - heading "Jalón en polea" [level=1]
+- main:
+  - group "Secciones":
+    - button "Evolución"
+    - button "Equipo"
+    - button "Objetivos" [pressed]
+  - heading "Cómo mides el esfuerzo" [level=2]
+  - button "Peso y reps" [pressed]
+  - button "Con asistencia"
+  - button "Peso corporal"
+  - button "Por tiempo"
+  - paragraph: Completa el rango y después aumenta la carga disponible.
+  - group "Secciones":
+    - button "Reglas generales" [pressed]
+    - button "Solo este plan"
+  - heading "Tu rango y descanso" [level=2]
+  - paragraph: Los campos vacíos siguen tu objetivo general.
+  - generic: Rango mínimo
+  - spinbutton "Rango mínimo": "6"
+  - generic: Rango máximo
+  - spinbutton "Rango máximo": "10"
+  - generic: Descanso
+  - combobox "Descanso":
+    - option "Según tus preferencias" [selected]
+    - option "0:45"
+    - option "1:00"
+    - option "1:30"
+    - option "2:00"
+    - option "2:30"
+    - option "3:00"
+    - option "4:00"
+    - option "5:00"
+  - generic: Aumento mínimo
+  - combobox "Aumento mínimo":
+    - option "Auto" [selected]
+    - option "0,5 kg"
+    - option "1 kg"
+    - option "2 kg"
+    - option "2,5 kg"
+    - option "5 kg"
+  - complementary:
+    - generic: Grupo muscular principal
+    - combobox "Grupo muscular principal":
+      - option "Sin asignar"
+      - option "Pecho"
+      - option "Espalda" [selected]
+      - option "Hombros"
+      - option "Bíceps"
+      - option "Tríceps"
+      - option "Pierna"
+      - option "Glúteos"
+      - option "Core"
+      - option "Cuádriceps"
+      - option "Isquiotibiales"
+      - option "Pantorrillas"
+      - option "Antebrazos"
+    - paragraph: Alimenta tu mapa corporal. Puedes mantener «Pierna» o elegir un grupo más específico.
+    - generic: Nota al entrenar
+    - textbox "Nota al entrenar":
+      - /placeholder: Asiento, agarre, técnica…
+      - text: Asiento en 4. Rodillos ajustados al muslo. Agarre neutro; evita balancearte.
+    - paragraph: Se guarda automáticamente y aparece destacada durante la sesión.
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

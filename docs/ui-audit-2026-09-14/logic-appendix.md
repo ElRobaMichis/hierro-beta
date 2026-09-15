@@ -1,0 +1,96 @@
+# Evidencia lógica parcial — Hierro Beta 3.5.1
+
+Fecha: 2026-09-14. Los IDs F01–F31 corresponden a la lista **original de 32 hallazgos**, no a la síntesis posterior.
+
+Se crearon exclusivamente estos archivos de auditoría: [logic-repro.cjs](C:/Users/Agustin/Documents/hierro-beta/docs/ui-audit-2026-09-14/logic-repro.cjs), [logic-results.json](C:/Users/Agustin/Documents/hierro-beta/docs/ui-audit-2026-09-14/logic-results.json) y este apéndice. No se modificaron archivos de aplicación ni documentos de auditoría preexistentes. No se abrió navegador, no se accedió a perfiles reales y no se usó red.
+
+## Resultado utilizable
+
+**18 de los 20 hallazgos prioritarios reproducidos**, más el caso adicional solicitado de notas y configuración por gimnasio. F06 y F12 se conservan en el JSON con sus fallos explícitos y se excluyen de las conclusiones automáticas. No se siguió investigando esos dos casos tras el cierre de alcance.
+
+El JSON contiene 21 casos: 19 `reproduced`, uno `harness_control_failed` y uno `not_reproduced`. Pasaron los ocho controles generales y 48 de los 49 controles de escenario. `reproduced` significa que ocurrió el comportamiento auditado y pasaron sus controles; **no significa que la aplicación esté libre de defectos**.
+
+Se cargan desde disco los scripts actuales `ui.js`, `sync-core.js`, `sync-engine.js`, `sync.js`, `push-core.js`, `push.js` y el script inline de `index.html`. Se omite únicamente la IIFE final `init`, que arrancaría integraciones de navegador. Las funciones de negocio no se reimplementan. El JSON registra SHA-256 antes/después de los siete archivos y el hash del propio reproducer; los siete archivos permanecieron iguales durante la ejecución.
+
+## Repetir sin modificar los resultados entregados
+
+Desde cualquier directorio, en PowerShell:
+
+```powershell
+& 'C:\Program Files\nodejs\node.exe' 'C:\Users\Agustin\Documents\hierro-beta\docs\ui-audit-2026-09-14\logic-repro.cjs' --summary
+```
+
+Para guardar otra ejecución, elegir un **nombre nuevo**:
+
+```powershell
+& 'C:\Program Files\nodejs\node.exe' 'C:\Users\Agustin\Documents\hierro-beta\docs\ui-audit-2026-09-14\logic-repro.cjs' --summary --out logic-results-rerun.json
+```
+
+Sin `--summary` se imprime el JSON completo. `--out` solo acepta un nombre `.json` dentro de esta carpeta y usa creación exclusiva (`wx`): no sobreescribe archivos. La ejecución entregada devuelve **código 1** por los dos casos no concluyentes; aun así guarda el JSON completo. No interpretar ese código como un fallo adicional de la aplicación. No hay instalación de paquetes, servidor, captura ni fixture externo.
+
+## Hallazgos reproducidos y controles
+
+Cada caso del JSON incluye `sources` con archivo/línea y ancla del código actual, `scope`, `checks`, `controls` y `observations`. La tabla resume únicamente lo sustentado por esta ejecución.
+
+| ID | Evidencia reproducida | Control relevante | Código |
+|---|---|---|---|
+| F01 | Al fallar `localStorage.setItem`, aparece el aviso de fallo y después lo sustituye el final que dice que la sesión está guardada. En memoria hay una sesión finalizada; al recargar el almacén simulado reaparece la sesión activa y hay cero sesiones históricas. | La misma preparación, registro y finalización sin fallo sí persisten. | [save, index.html:899](C:/Users/Agustin/Documents/hierro-beta/index.html:899), [finalización:4725](C:/Users/Agustin/Documents/hierro-beta/index.html:4725), [pantalla final:4740](C:/Users/Agustin/Documents/hierro-beta/index.html:4740) |
+| F02 | JSON dañado o excepción de lectura devuelve rutinas e historial vacíos sin aviso. **No se demuestra que `load` borre físicamente la copia**. | Retirar el fallo permite leer el historial anterior; el texto dañado tampoco se elimina al cargarlo. | [index.html:892](C:/Users/Agustin/Documents/hierro-beta/index.html:892) |
+| F03 | `{routines:[],history:[null]}` llega a confirmación y se persiste. Después `uiHome` falla en `systemicFatigue` al leer `h.entries`. | Respaldo válido recorre la misma ruta y renderiza; ausencia del array `routines` se rechaza. | [importación:5204](C:/Users/Agustin/Documents/hierro-beta/index.html:5204), [aplicación:5226](C:/Users/Agustin/Documents/hierro-beta/index.html:5226), [fallo posterior:1902](C:/Users/Agustin/Documents/hierro-beta/index.html:1902) |
+| F04 | Sesión de A con tres series: editar B a cinco deja A configurado en tres, pero su sesión activa contiene cinco. | Editar A sí redimensiona correctamente; el protector de series ya escritas sigue funcionando. | [index.html:2648](C:/Users/Agustin/Documents/hierro-beta/index.html:2648), [index.html:2664](C:/Users/Agustin/Documents/hierro-beta/index.html:2664) |
+| F05 | Mover el día de A a B cambia su atribución histórica a B y el descanso efectivo de la sesión abierta de 60 a 180 s. | Copiar el día conserva la atribución del original; las series históricas no cambian. | [movimiento:2354](C:/Users/Agustin/Documents/hierro-beta/index.html:2354), [atribución histórica:1065](C:/Users/Agustin/Documents/hierro-beta/index.html:1065), [contexto:1975](C:/Users/Agustin/Documents/hierro-beta/index.html:1975) |
+| F07 | CSV sintético Hevy importa una sesión y crea un día sin `split`; no existe plan ni `nextDay`. | Volver a cargar mediante `load` normaliza y recupera el plan y el siguiente día. | [importador:5271](C:/Users/Agustin/Documents/hierro-beta/index.html:5271), [creación:5409](C:/Users/Agustin/Documents/hierro-beta/index.html:5409), [normalización:838](C:/Users/Agustin/Documents/hierro-beta/index.html:838) |
+| F08 | En timer de trabajo con objetivo de 20 s, avanzar 15 s de reloj y ejecutar un callback deja 19 s. `closeModal` cancela y borra el estado; reabrir reinicia la preparación. | Cinco callbacks puntuales y «Terminar antes» escriben 5 s; veinte completan el objetivo. El descanso normal sí vence con una sola actualización tras su deadline. El timer por sí solo no confirma la serie. | [timer:4273](C:/Users/Agustin/Documents/hierro-beta/index.html:4273), [salida:4321](C:/Users/Agustin/Documents/hierro-beta/index.html:4321), [cierre:5450](C:/Users/Agustin/Documents/hierro-beta/index.html:5450), [descanso:5136](C:/Users/Agustin/Documents/hierro-beta/index.html:5136) |
+| F10 | Seleccionar el mismo ejercicio desde la cola cancela su descanso. Quitar el ejercicio que descansaba deja el plazo y `uiRest` en el siguiente, que no tiene series confirmadas. | Cerrar la cola sin seleccionar conserva el descanso. Quitar solo de la sesión conserva el día del plan. | [ui.js:797](C:/Users/Agustin/Documents/hierro-beta/ui.js:797), [ui.js:801](C:/Users/Agustin/Documents/hierro-beta/ui.js:801), [index.html:4161](C:/Users/Agustin/Documents/hierro-beta/index.html:4161) |
+| F13 | «Otra máquina» desde la sesión inserta la variante en ambos días que usan el original, incluido el otro plan; no la añade a la sesión abierta y la nueva ficha pierde `from=session`. | Se conserva el original y el nombre duplicado se rechaza sin insertar de nuevo. | [index.html:3983](C:/Users/Agustin/Documents/hierro-beta/index.html:3983), [index.html:3999](C:/Users/Agustin/Documents/hierro-beta/index.html:3999), [destino:2954](C:/Users/Agustin/Documents/hierro-beta/index.html:2954) |
+| F14 | Crear «Plancha» asigna grupo `core`, pero tipo `normal`; sin peso, preparación queda en `setup`. | Elegir `tiempo` permite preparación sin peso; la inferencia `Assisted` sí se aplica. Es una decisión de clasificación UX, no una afirmación sobre toda variante de plancha. | [ui.js:599](C:/Users/Agustin/Documents/hierro-beta/ui.js:599), [index.html:985](C:/Users/Agustin/Documents/hierro-beta/index.html:985), [index.html:4950](C:/Users/Agustin/Documents/hierro-beta/index.html:4950) |
+| F18 | Se guarda rango 10–6 y se usa 10–11. Cambiar a Fuerza deja una propuesta previa de **11 reps** aunque el nuevo rango es 4–6. | Un rango válido se conserva. Refrescar explícitamente recalcula la propuesta a 42,5 kg × 4 en este fixture. | [rango:1018](C:/Users/Agustin/Documents/hierro-beta/index.html:1018), [edición:2620](C:/Users/Agustin/Documents/hierro-beta/index.html:2620), [objetivo:4743](C:/Users/Agustin/Documents/hierro-beta/index.html:4743), [refresco:2973](C:/Users/Agustin/Documents/hierro-beta/index.html:2973) |
+| F20 | Corregir 100 × 10 a 10 × 10 deja un PR de 133,33 kg almacenado, frente a 13,33 kg recalculados. | La marca original la genera el motor; invalidar `prs` y recalcular elimina ese falso récord. | [edición:3386](C:/Users/Agustin/Documents/hierro-beta/index.html:3386), [caché:5541](C:/Users/Agustin/Documents/hierro-beta/index.html:5541) |
+| F21 | Una descarga sintética superior entra en referencia y evolución: 26,67 frente a 13,33 kg de la sesión regular. | Retirar la descarga restaura la referencia. `bestAssistBefore` sí excluye descargas. | [index.html:4393](C:/Users/Agustin/Documents/hierro-beta/index.html:4393), [ui.js:837](C:/Users/Agustin/Documents/hierro-beta/ui.js:837), [control asistido:4381](C:/Users/Agustin/Documents/hierro-beta/index.html:4381) |
+| F22 | Dos asistidos reducen ayuda 40→30 con las mismas reps y dos normales permanecen estables: aparece aviso de regresión en 2 de 4. | Igualar las cargas elimina el aviso; la regla actual tampoco considera más ayuda como regresión. Se prueba el algoritmo del aviso, no fatiga física. | [index.html:1898](C:/Users/Agustin/Documents/hierro-beta/index.html:1898) |
+| F23 | Desde recibo de B, la ficha selecciona el primer día que usa el ejercicio, A. En asistidos cambia el mínimo válido: muestra mejor ayuda de 20 kg con rango A, frente a 40 kg con rango B. | Cambiar solo `rid` corrige la métrica. **Sí se conserva el recibo y la vista/filtro de retorno**. | [ui.js:854](C:/Users/Agustin/Documents/hierro-beta/ui.js:854), [index.html:2954](C:/Users/Agustin/Documents/hierro-beta/index.html:2954), [métrica:839](C:/Users/Agustin/Documents/hierro-beta/ui.js:839) |
+| F24 | Una sesión ajena bloquea iniciar otro día localmente. Reclamar sin transporte muestra error y no desbloquea. | Mismo Engine y cifrado con respuestas de memoria válidas transfieren mediante GET/PUT; sin sesión ajena sí inicia localmente sin red. | [inicio:4032](C:/Users/Agustin/Documents/hierro-beta/index.html:4032), [sync.js:222](C:/Users/Agustin/Documents/hierro-beta/sync.js:222), [sync.js:223](C:/Users/Agustin/Documents/hierro-beta/sync.js:223); línea de `Engine.claim` en el JSON |
+| F28 | Con permiso concedido, app oculta y push no registrado, `rest=false` e `idle=false` no impiden avisos locales. El aviso local de inactividad llega a partir de 15 min; push programa 5 min. | `notify=off` y app visible sí bloquean. El programador push respeta ambas preferencias específicas. | [fallback:5042](C:/Users/Agustin/Documents/hierro-beta/index.html:5042), [inactividad:5078](C:/Users/Agustin/Documents/hierro-beta/index.html:5078), [push-core.js:32](C:/Users/Agustin/Documents/hierro-beta/push-core.js:32) |
+| F31 | Restauración local y vinculada recuperan `db.active.restUntil`, pero dejan `restUntil` global en `null`. | `syncApply` sí restaura el reloj; la rama vinculada ejecuta el checkpoint real del Engine sobre memoria antes de restaurar. | [index.html:5226](C:/Users/Agustin/Documents/hierro-beta/index.html:5226), [sync.js:242](C:/Users/Agustin/Documents/hierro-beta/sync.js:242), [control:51](C:/Users/Agustin/Documents/hierro-beta/sync.js:51) |
+
+## Notas: globales por ejercicio; máquinas y unidad: por gimnasio
+
+El caso `NOTAS-GYM` confirma esta secuencia con el mismo ejercicio:
+
+1. En A se escribe «Asiento 4 en A» con torre de inicio/paso 5 kg.
+2. Cambiar a B restaura su torre de inicio/paso 10 lb, pero muestra **la nota escrita en A**.
+3. En B se escribe «Asiento 7 en B».
+4. Volver a A recupera su torre de 5 kg y su unidad kg, pero mantiene **«Asiento 7 en B»**.
+5. Recargar conserva ese resultado. La proyección de sync guarda una sola nota en `exmeta[key].notes`; no hay nota dentro de `gyms[].machines[key]`.
+
+`setExNotes` guarda por clave global del ejercicio ([index.html:2677](C:/Users/Agustin/Documents/hierro-beta/index.html:2677)). `MACHINE_FIELDS` contiene `equip`, `points`, `base`, `bar`, `step`, `cap` y `stack`, sin `notes` ([index.html:3421](C:/Users/Agustin/Documents/hierro-beta/index.html:3421)). El cambio de gimnasio aplica esos campos y su unidad ([index.html:3435](C:/Users/Agustin/Documents/hierro-beta/index.html:3435), [index.html:3446](C:/Users/Agustin/Documents/hierro-beta/index.html:3446), [index.html:3462](C:/Users/Agustin/Documents/hierro-beta/index.html:3462)). La proyección sync mantiene la misma separación ([sync-core.js:49](C:/Users/Agustin/Documents/hierro-beta/sync-core.js:49)).
+
+Consecuencia: una indicación técnica común, como «mantener muñeca neutra», puede tener sentido global. Una instrucción sobre asiento, pin o ajuste de una máquina concreta no queda aislada por gimnasio aunque se escriba mientras ese gimnasio está seleccionado. El texto «lo que ajustes ahí no toca a…» de Nuevo gimnasio puede inducir un alcance mayor que el real ([index.html:3513](C:/Users/Agustin/Documents/hierro-beta/index.html:3513)). No se propone ni ejecuta una migración de notas.
+
+La prueba de merge confirma conflicto global al editar esa misma nota en ambas copias: `/exmeta/press de prueba/notes`. Como control, editar el paso de la máquina de A en una copia y el de B en otra se combina sin conflicto. **Cambiar de gimnasio no crea una nota independiente**; la sincronización transporta el modelo global existente.
+
+## Dos casos fuera de la evidencia concluyente
+
+**F06 — `harness_control_failed`.** El fixture de barras personalizadas da 10→10 kg y también falla el control que debía preservar 30 kg al cambiar la barra desde el ejercicio. Por eso no acredita la rama «barra predeterminada 30→25». En el mismo caso sí se observa 30→30,412 kg al pasar el inventario estándar a lb, y la serie confirmada conserva su total, pero se excluye F06 completo del recuento concluyente. No presentar la rama de barras como un defecto reproducido por este entregable. Fuentes: [index.html:3738](C:/Users/Agustin/Documents/hierro-beta/index.html:3738), [index.html:4824](C:/Users/Agustin/Documents/hierro-beta/index.html:4824).
+
+**F12 — `not_reproduced` a nivel de caso completo.** La función sí devuelve «Remo» para «Remo (Cable)», «Remo (Discos)» y «Remo (2)», conservando tres claves distintas. La aserción sobre la ausencia de sufijos busca en **todo el HTML**, no solo en etiquetas visibles; `(2)` también puede formar parte del handler `uiSelectExercise(2)`. Esa comprobación no es una prueba visual válida. Mantener el resultado de la función como evidencia limitada; no interpretar el estado del caso como refutación del hallazgo visual ni como prueba de una colisión de datos. Fuentes: [index.html:1709](C:/Users/Agustin/Documents/hierro-beta/index.html:1709), [ui.js:804](C:/Users/Agustin/Documents/hierro-beta/ui.js:804).
+
+En F31, la observación adicional `restoreOverRest` usa plazos coincidentes: **no acredita por sí misma la sustitución de un descanso distinto**. La conclusión reproducida de F31 se limita a restaurar una sesión con plazo cuando el reloj global era `null`, en las ramas local y vinculada.
+
+## Comprobaciones complementarias de navegador
+
+Estos puntos no se ejecutaron en el harness ni se volvieron a explorar en navegador. Se atribuyen a la recorridos y capturas de auditoría, con corroboración del código ya revisado.
+
+**Error de clave invisible en el diálogo — confirmado en el navegador de auditoría.** Recorrido: Tú → Sincronización → Ya tengo una clave → introducir `clave-de-prueba` → Buscar. La inspección del DOM mostró dos `#sync-error`: el primero en el fondo inerte recibe «Revisa la clave: debe empezar por hr1. y estar completa.»; el segundo dentro del diálogo queda vacío. Al cerrar, el error aparece detrás. La pantalla genera el primer ID ([sync.js:144](C:/Users/Agustin/Documents/hierro-beta/sync.js:144)); el diálogo genera otro igual ([sync.js:170](C:/Users/Agustin/Documents/hierro-beta/sync.js:170)); el catch llama a `syncUIError` ([sync.js:179](C:/Users/Agustin/Documents/hierro-beta/sync.js:179)), que usa `document.getElementById` sin limitar la búsqueda al diálogo ([sync.js:147](C:/Users/Agustin/Documents/hierro-beta/sync.js:147)). La validación rechaza la clave antes del transporte ([sync-core.js:144](C:/Users/Agustin/Documents/hierro-beta/sync-core.js:144)). Impacto: aparente silencio tras Buscar aunque el error exista fuera de la superficie activa. Este DOM mínimo no puede acreditar IDs duplicados, foco o `inert`; se conserva la prueba del navegador de auditoría como evidencia principal.
+
+**Nuevo gimnasio: dos salidas con destinos diferentes, no duplicación exacta.** Corrección expresa de la descripción anterior: «Cancelar» ejecuta `gymPickerModal()` y vuelve al selector ([index.html:3528](C:/Users/Agustin/Documents/hierro-beta/index.html:3528)). El «Cerrar» agregado por el tratamiento general de modales ejecuta `closeModal()` y sale del diálogo ([ui.js:241](C:/Users/Agustin/Documents/hierro-beta/ui.js:241)). El problema es la salida incoherente y los dos destinos bajo acciones de cancelación/cierre. La captura de auditoría confirma la coexistencia. El envío vacío silencioso también está respaldado por un input sin `required` y `if(!name) return` ([index.html:3515](C:/Users/Agustin/Documents/hierro-beta/index.html:3515), [index.html:3542](C:/Users/Agustin/Documents/hierro-beta/index.html:3542)).
+
+Se mantienen como observaciones de las capturas de auditoría, sin nuevos escenarios: cabeceras/forecast extensos, protagonismo de 1RM y final parcial de una serie con «3396 kg menos». El código compara volumen con la sesión anterior sin condicionar esa comparación a una sesión completa ([index.html:4586](C:/Users/Agustin/Documents/hierro-beta/index.html:4586), [index.html:4594](C:/Users/Agustin/Documents/hierro-beta/index.html:4594)); **este reproducer no recalcula la cifra 3396 ni valida su presentación**. La métrica normal se titula «1RM estimado» ([ui.js:840](C:/Users/Agustin/Documents/hierro-beta/ui.js:840)); su protagonismo visual procede de las capturas, no de las pruebas lógicas.
+
+## Límites del harness
+
+Los datos, almacenamiento y lectores de archivos son de memoria. La preparación se completa mediante handlers actuales y reloj simulado. El render general registra llamadas, excepto el caso F03 que ejecuta `uiHome`; las plantillas de modales sí pasan por las funciones actuales. El DOM mínimo extrae campos por ID, devuelve `null` para IDs inexistentes y no emula selectores complejos, decoración de modales, foco, accesibilidad, CSS ni disposición visual.
+
+F08 demuestra dependencia de callbacks bajo un retraso impuesto, no la frecuencia real de throttling de un teléfono. F24 usa Engine, validación y cifrado actuales con un transporte local que devuelve respuestas sintéticas; los GET/PUT que aparecen en evidencia **no son peticiones de red**. F31 usa checkpoint del Engine con almacenamiento de memoria. `Notification` solo registra la intención de avisar; no entrega notificaciones del sistema. Las APIs de arranque, service worker, audio, Wake Lock e IndexedDB no se activan.
+
+Este apéndice cierra la evidencia lógica solicitada; no amplía a otras áreas ni sustituye las 64 capturas y métricas del informe visual.

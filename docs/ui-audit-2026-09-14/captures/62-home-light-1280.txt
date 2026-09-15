@@ -1,0 +1,81 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - generic: lunes, 14 de septiembre
+  - heading "Un rato para ti. Un paso más fuerte." [level=1]:
+    - text: Un rato para ti.
+    - text: Un paso más fuerte.
+  - 'button "Cambiar de gimnasio: SmartFit · Buenavista"':
+    - generic: SmartFit · Buenavista
+- main:
+  - generic: Tu siguiente entrenamiento
+  - heading "Full body" [level=2]
+  - paragraph: 5 ejercicios · Mi entrenamiento
+  - generic: Día 1 de 4
+  - button "Empezar":
+    - generic: Empezar
+  - region "Tus días. Lo que viene.":
+    - text: Mi entrenamiento
+    - heading "Tus días. Lo que viene." [level=2]:
+      - text: Tus días.
+      - generic: Lo que viene.
+    - button "Organizar":
+      - generic: Organizar
+    - paragraph: Abre cualquiera y mira tu próximo paso.
+    - button "01 Siguiente Full body 2 ejercicios para avanzar 5 ejercicios · Ver próxima sesión":
+      - generic: "01"
+      - generic: Siguiente
+      - heading "Full body" [level=3]
+      - generic: "2"
+      - generic: ejercicios para avanzar
+      - generic: 5 ejercicios · Ver próxima sesión
+    - button "02 Upper 2 ejercicios para avanzar 4 ejercicios · Ver próxima sesión":
+      - generic: "02"
+      - heading "Upper" [level=3]
+      - generic: "2"
+      - generic: ejercicios para avanzar
+      - generic: 4 ejercicios · Ver próxima sesión
+    - button "03 Lower Cada serie está construyendo el siguiente paso. 3 ejercicios · Ver próxima sesión":
+      - generic: "03"
+      - heading "Lower" [level=3]
+      - generic: Cada serie está construyendo el siguiente paso.
+      - generic: 3 ejercicios · Ver próxima sesión
+    - button "04 Arms & delts 3 ejercicios para avanzar 4 ejercicios · Ver próxima sesión":
+      - generic: "04"
+      - heading "Arms & delts" [level=3]
+      - generic: "3"
+      - generic: ejercicios para avanzar
+      - generic: 4 ejercicios · Ver próxima sesión
+  - heading "Estás construyendo algo." [level=2]
+  - strong: "2"
+  - paragraph:
+    - text: veces que hiciste
+    - text: espacio en siete días
+  - generic: M
+  - 'generic "martes 8: entrenaste"':
+  - generic: M
+  - 'generic "miércoles 9: sin sesión"': "9"
+  - generic: J
+  - 'generic "jueves 10: sin sesión"': "10"
+  - generic: V
+  - 'generic "viernes 11: entrenaste"':
+  - generic: S
+  - 'generic "sábado 12: sin sesión"': "12"
+  - generic: D
+  - 'generic "domingo 13: sin sesión"': "13"
+  - generic: L
+  - 'generic "lunes 14: sin sesión"': "14"
+  - paragraph:
+    - text: 14 series registradas.
+    - text: Tu constancia ya tiene forma.
+  - button "Ver mi evolución":
+    - generic: Ver mi evolución
+- navigation "Navegación principal":
+  - text: hierro
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú
+  - generic: En tu dispositivo

@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.5.1';
+const UI_VERSION = '3.6.0';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -32,6 +32,39 @@ function uiInlineKey(value){return esc(JSON.stringify(String(value)).slice(1,-1)
 function uiIcon(name){return `<svg viewBox="0 0 24 24" aria-hidden="true" class="ui-icon">${UI_ICONS[name]||UI_ICONS.barbell}</svg>`;}
 function uiAction(name,...args){return esc(name+'('+args.map(a=>JSON.stringify(a)).join(',')+')');}
 function uiGo(v){return uiAction('go',v);}
+function uiFocus(id){const focus=()=>document.getElementById(id)?.focus?.({preventScroll:true});if(typeof requestAnimationFrame==='function')requestAnimationFrame(focus);else focus();}
+function uiFieldError(id,message){
+ const input=document.getElementById(id);if(!input)return;
+ input.setCustomValidity?.(message);input.reportValidity?.();input.focus?.();
+ input.addEventListener?.('input',()=>input.setCustomValidity(''),{once:true});
+}
+function uiSaveState(){
+ if(!document.querySelector)return;
+ let el=document.getElementById('n-storage-warning');
+ if(!window.__saveError){el?.remove();return;}
+ if(!el){const host=document.querySelector('#modalhost .modal')||document.getElementById('main');host?.insertAdjacentHTML?.('afterbegin','<section id="n-storage-warning" class="n-storage-warning" role="alert"></section>');el=document.getElementById('n-storage-warning');}
+ if(el)el.innerHTML=`<b>Estos cambios necesitan guardarse</b><p>${esc(window.__saveError)}</p><div class="n-actions">${uiButton('Volver a guardar','uiRetrySave()','check','secondary')}${uiButton('Descargar copia','exportBackup()','download','text')}</div>`;
+ document.querySelectorAll('[data-sync-short]').forEach(n=>n.textContent='Pendiente de guardar');
+}
+function uiRetrySave(){if(save()){render();if(document.querySelector?.('#modalhost .modal'))closeModal();}}
+function uiLoadRecovery(){
+ document.getElementById('tabs').innerHTML='';document.getElementById('topbar').innerHTML='';
+ document.getElementById('main').innerHTML=`<section class="n-panel n-recovery"><span class="n-eyebrow">Tus datos primero</span><h1>Vamos a recuperar tu espacio.</h1><p>No pudimos leer lo guardado. Conservamos la copia original para que puedas recuperarla.</p><div class="n-actions">${uiButton('Volver a intentar','uiRetryLoad()','arrow')}${uiButton('Descargar datos originales','uiDownloadOriginal()','download','secondary')}${uiButton('Restaurar un respaldo',"document.getElementById('recovery-file').click()",'shield','text')}</div><input id="recovery-file" type="file" accept=".json,application/json" hidden onchange="importBackup(this.files[0]);this.value=''">${uiButton('Recuperar la copia previa a una restauración','uiRestoreLocalCopy()','clock','text')}</section>`;
+}
+function uiRetryLoad(){db=load();if(window.__loadError){uiLoadRecovery();return;}location.reload();}
+function uiDownloadOriginal(){try{const raw=localStorage.getItem(LS_KEY);if(raw)syncDownload('hierro-datos-originales.json',raw);else infoModal('No encontramos una copia','Prueba a restaurar un respaldo que hayas descargado.');}catch{infoModal('No se puede leer el almacenamiento','El navegador está bloqueando el acceso. Conserva los datos del sitio y vuelve a abrir Hierro.');}}
+function uiRestoreLocalCopy(){try{const raw=localStorage.getItem(LS_KEY+'.recovery');if(!raw)throw new Error('No hay una copia anterior en este dispositivo.');const d=JSON.parse(raw);if(!validBackup(d))throw new Error('Esta copia necesita otro respaldo para recuperarse.');window.__backup=d;confirmModal('¿Recuperar la copia anterior?','Corresponde al estado previo a la última restauración.','Recuperar',applyBackup,true);}catch(e){infoModal('Copia anterior',esc(e.message));}}
+const uiTabMemory={};
+function uiTab(name){go({... (uiTabMemory[name]||{name})});}
+function uiRememberNavigation(v){if(view.name==='history')uiTabMemory.history={...view};if(view.name==='settings')uiTabMemory.settings={...view};if(window.history?.pushState&&!window.__historyPop){try{window.history.pushState({hierroView:v},'');}catch{}}}
+function uiInitNavigation(){
+ if(window.__navigationReady)return;window.__navigationReady=true;
+ try{window.history?.replaceState({hierroView:view},'');}catch{}
+ window.addEventListener?.('popstate',event=>{if(!event.state?.hierroView)return;window.__historyPop=true;closeModal();go(event.state.hierroView);window.__historyPop=false;});
+ const viewport=window.visualViewport;
+ const keyboard=()=>{const inset=viewport?Math.max(0,window.innerHeight-viewport.height-viewport.offsetTop):0;document.documentElement?.style?.setProperty('--keyboard-inset',inset>120?inset+'px':'0px');};
+ viewport?.addEventListener('resize',keyboard);viewport?.addEventListener('scroll',keyboard);keyboard();
+}
 
 const UI_LEG_GROUPS=['cuadriceps','isquios','pantorrillas'];
 function uiMuscleStats(now=Date.now()){
@@ -93,7 +126,7 @@ function uiAtlas(compact=false){
  const rows=keys.map(([k,l])=>{
   const specific=compact&&k==='pierna'?UI_LEG_GROUPS.reduce((n,g)=>n+(s.counts[g]||0),0):0;
   const n=(s.counts[k]||0)+specific;
-  return `<button class="ui-muscle-row" onclick="${uiAction('uiMuscleDetail',k,compact)}" aria-label="${l}: ${n} series registradas"><i style="background:${n?uiMuscleColor(n,Math.max(s.max,n)):uiMuscleColor(0,s.max)};${!n?'border:1px solid #748371':''}"></i><span>${l}${k==='pierna'&&specific?' *':''}</span><b>${n}</b></button>`;
+  return `<button class="ui-muscle-row" onclick="${uiAction('uiMuscleDetail',k,compact)}" aria-label="${l}: ${n} series registradas"><i style="background:${n?uiMuscleColor(n,Math.max(s.max,n)):uiMuscleColor(0,s.max)};${!n?'border:1px solid #748371':''}"></i><span>${k==='pierna'&&!compact?'Pierna sin desglosar':l}${k==='pierna'&&specific?' *':''}</span><b>${n}</b></button>`;
  }).join('');
  const extra=compact&&(s.counts.antebrazos||0)>0?`<button class="ui-muscle-row" onclick="uiMuscleDetail('antebrazos')"><i style="background:${uiMuscleColor(s.counts.antebrazos,s.max)}"></i><span>Antebrazos</span><b>${s.counts.antebrazos}</b></button>`:'';
  let warnings='';
@@ -107,7 +140,7 @@ function uiAtlas(compact=false){
 
 function uiMuscleDetail(key,includeLegDetails=true){
  const s=uiMuscleStats(),keys=key==='pierna'&&includeLegDetails?['pierna',...UI_LEG_GROUPS]:[key];
- const title=MUSCLES.find(m=>m[0]===key)?.[1]||key;
+ const title=key==='pierna'&&!includeLegDetails?'Pierna sin desglosar':MUSCLES.find(m=>m[0]===key)?.[1]||key;
  const list=keys.flatMap(k=>(s.entries[k]||[]).map(e=>({...e,group:k}))).sort((a,b)=>b.date.localeCompare(a.date));
  const total=list.reduce((n,e)=>n+e.sets,0);
  openModal(`<h2>${esc(title)}</h2><p class="muted">${total} ${total===1?'serie registrada':'series registradas'} en los últimos 7 días.</p>${list.length?list.map(e=>`<div class="ui-muscle-detail"><b>${esc(exBaseName(e.name))}</b><span>${e.sets} serie${e.sets===1?'':'s'} · ${fmtDate(e.date)}${key==='pierna'?' · '+(MUSCLES.find(x=>x[0]===e.group)?.[1]||e.group):''}</span></div>`).join(''):'<p class="muted">No hay series asignadas a este grupo. Puedes elegir el grupo muscular desde la ficha de cada ejercicio.</p>'}<p class="hint">Se cuenta el grupo principal que asignaste al ejercicio. Los músculos secundarios no suman series automáticamente.</p><button class="btn" style="margin-top:20px" onclick="closeModal()">Listo</button>`);
@@ -155,7 +188,7 @@ function uiRefreshLoad(xi){
 
 function uiIsDismissAction(action){
  const a=String(action||'').trim().replace(/;\s*$/,'');
- return a==='closeModal()'||a==='stopSetTimer(false)'||/^uiReturnTo(?:Finish|Receipt)\(/.test(a);
+ return a==='closeModal()'||/^uiReturnTo(?:Finish|Receipt)\(/.test(a);
 }
 
 /* Device preferences stay local and work without downloaded libraries. */
@@ -200,6 +233,7 @@ async function uiTestCues(){
  if(status)status.textContent=result.sound?'Aviso reproducido. Ajusta el volumen multimedia de tu dispositivo.':result.vibration?'Se envió el aviso de vibración.':'Activa el sonido para probar el aviso; la vibración depende del dispositivo.';
 }
 function uiDismissLabel(label,action,hasForm=false){
+ if(/minimizar cronómetro/i.test(label))return 'Minimizar cronómetro';
  if(/^uiReturnToReceipt\(/.test(String(action||'')))return 'Volver al detalle';
  if(/^uiReturnToFinish\(/.test(String(action||'')))return 'Volver al resumen';
  return hasForm||/cancelar/i.test(label)||String(action||'').startsWith('stopSetTimer(false)')?'Cancelar':'Cerrar';
@@ -241,6 +275,12 @@ function uiSetupModal(){
   if(!dismiss.length)modal.insertAdjacentHTML('beforeend','<button class="n-dismiss" type="button" onclick="closeModal()"><span>Cerrar</span></button>');
  }
  uiArrangeActions(modal);
+ if(!modal.classList.contains('full')){
+  const exits=[...modal.querySelectorAll('.n-dismiss')];
+  if(exits.length){const footer=document.createElement('div');footer.className='n-modal-footer';for(const exit of exits)footer.append(exit);modal.append(footer);}
+  modal.querySelectorAll('.n-actions:empty').forEach(el=>el.remove());
+ }
+ uiFormSemantics(modal);uiSaveState();
  const heading=modal.querySelector('h1,h2');if(heading){heading.id='ui-dialog-title';modal.setAttribute('aria-labelledby',heading.id);}
  modal.tabIndex=-1;
  uiSyncModalState();
@@ -273,6 +313,7 @@ function uiCloseModal(){
  if(window.__shareCardURL){URL.revokeObjectURL(window.__shareCardURL);delete window.__shareCardURL;}
  const previous=window.__modalReturnFocus;window.__modalReturnFocus=null;
  if(previous?.isConnected)previous.focus({preventScroll:true});
+ if(db.active?.setTimer&&view.name==='session'){const label=document.querySelector('#main button[onclick^="startSetTimer("] span');if(label)label.textContent='Retomar cronómetro';}
  if(view.name==='session'&&!db.active)go({name:'home'});
 }
 
@@ -332,7 +373,7 @@ function uiAddRest(){
 }
 
 
-function uiProgressTab(tab){view.progressTab=tab;render();window.scrollTo(0,0);}
+function uiProgressTab(tab){go({...view,progressTab:tab});}
 
 async function uiShareSession(id,source='finish'){
  const rec=db.history.find(h=>h.id===id);if(!rec)return;
@@ -424,13 +465,13 @@ function uiTop(){
   h=uiBack(view.dayFrom==='home'?'Tus días':'Volver al plan',uiGo(view.dayFrom==='home'?{name:'home'}:r?.split?{name:'split',id:r.split}:{name:'splits'}))+uiTitle('Tu día de entrenamiento',esc(r?.name||'Día'),uiButton('Opciones',uiAction('uiDayOptions',view.id),'more','text'));
  } else if(view.name==='exercise'){
   const back=view.from==='session'?{name:'session'}:view.from==='history'?{name:'history'}:view.from==='gym'?{name:'gym',kind:'machines'}:view.rid?{name:'routine',id:view.rid,dayFrom:view.dayFrom}:{name:'home'};
-  h=uiBack(view.from==='session'?'Volver a la sesión':view.from==='history'?(view.receiptId?'Volver al diario':view.historyReturn?.progressTab==='exercises'?'Volver a ejercicios':'Volver a Evolución'):view.from==='gym'?'Máquinas':'Volver al día',(view.from==='history'?'uiBackToProgress()':uiGo(back)))+uiTitle(MUSCLES.find(m=>m[0]===exMeta(view.key).muscle)?.[1]||'Tu ejercicio',esc(exBaseName(view.exname||view.key)));
- } else if(view.name==='gym')h=uiBack('Mis gimnasios',uiGo({name:'settings',section:'gyms'}))+uiTitle('Equipo de este gimnasio',esc(db.gym.name),uiGymButton());
+  h=uiBack(view.from==='session'?'Volver a la sesión':view.from==='history'?(view.receiptId?'Volver al diario':view.historyReturn?.progressTab==='exercises'?'Volver a ejercicios':'Volver a Evolución'):view.from==='gym'?'Volver a montajes':'Volver al día',(view.from==='history'?'uiBackToProgress()':uiGo(back)))+uiTitle(MUSCLES.find(m=>m[0]===exMeta(view.key).muscle)?.[1]||'Tu ejercicio',esc(exBaseName(view.exname||view.key)));
+ } else if(view.name==='gym')h=uiBack(view.inventoryReturn?'Volver al ejercicio':'Mis gimnasios',uiGo(view.inventoryReturn||{name:'settings',section:'gyms'}))+uiTitle('Equipo de este gimnasio',esc(db.gym.name),uiGymButton());
  top.innerHTML=`<div class="n-mobile-brand">${uiBrand()}${local}</div>${h}`;
 }
 function uiTabs(){
  const active=view.name==='history'||view.from==='history'?'history':['settings','gym'].includes(view.name)?'settings':'home';
- const nav=[['home','barbell','Entrenar'],['history','progress','Evolución'],['settings','user','Tú']].map(([id,ic,label])=>`<button class="${active===id?'on':''}" ${active===id?'aria-current="page"':''} onclick="${uiGo({name:id})}">${uiIcon(ic)}<span>${label}</span></button>`).join('');
+ const nav=[['home','barbell','Entrenar'],['history','progress','Evolución'],['settings','user','Tú']].map(([id,ic,label])=>`<button class="${active===id?'on':''}" ${active===id?'aria-current="page"':''} onclick="${uiAction('uiTab',id)}">${uiIcon(ic)}<span>${label}</span></button>`).join('');
  const tabs=document.getElementById('tabs');tabs.setAttribute?.('aria-label','Navegación principal');
  tabs.innerHTML=`<div class="n-nav-inner">${uiBrand()}<div class="n-nav-links">${nav}</div>${typeof syncBadge==='function'?syncBadge():'<span class="n-local"><i></i>En tu dispositivo</span>'}</div>`;
 }
@@ -439,14 +480,14 @@ function uiWeek(){
  const days=Array.from({length:7},(_,i)=>{
   const d=new Date(today);d.setDate(d.getDate()-6+i);const end=new Date(d);end.setDate(end.getDate()+1);
   const logged=db.history.some(h=>new Date(h.date)>=d&&new Date(h.date)<end);
-  return `<div class="n-week-day ${logged?'done':''} ${i===6?'is-today':''}"><span>${['D','L','M','M','J','V','S'][d.getDay()]}</span><b aria-label="${esc(d.toLocaleDateString('es-MX',{weekday:'long',day:'numeric'}))}: ${logged?'entrenaste':'sin sesión'}">${logged?uiIcon('check'):d.getDate()}</b></div>`;
+  return `<div class="n-week-day ${logged?'done':''} ${i===6?'is-today':''}"><span>${['D','L','M','M','J','V','S'][d.getDay()]}</span><b role="img" aria-label="${esc(d.toLocaleDateString('es-MX',{weekday:'long',day:'numeric'}))}: ${logged?'entrenaste':'sin sesión'}">${logged?uiIcon('check'):d.getDate()}</b></div>`;
  }).join('');
  return `<section class="n-panel n-consistency"><div class="n-section-head"><h2>Estás construyendo algo.</h2>${uiIcon('progress')}</div><div class="n-week-stat"><strong>${w.sessions}</strong><p>${w.sessions===1?'vez que hiciste':'veces que hiciste'} <br>espacio en siete días</p></div><div class="n-week">${days}</div><p>${w.sets} series registradas. <br>${w.sessions?'Tu constancia ya tiene forma.':'Tu primera sesión empieza contigo.'}</p>${uiButton('Ver mi evolución',uiGo({name:'history'}),'arrow','text')}</section>`;
 }
 function uiHome(){
  const sp=activeSplit(),nx=nextDay();let hero='';
  if(db.active){
-  hero=`<section class="n-hero"><span class="n-eyebrow">Tu sesión sigue aquí</span><h2>${esc(db.active.routineName)}</h2><p>Retoma la serie en la que te quedaste.</p><span class="n-tag">Guardada en este dispositivo</span>${uiButton('Continuar',uiGo({name:'session'}))}</section>`;
+  hero=`<section class="n-hero"><span class="n-eyebrow">Tu sesión sigue aquí</span><h2>${esc(db.active.routineName)}</h2><p>Retoma la serie en la que te quedaste.</p><span class="n-tag">${window.__saveError?'Pendiente de guardar':'Guardada en este dispositivo'}</span>${uiButton('Continuar',uiGo({name:'session'}))}</section>`;
  }else if(typeof syncForeign!=='undefined'&&syncForeign){
   hero=syncForeignCard();
  }else if(nx?.routine.exercises.length){
@@ -487,7 +528,7 @@ function uiPlanRules(id){const sp=db.splits.find(s=>s.id===id);if(!sp)return;ope
 function uiTogglePlanFailure(id,button){const sp=db.splits.find(s=>s.id===id);if(!sp)return;sp.failOk=!sp.failOk;save();button?.classList.toggle('on',sp.failOk);button?.setAttribute('aria-checked',String(sp.failOk));}
 function uiPlanOptions(id){openModal(`<h2>Opciones del plan</h2>${uiRow('Cambiar nombre','',`closeModal();${uiAction('promptRenameSplit',id)}`,'edit')}${uiRow('Exportar plan','Días y configuraciones',`closeModal();${uiAction('exportSplit',id)}`,'share')}${uiRow('Eliminar plan','Conserva las sesiones del historial',`closeModal();${uiAction('deleteSplit',id)}`,'trash')}${uiButton('Volver','closeModal()','back','secondary')}`);}
 function uiNewDay(splitId){window.__newDaySplit=splitId;openModal(`<h2>Un nuevo día</h2><p class="muted">Después elegirás sus ejercicios.</p><form class="stack" onsubmit="uiCreateDay(event)"><label class="field"><span>Nombre del día</span><input type="text" id="newroutine" required maxlength="100" placeholder="Ej. Torso A" autocomplete="off"></label><button class="btn" type="submit">Crear y añadir ejercicios</button><button class="btn ghost" type="button" onclick="closeModal()">Cancelar</button></form>`);}
-function uiCreateDay(ev){ev.preventDefault();const name=document.getElementById('newroutine').value.trim();if(!name)return;const sp=db.splits.find(s=>s.id===window.__newDaySplit)||activeSplit();if(!sp){createRoutine(ev);return;}const r={id:uid(),name,split:sp.id,exercises:[]};db.routines.push(r);save();closeModal();go({name:'routine',id:r.id,edit:true});}
+function uiCreateDay(ev){ev.preventDefault();const name=document.getElementById('newroutine').value.trim();if(!name)return;const sp=db.splits.find(s=>s.id===window.__newDaySplit)||activeSplit();if(!sp){createRoutine(ev);return;}const r={id:uid(),name,split:sp.id,exercises:[]};db.routines.push(r);save();closeModal();go({name:'routine',id:r.id,edit:true});uiLibrary(r.id);}
 /* A forecast reads the existing coach in the viewed plan, even while another
    plan has a session running. Always restore the engine's context afterward. */
 function uiDayForecast(r){
@@ -519,7 +560,7 @@ function uiDayForecast(r){
    if(last&&!atTop&&remaining===1)proof=`A ${m.type==='tiempo'?'un segundo':'una rep'} de completar el rango.`;
    if(tolerated)proof=`${complete} de ${series.length} series en el tope. El motor admite la más baja.`;
    const load=suggestion?uiForecastLoad(key,suggestion,m):null;
-   return {ex,key,type:m.type,range,suggestion,last,work,series,complete,remaining,tolerated,atTop,state,label,icon,ready,proof,load,notes:m.notes||'',otherPlan:!!last&&!both.ctx&&!!r.split,count:suggestion?.sets||splitSetsOverride(key)||1};
+   return {ex,key,type:m.type,range,suggestion,last,work,series,complete,remaining,tolerated,atTop,state,label,icon,ready,proof,load,notes:exerciseNotes(key),otherPlan:!!last&&!both.ctx&&!!r.split,count:suggestion?.sets||splitSetsOverride(key)||1};
   });
   return {routine:r,items,ready:items.filter(x=>x.ready).length,building:items.filter(x=>['reps','seconds'].includes(x.state)).length,holding:items.filter(x=>x.state==='hold').length,adjusting:items.filter(x=>['ease','back','equipment'].includes(x.state)).length,fresh:items.filter(x=>x.state==='new').length,complete:items.filter(x=>x.atTop).length,near:items.filter(x=>x.remaining===1&&!x.ready&&!['back','ease'].includes(x.state)).length,sets:items.reduce((n,x)=>n+x.count,0)};
  }finally{ctxSplitOverride=previous;}
@@ -577,15 +618,15 @@ function uiRoutineCards(r){
 function uiRoutine(){
  const r=db.routines.find(x=>x.id===view.id);if(!r)return uiHome();
  const p=uiDayForecast(r),headline=p.ready?'Tu esfuerzo abre <br>el siguiente paso.':p.near?'El siguiente paso <br>está muy cerca.':p.fresh===p.items.length?'Aquí empieza <br>lo que viene.':'Cada serie cuenta. <br>La próxima, también.';
- const hero=r.exercises.length?`<section class="n-day-hero"><div class="n-day-hero-copy"><span class="n-eyebrow">La próxima vez</span><h2>${headline}</h2><p>${uiDaySummary(p)}.</p><div class="n-day-highlights">${p.complete?`<span>${uiIcon('check')} ${p.complete} ${p.complete===1?'rango completo':'rangos completos'}</span>`:''}${p.near?`<span>${uiIcon('spark')} ${p.near} ${p.near===1?'ejercicio a un paso':'ejercicios a un paso'}</span>`:''}<span>${p.items.length} ejercicios · ${p.sets} series propuestas</span></div></div><div class="n-day-start">${uiGymButton()}${uiButton(db.active?'Continuar sesión':'Empezar este día',uiAction('startSession',r.id),'play')}<p>La propuesta se actualiza con tu registro y el equipo de este gimnasio.</p></div></section>`:'';
- return `${uiDayNavigator(r)}${hero}<section class="n-day-exercises"><div class="n-section-head"><h2>${view.sort?'Ordena tu día':'Así se construye tu próxima sesión'}</h2>${r.exercises.length?uiButton(view.sort?'Terminar orden':'Ordenar y quitar','view.sort=!view.sort;render()',view.sort?'check':'list','text'):''}</div>${view.sort?'<p class="n-edit-hint">Usa las flechas para cambiar el orden. Quitar un ejercicio conserva su historial.</p>':''}${view.sort?uiRoutineCards(r):p.items.length?`<div class="n-forecast-grid">${p.items.map((x,i)=>uiForecastCard(x,r,i)).join('')}</div>`:'<div class="n-empty"><h2>Dale forma a este día.</h2><p>Busca un ejercicio que ya usas o crea uno nuevo.</p></div>'}<div class="n-toolbar">${uiButton('Añadir ejercicios',uiAction('uiLibrary',r.id),'plus','secondary')}${r.exercises.length?uiButton('Hacer una descarga',uiAction('uiDeload',r.id),'moon','text'):''}</div></section>`;
+ const hero=r.exercises.length?`<section class="n-day-hero"><div class="n-day-hero-copy"><span class="n-eyebrow">La próxima vez</span><h2>${headline}</h2><p>${uiDaySummary(p)}.</p><div class="n-day-highlights">${p.complete?`<span>${uiIcon('check')} ${p.complete} ${p.complete===1?'rango completo':'rangos completos'}</span>`:''}${p.near?`<span>${uiIcon('spark')} ${p.near} ${p.near===1?'ejercicio a un paso':'ejercicios a un paso'}</span>`:''}<span>${p.items.length} ${p.items.length===1?'ejercicio':'ejercicios'} · ${p.sets} ${p.sets===1?'serie propuesta':'series propuestas'}</span></div></div><div class="n-day-start">${uiGymButton()}${uiButton(db.active?'Continuar sesión':'Empezar este día',uiAction('startSession',r.id),'play')}<p>La propuesta se actualiza con tu registro y el equipo de este gimnasio.</p></div></section>`:'';
+ return `${uiDayNavigator(r)}${hero}<section class="n-day-exercises"><div class="n-section-head"><h2>${view.sort?'Ordena tu día':'Tu próxima sesión'}</h2>${r.exercises.length?uiButton(view.sort?'Terminar orden':'Ordenar y quitar','view.sort=!view.sort;render()',view.sort?'check':'list','text'):''}</div>${view.sort?'<p class="n-edit-hint">Usa las flechas para cambiar el orden. Quitar un ejercicio conserva su historial.</p>':''}${view.sort?uiRoutineCards(r):p.items.length?`<div class="n-forecast-grid">${p.items.map((x,i)=>uiForecastCard(x,r,i)).join('')}</div>`:'<div class="n-empty"><h2>Dale forma a este día.</h2><p>Busca un ejercicio que ya usas o crea uno nuevo.</p></div>'}<div class="n-toolbar">${uiButton('Añadir ejercicios',uiAction('uiLibrary',r.id),'plus','secondary')}${r.exercises.length?uiButton('Hacer una descarga',uiAction('uiDeload',r.id),'moon','text'):''}</div></section>`;
 }
 
 function uiDeload(rid){confirmModal('Una sesión para recuperar','Se propondrá cerca de un 10 % menos de carga y la mitad de series. Esta sesión no modifica tu progresión normal ni compite por récords.','Empezar descarga',()=>startSession(rid,true),true);}
 function uiDayOptions(id){openModal(`<h2>Opciones del día</h2>${uiRow('Cambiar nombre','',`closeModal();${uiAction('promptRenameRoutine',id)}`,'edit')}${uiRow('Copiar o mover a otro plan','',`closeModal();${uiAction('promptMoveRoutine',id)}`,'plan')}${uiRow('Eliminar día','Su historial se conserva',`closeModal();${uiAction('deleteRoutine',id)}`,'trash')}${uiButton('Volver','closeModal()','back','secondary')}`);}
 function uiLibrary(rid=null){
  window.__libraryRid=rid;
- openModal(`<h2>Añadir ejercicio</h2><p class="muted">Reutiliza uno de tus ejercicios o escribe un nombre nuevo.</p><label class="field"><span>Buscar o crear</span><input id="n-ex-search" type="search" placeholder="Ej. Press de banca" autocomplete="off" oninput="uiLibraryResults()"></label><div id="n-ex-results"></div>${!rid?`<label class="n-check-label"><input type="checkbox" id="n-add-routine" checked> Añadir también al día del plan</label>`:''}${uiButton('Volver','closeModal()','back','secondary')}`);
+ openModal(`<h2>Añadir ejercicio</h2><p class="muted">Reutiliza uno de tus ejercicios o escribe un nombre nuevo.</p><label class="field"><span>Buscar o crear</span><input id="n-ex-search" type="search" placeholder="Ej. Press de banca" autocomplete="off" oninput="uiLibraryResults()"></label><p id="n-library-status" class="hint" role="status"></p><div id="n-ex-results"></div>${!rid?`<label class="n-check-label"><input type="checkbox" id="n-add-routine" checked> Añadir también al día del plan</label>`:''}${uiButton('Volver','closeModal()','back','secondary')}`);
  uiLibraryResults();
 }
 function uiLibraryResults(){
@@ -596,8 +637,13 @@ function uiLibraryResults(){
  const exact=allExerciseNames().has(exKey(query));
  document.getElementById('n-ex-results').innerHTML=`${query&&!exact?uiRow(`Crear «${esc(query)}»`,'Ejercicio nuevo',uiAction('uiLibraryAdd',query),'plus'):''}${items||(!query?'<p class="hint">Los ejercicios que crees aparecerán aquí para reutilizarlos.</p>':'<p class="hint">Si ya está en este día, no se añadirá otra vez.</p>')}`;
 }
-function uiLibraryAdd(name){
+function uiLibraryAdd(name,config=null){
  const rid=window.__libraryRid,key=exKey(name);if(!key)return;
+ if(!config&&!allExerciseNames().has(key)){uiCreateExerciseForm(name);return;}
+ const routine=rid?db.routines.find(x=>x.id===rid):null;
+ if(rid?(!routine||routine.exercises.some(e=>e.key===key)):(!db.active||db.active.exercises.some(e=>e.key===key)))return;
+ if(!commitChange(()=>{
+ if(config){const meta=exMeta(key);meta.type=config.type;meta.equip=config.equip;}
  if(rid){
   const r=db.routines.find(x=>x.id===rid);if(!r||r.exercises.some(e=>e.key===key))return;
   r.exercises.push({id:uid(),name:allExerciseNames().get(key)?.name||name,key});
@@ -608,11 +654,19 @@ function uiLibraryAdd(name){
   db.active.exercises.push({key,name,sugg,sets:Array.from({length:sugg?.sets||splitSetsOverride(key)||1},()=>({w:'',r:'',rir:''}))});
   db.active.open=db.active.exercises.length-1;uiResetRest();
  }
- const m=exMeta(key);if(/assisted|asistid/i.test(name))m.type='asistido';if(!m.muscle)m.muscle=guessMuscle(name)||null;if(!m.equip)m.equip=guessEquip(name)||null;
- save();closeModal();render();
+ const m=exMeta(key);if(!config&&/assisted|asistid/i.test(name))m.type='asistido';if(!m.muscle)m.muscle=guessMuscle(name)||null;if(!m.equip)m.equip=guessEquip(name)||null;
+ }))return;
+ render();if(rid){uiLibrary(rid);document.getElementById('n-library-status').textContent=name+' añadido. Puedes elegir otro.';uiFocus('n-ex-search');}else closeModal();
 }
 
 /* The active screen is a single set. Confirming it changes to the rest phase. */
+function uiCreateExerciseForm(name){
+ window.__newExerciseName=name;
+ const type=/plancha|plank|hang|colgar|isom[eé]tric/i.test(name)?'tiempo':/asistid|assisted/i.test(name)?'asistido':'normal';
+ const equip=guessEquip(name)||(type==='tiempo'?'nada':'barra');
+ openModal(`<h2>${esc(name)}</h2><p class="muted">Elige cómo lo registrarás. Puedes ajustarlo después.</p><form class="stack" onsubmit="uiCreateLibraryExercise(event)"><label class="field"><span>Cómo mides la serie</span><select id="n-new-type">${[['normal','Peso y repeticiones'],['tiempo','Segundos'],['corporal','Repeticiones · peso corporal'],['asistido','Asistencia y repeticiones']].map(([v,l])=>`<option value="${v}" ${v===type?'selected':''}>${l}</option>`).join('')}</select></label><label class="field"><span>Equipo</span><select id="n-new-equip">${EQUIP_KEYS.map(k=>`<option value="${k}" ${k===equip?'selected':''}>${EQUIP[k].label}</option>`).join('')}</select></label><button class="btn" type="submit">Añadir a este día</button><button class="btn ghost" type="button" onclick="uiLibrary(window.__libraryRid)">Volver a la búsqueda</button></form>`);
+}
+function uiCreateLibraryExercise(event){event.preventDefault();uiLibraryAdd(window.__newExerciseName,{type:document.getElementById('n-new-type').value,equip:document.getElementById('n-new-equip').value});}
 function uiSessionHead(){
  const s=db.active,done=s.exercises.reduce((n,e)=>n+e.sets.filter(st=>st.done).length,0),total=s.exercises.reduce((n,e)=>n+e.sets.length,0);
  return `<div class="n-session-top">${uiButton('Minimizar',uiGo({name:'home'}),'down','text')}<div><b>${esc(s.routineName)}</b><span id="clock">${fmtClock(Math.floor((Date.now()-s.start)/1000))}</span>${s.deload?'<span> · Descarga</span>':''}</div>${uiButton('Terminar','askFinish()','check','text')}</div><div class="n-session-track" role="progressbar" aria-label="Series confirmadas" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}"><i style="width:${total?done/total*100:0}%"></i></div>`;
@@ -647,7 +701,10 @@ function uiSession(){
   work=uiWarmup(xi);
  }else if(resting){
   const rem=Math.max(0,Math.ceil(((restUntil||0)-Date.now())/1000));
-  work=`<div class="n-rest-phase"><div class="n-rest-status">${uiIcon('check')}Serie guardada</div><div class="rest ${rem?'on':'done'}" id="rest"><span id="restlabel">${rem?'Descansando':'Descanso listo'}</span><strong id="resttime">${rem?fmtClock(rem):'¡Vamos!'}</strong><div class="rest-track"><div id="restfill" class="rest-fill"></div></div></div><p>Respira. La siguiente puede esperar.</p>${uiButton('+30 segundos','uiAddRest()','plus','text')}<div class="n-rest-next"><span class="n-number">${complete?uiIcon('check'):si+1}</span><div><b>${complete?'Ejercicio completo':`Siguiente: serie ${si+1} de ${ex.sets.length}`}</b><small>${complete?'Una parte más del trabajo, hecha.':esc(exBaseName(ex.name))}</small></div></div>${uiButton(rem?'Saltar descanso':'Continuar','uiContinue()')}${uiButton('Corregir la última serie',uiAction('uiEditSet',xi,Math.max(0,ex.sets.findLastIndex(st=>st.done))),'edit','text')}</div>`;
+  const nextIndex=complete?s.exercises.findIndex((e,i)=>i!==xi&&!exDone(e)):xi;
+  const nextCopy=nextIndex>=0?pushNextCopy(s,nextIndex):{body:'Todo listo para terminar y guardar.'};
+  const restOrigin=Math.max(0,s.exercises.findIndex(e=>e.key===s.restKey));
+  work=`<div class="n-rest-phase"><span id="n-rest-announcement" class="sr-only" role="status"></span><div class="n-rest-status">${uiIcon('check')}Serie guardada</div><div class="rest ${rem?'on':'done'}" id="rest"><span id="restlabel">${rem?'Descansando':'Descanso listo'}</span><strong id="resttime">${rem?fmtClock(rem):'¡Vamos!'}</strong><div class="rest-track"><div id="restfill" class="rest-fill"></div></div></div><p>Respira. La siguiente puede esperar.</p>${uiButton('+30 segundos','uiAddRest()','plus','text')}<div class="n-rest-next"><span class="n-number">${complete?uiIcon('check'):si+1}</span><div><b>${complete?'Ejercicio completo':`Siguiente: serie ${si+1} de ${ex.sets.length}`}</b><small>${esc(nextCopy.body)}</small></div></div>${uiButton(rem?'Saltar descanso':'Continuar','uiContinue()')}${uiButton('Corregir la última serie',uiAction('uiEditSet',restOrigin,Math.max(0,s.exercises[restOrigin].sets.findLastIndex(st=>st.done))),'edit','text')}</div>`;
  }else if(complete){
   const next=s.exercises.findIndex((e,i)=>i!==xi&&!exDone(e));
   work=`<section class="n-ex-complete"><span class="n-complete-mark">${uiIcon('check')}</span><h2>Una más, hecha.</h2><p>${ex.sets.length} series de ${esc(exBaseName(ex.name))} confirmadas.</p>${uiButton(next<0?'Terminar sesión':`Siguiente: ${esc(exBaseName(s.exercises[next].name))}`,next<0?'askFinish()':uiAction('uiSelectExercise',next))}${uiButton('Añadir otra serie',uiAction('uiAddSet',xi),'plus','text')}</section>`;
@@ -656,10 +713,10 @@ function uiSession(){
   const weightLabel=effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Total de las dos':discosOffset(ex.key)>0?'Discos totales':m.type==='asistido'?'Ayuda':corp?'Lastre opcional':'Peso';
   const offset=discosOffset(ex.key),hint=offset>0?'Sin '+(effEquip(ex.key)==='barra'?'la barra':'el aparato'):effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Suma ambas manos':m.type==='asistido'?'Menos ayuda = más esfuerzo':corp?'Vacío = sin lastre':uLabelEx(ex.key);
   const prev=ex.sets.slice(0,si).reverse().find(x=>x.done);
-  work=`<div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):''}</div>${ex.sugg?uiSetProposal(xi,!!prev):`<p class="n-first-hint">${corp?'Registra lo que completes.':'Elige una carga para tu rango.'}</p>`}<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="Peso de la serie ${si+1}" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small>${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Rango <span>${r.lo}–${r.hi}</span></small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?`<div class="n-time-tools">${uiButton('Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text')}<span class="n-time-help">Por tiempo: no se usa RIR.</span></div>`:`<div class="n-rir"><span>Reps en reserva</span><button aria-label="Repeticiones en reserva: ${st.rir!==''&&st.rir!==undefined?esc(st.rir):'sin anotar'}" onclick="uiRIR(${xi},${si})">${st.rir!==''&&st.rir!==undefined?`${Number(st.rir)>=5?'5+':esc(st.rir)}`:'Opcional'}${uiIcon('chevron')}</button></div>`}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status"></span></div>`;
+  work=`<div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):''}</div>${ex.sugg?uiSetProposal(xi,!!prev):`<p class="n-first-hint">${corp?'Registra lo que completes.':'Elige una carga para tu rango.'}</p>`}<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="${weightLabel} · ${uLabelEx(ex.key)} · serie ${si+1}" aria-describedby="n-weight-help" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small id="n-weight-help">${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Rango <span>${r.lo}–${r.hi}</span></small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?`<div class="n-time-tools">${uiButton(s.setTimer?.key===ex.key&&s.setTimer.si===si?'Retomar cronómetro':'Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text')}<span class="n-time-help">Por tiempo: no se usa RIR.</span></div>`:`<div class="n-rir"><span>Reps en reserva</span><button id="n-rir-choice" aria-label="Repeticiones en reserva: ${st.rir!==''&&st.rir!==undefined?esc(st.rir):'sin anotar'}" onclick="uiRIR(${xi},${si})">${st.rir!==''&&st.rir!==undefined?`${Number(st.rir)>=5?'5+':esc(st.rir)}`:'Opcional'}${uiIcon('chevron')}</button></div>`}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status"></span></div>`;
  }
  const logged=ex.sets.map((st,i)=>st.done?`<button class="n-set-chip" onclick="uiEditSet(${xi},${i})" aria-label="Editar serie ${i+1}: ${uiSetDisplay(ex.key,st)}"><span>${i+1}</span>${uiSetDisplay(ex.key,st)}${uiIcon('check')}</button>`:'').join('');
- return `<div class="n-focus">${title}${m.notes&&!resting&&!complete?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(m.notes)}">${uiIcon('pin')}<span><small>Tu nota</small><strong>${esc(m.notes)}</strong></span>${uiIcon('edit')}</button>`:''}${work}${typeof pushActive==='function'&&pushActive()&&(resting||preparing)?`<p class="n-push-session" data-push-status role="status">${esc(pushMessage)}</p>`:''}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
+ return `<div class="n-focus">${title}${exerciseNotes(ex.key)&&!resting&&!complete?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(exerciseNotes(ex.key))}">${uiIcon('pin')}<span><small>${m.gymNotes?esc(db.gym.name):'Tu nota'}</small><strong>${esc(exerciseNotes(ex.key))}</strong></span>${uiIcon('edit')}</button>`:''}${work}${typeof pushActive==='function'&&pushActive()&&(resting||preparing)?`<p class="n-push-session" data-push-status role="status">${esc(pushMessage)}</p>`:''}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
 }
 function uiWarmup(xi){
  const ex=db.active.exercises[xi],w=ensureWarmup(xi),key=ex.key;
@@ -779,7 +836,8 @@ function uiLogSet(xi,si){
   if(input?.setCustomValidity){input.setCustomValidity(badW?'Escribe un peso válido, incluido 0 cuando corresponda.':'Escribe un número entero mayor que cero.');input.reportValidity();input.focus();}
   return;
  }
- db.active.open=xi;st.done=true;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastSeriesAt=db.active.lastLog=Date.now();startRestAuto(ex.key);db.active.uiRest=!!restUntil;save();render();window.scrollTo(0,0);
+ if(!commitChange(()=>{db.active.open=xi;st.done=true;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastSeriesAt=db.active.lastLog=Date.now();if(db.active.setTimer?.key===ex.key)delete db.active.setTimer;startRestAuto(ex.key);db.active.restKey=ex.key;db.active.uiRest=!!restUntil;})){uiSaveState();return;}
+ render();window.scrollTo(0,0);
 }
 function uiStep(xi,si,field,direction){
  const ex=db.active.exercises[xi],st=ex.sets[si];
@@ -794,11 +852,19 @@ function uiRepeatSet(xi){
  if(prev.wkg!==undefined&&ex.sets[si].w===prev.w)ex.sets[si].wkg=prev.wkg;
  save();render();
 }
-function uiResetRest(){restUntil=null;if(db.active){delete db.active.restUntil;delete db.active.restDuration;delete db.active.uiRest;}}
+function uiResetRest(){restUntil=null;if(db.active){delete db.active.restUntil;delete db.active.restDuration;delete db.active.uiRest;delete db.active.restKey;}}
 function uiContinue(){
- if(!db.active)return;uiResetRest();save();render();window.scrollTo(0,0);
+ if(!db.active)return;
+ const xi=sessionOpenIdx(),complete=exDone(db.active.exercises[xi]);
+ const next=complete?db.active.exercises.findIndex((e,i)=>i!==xi&&!exDone(e)):xi;
+ if(!commitChange(()=>{uiResetRest();if(next>=0)db.active.open=next;}))return;
+ if(next<0){askFinish();return;}render();window.scrollTo(0,0);
 }
-function uiSelectExercise(xi){if(!db.active?.exercises[xi])return;uiResetRest();db.active.open=xi;save();closeModal();render();window.scrollTo(0,0);}
+function uiSelectExercise(xi){
+ if(!db.active?.exercises[xi])return;
+ db.active.open=xi;if(!save())return;closeModal();render();window.scrollTo(0,0);
+}
+
 function uiSessionQueue(){
  const s=db.active;
  openModal(`<h2>Tu sesión</h2><p class="muted">Cambia de ejercicio cuando lo necesites. Las series que llevas siguen guardadas.</p>${s.exercises.map((ex,i)=>uiRow(esc(exBaseName(ex.name)),`${ex.sets.filter(s=>s.done).length} de ${ex.sets.length} series confirmadas`,uiAction('uiSelectExercise',i),exDone(ex)?'check':'chevron',`<span class="n-number">${i+1}</span>`)).join('')}${uiButton('Añadir ejercicio','uiLibrary()','plus','secondary')}${uiButton('Volver a mi serie','closeModal()','back','text')}`);
@@ -808,7 +874,7 @@ function uiRIR(xi,si){
  const st=db.active.exercises[xi].sets[si];
  openModal(`<h2>Repeticiones en reserva</h2><p class="muted">Al terminar, ¿cuántas más habrías podido hacer con buena técnica?</p><div class="n-rir-grid">${[0,1,2,3,4,5].map(n=>`<button class="${String(st.rir)===String(n)?'on':''}" onclick="uiSetRIR(${xi},${si},'${n}')"><b>${n===5?'5+':n}</b><small>${n===0?'Al fallo':n===5?'Con margen':'en reserva'}</small></button>`).join('')}</div>${uiButton('Dejar sin anotar',`uiSetRIR(${xi},${si},'')`,'back','text')}`);
 }
-function uiSetRIR(xi,si,val){setVal(xi,si,'rir',val);closeModal();render();}
+function uiSetRIR(xi,si,val){setVal(xi,si,'rir',val);closeModal();render();uiFocus('n-rir-choice');}
 function uiAddSet(xi){db.active.exercises[xi].sets.push({w:'',r:'',rir:''});uiResetRest();save();closeModal();render();}
 function uiEditSet(xi,si){
  const ex=db.active?.exercises[xi],st=ex?.sets[si];if(!st)return;
@@ -818,9 +884,21 @@ function uiSaveSet(ev,xi,si){
  ev.preventDefault();const ex=db.active.exercises[xi],draft={w:document.getElementById('n-edit-w').value,r:document.getElementById('n-edit-r').value,rir:exMeta(ex.key).type==='tiempo'?'':document.getElementById('n-edit-rir').value};
  if(!uiValidSet(ex.key,draft)){document.getElementById('n-edit-error').textContent='Revisa el peso y las repeticiones antes de guardar.';return;}
  if(draft.w!==''){const kg=toKgEx(ex.key,Number(draft.w));draft.totalKg=kg;draft.wkg=Math.max(0,kg-discosOffset(ex.key));draft.w=inputWEx(ex.key,draft.wkg);}
- ex.sets[si]={...draft,done:ex.sets[si].done===true};db.active.lastLog=Date.now();save();closeModal();render();
+ if(!commitChange(()=>{ex.sets[si]={...draft,done:ex.sets[si].done===true};db.active.lastLog=Date.now();}))return;closeModal();render();
 }
-function uiRemoveSet(xi,si){const ex=db.active.exercises[xi];ex.sets.splice(si,1);if(!ex.sets.length)ex.sets.push({w:'',r:'',rir:''});save();closeModal();render();}
+function uiRemoveSet(xi,si){
+ const ex=db.active?.exercises[xi];if(!ex?.sets[si])return;
+ const session=db.active.id,removed=JSON.parse(JSON.stringify(ex.sets[si]));let placeholder=false;
+ if(!commitChange(()=>{ex.sets.splice(si,1);if(!ex.sets.length){placeholder=true;ex.sets.push({w:'',r:'',rir:''});}}))return;
+ window.__removedSet={session,key:ex.key,si,removed,placeholder};
+ closeModal();render();
+}
+function uiUndoRemovedSet(){
+ const u=window.__removedSet,ex=db.active?.exercises.find(e=>e.key===u?.key);if(!u||!ex||db.active.id!==u.session)return;
+ if(!commitChange(()=>{if(u.placeholder&&ex.sets.length===1&&ex.sets[0].w===''&&ex.sets[0].r===''&&!ex.sets[0].done)ex.sets=[];ex.sets.splice(Math.min(u.si,ex.sets.length),0,u.removed);} ))return;
+ window.__removedSet=null;render();
+}
+
 function uiEditSets(xi){const ex=db.active.exercises[xi];openModal(`<h2>Series del ejercicio</h2>${ex.sets.map((st,i)=>uiRow(`Serie ${i+1}`,uiSetDisplay(ex.key,st),uiAction('uiEditSet',xi,i),'edit')).join('')}${uiButton('Añadir serie',uiAction('uiAddSet',xi),'plus','secondary')}${uiButton('Listo','closeModal()','check','text')}`);}
 function uiSessionOptions(xi){
  const ex=db.active.exercises[xi];
@@ -828,16 +906,16 @@ function uiSessionOptions(xi){
 }
 
 /* Exercise information is split by the decision being made. */
-function uiExerciseTab(tab){view.exTab=tab;view.configure=tab==='equipment';render();}
+function uiExerciseTab(tab){go({...view,exTab:tab,configure:tab==='equipment'});}
 function uiSubnav(items,current,handler){return `<div class="n-subnav ${handler==='uiProgressTab'?'n-progress-nav':''}" role="group" aria-label="Secciones">${items.map(([id,label])=>`<button aria-pressed="${current===id}" class="${current===id?'on':''}" onclick="${uiAction(handler,id)}">${label}</button>`).join('')}</div>`;}
 function uiExercise(){
  const key=view.key,m=exMeta(key),tab=view.exTab||(view.from==='history'?'progress':view.configure||!m.equip?'equipment':'progress');
  return `${uiSubnav([['progress','Evolución'],['equipment','Equipo'],['targets','Objetivos']],tab,'uiExerciseTab')}<div class="n-ex-detail">${tab==='equipment'?uiEquipment(key):tab==='targets'?uiTargets(key):uiExerciseProgress(key)}</div>`;
 }
-function uiExerciseMetric(key){
- const m=exMeta(key),hist=exerciseHistory(key),assist=m.type==='asistido',time=m.type==='tiempo',corp=m.type==='corporal';
- const pts=hist.map(h=>({date:h.date,v:assist?fromKgEx(key,Math.min(...h.sets.filter(s=>s.r>=effRange(key).lo).map(s=>s.w))):time||corp?Math.max(...h.sets.map(s=>s.r)):Math.round(fromKgEx(key,bestE1RM(h.sets))*10)/10})).filter(p=>Number.isFinite(p.v)&&(assist?p.v>=0:p.v>0));
- return {hist,pts,assist,time,corp,unit:time?'s':corp?'reps':uLabelEx(key),title:assist?'Menor asistencia':time?'Tiempo sostenido':corp?'Repeticiones':'1RM estimado',best:pts.length?(assist?Math.min(...pts.map(p=>p.v)):Math.max(...pts.map(p=>p.v))):null};
+function uiExerciseMetric(key,mode=(view.name==='exercise'&&view.key===key?view.chartMetric:'load')){
+ const m=exMeta(key),hist=exerciseHistory(key).filter(h=>!h.deload),assist=m.type==='asistido',time=m.type==='tiempo',corp=m.type==='corporal';
+ const pts=hist.map(h=>({date:h.date,v:assist?fromKgEx(key,Math.min(...h.sets.filter(s=>s.r>=effRange(key).lo).map(s=>s.w))):time||corp?Math.max(...h.sets.map(s=>s.r)):mode==='estimate'?Math.round(fromKgEx(key,bestE1RM(h.sets))*10)/10:fromKgEx(key,Math.max(...h.sets.map(s=>s.w)))})).filter(p=>Number.isFinite(p.v)&&(assist?p.v>=0:p.v>0));
+ return {hist,pts,assist,time,corp,unit:time?'s':corp?'reps':uLabelEx(key),title:assist?'Tu menor asistencia':time?'Tiempo sostenido':corp?'Repeticiones':mode==='estimate'?'1RM estimado':'Carga de trabajo',best:pts.length?(assist?Math.min(...pts.map(p=>p.v)):Math.max(...pts.map(p=>p.v))):null};
 }
 function uiExerciseDirectory(){
  return `<section class="n-directory"><div class="n-directory-head"><div><h2>El progreso de cada ejercicio</h2><p>Todos tus ejercicios, aunque ya no estén en el plan.</p></div><label class="field"><span>Buscar ejercicio</span><input id="n-progress-search" type="search" value="${esc(view.exerciseQuery||'')}" placeholder="Ej. Press de banca" oninput="view.exerciseQuery=this.value;uiFilterExercises()"></label></div><div id="n-exercise-directory">${uiExerciseDirectoryRows(view.exerciseQuery||'')}</div></section>`;
@@ -854,26 +932,31 @@ function uiFilterExercises(){const el=document.getElementById('n-exercise-direct
 function uiOpenProgress(key,receiptId){
  const returnTo=view.name==='history'?{...view}:{name:'history',progressTab:'exercises'};
  closeModal();openExerciseByKey(key,'history');
- if(view.name==='exercise'){view.exTab='progress';view.historyReturn=returnTo;view.receiptId=receiptId||null;render();}
+ if(view.name==='exercise'){const rec=db.history.find(h=>h.id===receiptId);if(rec){view.rid=rec.routineId;view.progressPlan=historySplitId(rec);}view.exTab='progress';view.historyReturn=returnTo;view.receiptId=receiptId||null;render();}
 }
 function uiBackToProgress(){const receiptId=view.receiptId,back=view.historyReturn||{name:'history',progressTab:'exercises'};go(back);if(receiptId)uiReceipt(receiptId);}
 function uiPickChart(index){
  const pts=window.__chartPts||[];if(!pts.length)return;
  window.__chartSelected=Math.max(0,Math.min(pts.length-1,Math.round(index)));
  const p=pts[window.__chartSelected],tip=document.getElementById('charttip'),slider=document.getElementById('n-chart-point');
- if(tip)tip.textContent=`${fmtDateShort(p.date)} · ${fmtNum(p.v)} ${window.__chartUnit}`;
+ if(tip)tip.textContent=uiChartText(p);
  if(slider){slider.value=String(window.__chartSelected);slider.setAttribute?.('aria-valuetext',`${fmtDate(p.date)}: ${fmtNum(p.v)} ${window.__chartUnit}`);}
  drawChart();
 }
-function uiExerciseProgress(key){
- const m=exMeta(key),{hist,pts,assist,time,corp,unit,best}=uiExerciseMetric(key);
- window.__chartPts=pts;window.__chartUnit=unit;window.__chartSelected=pts.length-1;window.__chartAssist=assist;
- const first=pts[0],last=pts.at(-1),delta=last&&first?Math.round((last.v-first.v)*10)/10:0;
- const title=assist?'Tu menor asistencia':time?'Tu mejor tiempo':corp?'Tu récord de reps':'1RM estimado';
- const sg=computeSuggestion(key),change=pts.length>1?`${delta>0?'+':delta<0?'−':''}${fmtNum(Math.abs(delta))} ${unit}`:'Primera referencia';
- return `<div class="n-detail-grid"><section><div class="n-metric-panel"><span class="n-eyebrow">${title}</span>${pts.length?`<div class="n-metric">${fmtNum(best)}<small>${unit}</small></div><p>${assist?'Menos ayuda para completar tu rango significa progreso.':time?'Tu mejor duración registrada en una serie.':corp?'La mayor cantidad de repeticiones en una serie.':'Estimación a partir de tus series; no es un levantamiento medido.'}</p><div class="n-metric-comparison"><div><small>Último registro</small><b>${fmtNum(last.v)} ${unit}</b></div><div><small>${pts.length>1?'Desde el primer registro':'Tu punto de partida'}</small><b>${change}</b></div></div><div class="n-chart-readout"><span>Registro seleccionado</span><output id="charttip" aria-live="polite">${fmtDateShort(last.date)} · ${fmtNum(last.v)} ${unit}</output></div><div class="chart"><canvas id="exchart" role="img" aria-label="${title}: ${pts.length} registros. ${assist?'La línea sube al necesitar menos ayuda. ':''}Usa el control inferior para consultar cada valor."></canvas></div><div class="axis"><span>${fmtDateShort(first.date)}</span><span>${fmtDateShort(last.date)}</span></div>${pts.length>1?`<label class="n-chart-scrub"><span>Toca la gráfica o desliza para explorar cada sesión</span><input id="n-chart-point" type="range" min="0" max="${pts.length-1}" step="1" value="${pts.length-1}" aria-label="Explorar registros de ${esc(view.exname||key)}" aria-valuetext="${fmtDate(last.date)}: ${fmtNum(last.v)} ${unit}" oninput="uiPickChart(Number(this.value))"></label><p class="n-chart-note">Escala ajustada a tus registros · ${unit}${assist?' de asistencia':''}.</p>`:'<p class="hint">Tu primera referencia ya está aquí. Con otra sesión podrás comparar.</p>'}`:'<h2>Tu primera referencia <br>está por llegar.</h2><p>Registra este ejercicio para empezar a ver su evolución.</p>'}</div><div class="n-section-head"><h2>Últimas veces</h2></div>${[...hist].reverse().slice(0,8).map(h=>`<div class="n-history-ex"><span>${fmtDate(h.date)}</span><b>${h.sets.map(s=>fmtSet(key,s)).join(' · ')}</b></div>`).join('')||'<p class="hint">Aún no hay sesiones de este ejercicio.</p>'}</section><aside><section class="n-panel"><span class="n-eyebrow">Tu siguiente paso</span>${sg?verdictHTML(sg,true):'<p>Empieza con una carga que puedas registrar dentro de tu rango. Las siguientes propuestas se basarán en tus series.</p>'}${uiButton('Revisar objetivos',"uiExerciseTab('targets')",'arrow','text')}</section></aside></div>`;
+function uiChartText(p){
+ const h=exerciseHistory(view.key).find(h=>h.date===p.date);
+ return `${fmtDateShort(p.date)} · ${fmtNum(p.v)} ${window.__chartUnit}${h?' · '+h.sets.map(s=>s.r+(exMeta(view.key).type==='tiempo'?' s':' reps')).join(' / '):''}`;
 }
-
+function uiChartMode(mode){view.chartMetric=mode;render();}
+function uiExerciseProgress(key){
+ const m=exMeta(key),metric=uiExerciseMetric(key),{hist,pts,assist,time,corp,unit,best}=metric;
+ window.__chartPts=pts;window.__chartUnit=unit;window.__chartSelected=pts.length-1;window.__chartAssist=assist;
+ const first=pts[0],last=pts.at(-1),sg=computeSuggestion(key),normal=!assist&&!time&&!corp;
+ const real=hist.at(-1)?.sets.slice().sort((a,b)=>b.w-a.w||b.r-a.r)[0];
+ const mode=normal?(view.chartMetric||'load'):'load';
+ const controls=normal?`<div class="n-chart-modes" role="group" aria-label="Métrica de evolución">${[['load','Carga real'],['estimate','Fuerza estimada']].map(([v,t])=>`<button aria-pressed="${mode===v}" class="${mode===v?'on':''}" onclick="uiChartMode('${v}')">${t}</button>`).join('')}</div>`:'';
+ return `<div class="n-detail-grid"><section><div class="n-metric-panel n-metric-refined">${controls}<span class="n-eyebrow">${normal&&mode==='load'?'Última carga registrada':metric.title}</span>${last?`<div class="n-metric">${fmtNum(normal&&mode==='load'?last.v:best)}<small>${unit}${normal&&mode==='load'&&real?' × '+real.r+' reps':''}</small></div><p class="n-metric-date">${fmtDate(last.date)} · ${hist.at(-1).sets.length} series${mode==='estimate'?' · estimación, no un levantamiento medido':''}</p><div class="chart"><canvas id="exchart" role="img" aria-label="${metric.title}. Usa el control inferior para consultar las sesiones."></canvas></div><div class="axis"><span>${fmtDateShort(first.date)}</span><span>${fmtDateShort(last.date)}</span></div><div class="n-chart-readout"><span>Sesión seleccionada</span><output id="charttip" aria-live="polite">${esc(uiChartText(last))}</output></div>${pts.length>1?`<label class="n-chart-scrub"><span>Toca la gráfica o desliza entre sesiones</span><input id="n-chart-point" type="range" min="0" max="${pts.length-1}" step="1" value="${pts.length-1}" aria-label="Explorar registros de ${esc(view.exname||key)}" oninput="uiPickChart(Number(this.value))"></label>`:'<p class="hint">Tu primera referencia ya está aquí.</p>'}<p class="n-chart-note">${assist?'Menos ayuda para completar el rango significa progreso.':normal&&mode==='load'?'La gráfica muestra la mayor carga real de cada sesión.':mode==='estimate'?'Estimación de fuerza a partir del peso y las repeticiones.':'Cada punto corresponde a una sesión.'} Las descargas se conservan en el diario.</p>`:'<h2>Tu primera referencia está por llegar.</h2><p>Al registrar este ejercicio verás su evolución aquí.</p>'}</div><div class="n-section-head"><h2>Últimas veces</h2></div>${[...exerciseHistory(key)].reverse().slice(0,8).map(h=>`<div class="n-history-ex"><span>${fmtDate(h.date)}${h.deload?' · Descarga':''}</span><b>${h.sets.map(s=>fmtSet(key,s)).join(' · ')}</b></div>`).join('')}</section><aside><section class="n-panel"><span class="n-eyebrow">Tu siguiente paso</span>${sg?verdictHTML(sg,true):'<p>Tu próxima propuesta partirá de lo que registres.</p>'}${uiButton('Revisar objetivos',"uiExerciseTab('targets')",'arrow','text')}</section></aside></div>`;
+}
 function uiNumberField(label,value,action,{unit='',placeholder='—',min=0,step='any',id=''}={}){return `<label class="field n-number-field"><span>${label}${unit?` · ${unit}`:''}</span><input ${id?`id="${id}"`:''} type="number" inputmode="${step===1?'numeric':'decimal'}" min="${min}" step="${step}" value="${esc(value??'')}" placeholder="${placeholder}" oninput="${action}"></label>`;}
 function uiEquipment(key){
  const m=exMeta(key),eq=effEquip(key),points=effPoints(key);
@@ -887,7 +970,7 @@ function uiEquipment(key){
   details=`<label class="field"><span>¿Cuántas usas a la vez?</span><select onchange="setExPoints('${uiInlineKey(key)}',Number(this.value))">${DB_POINTS.map(([n,t])=>`<option value="${n}" ${points===n?'selected':''}>${t}</option>`).join('')}</select></label><p class="n-context-note">${points===2?'En la sesión anotas la suma de ambas: 10 por mano = 20. El montaje te muestra cuánto tomar en cada mano.':'Anota el peso de la mancuerna que utilizas.'}</p>`;
  }else if(eq==='placas'){
   const u=m.stack?.unit==='lb'?'lb':'kg';
-  details=`<div class="line"><div><b>Unidad de la máquina</b><p class="hint">La que aparece en sus placas</p></div><div class="pill-sw">${['kg','lb'].map(unit=>`<button class="${u===unit?'on':''}" onclick="setExStack('${uiInlineKey(key)}','unit','${unit}')">${unit}</button>`).join('')}</div></div>
+  details=`<div class="line"><div><b>Unidad de la máquina</b><p class="hint">La que aparece en sus placas</p></div><div class="pill-sw">${['kg','lb'].map(unit=>`<button class="${u===unit?'on':''}" aria-pressed="${u===unit}" onclick="setExStack('${uiInlineKey(key)}','unit','${unit}')">${unit}</button>`).join('')}</div></div>
     <div class="n-form-pair">${uiNumberField('Primera placa',m.stack.start,`setExStack('${uiInlineKey(key)}','start',this.value)`,{unit:u})}${uiNumberField('Salto entre placas',m.stack.step,`setExStack('${uiInlineKey(key)}','step',this.value)`,{unit:u})}</div>
     ${uiNumberField('Peso máximo de la máquina',stackCapValue(key)??'',`setExCap('${uiInlineKey(key)}',this.value)`,{unit:u,placeholder:'Si lo sabes'})}
     <p class="hint">El peso de la última placa de la torre, sin contar el ajuste fino.</p>
@@ -896,14 +979,24 @@ function uiEquipment(key){
       <p class="hint">El máximo es la suma de todos los extras disponibles: dos discos de 1,5 lb permiten añadir hasta 3 lb.</p>
     </div><p class="n-context-note" id="stackhint">${stackHintHTML(key)}</p>`;
  }
- return `<div class="n-detail-grid"><section><div class="n-section-head"><h2>¿Con qué lo haces?</h2><span class="n-place-label">${uiIcon('gym')}${esc(db.gym.name)}</span></div><div class="n-equipment-choices">${EQUIP_KEYS.map(k=>`<button class="${m.equip===k?'on':''}" aria-pressed="${m.equip===k}" onclick="setExEquip('${uiInlineKey(key)}','${k}')">${uiIcon(k==='mancuerna'?'dumbbell':k==='placas'?'stack':k==='nada'?'user':k==='discos'?'plate':'barbell')}<b>${k==='nada'?'Sin equipo':k==='placas'?'Torre con pin':EQUIP[k].label}</b></button>`).join('')}</div><section class="n-panel n-equipment-fields">${details||'<p>Sin equipo adicional. Puedes seguir registrando y progresando.</p>'}</section></section><aside class="n-panel"><span class="n-eyebrow">De este lugar</span><h2>El equipo cambia contigo.</h2><p>Esta configuración pertenece a ${esc(db.gym.name)}. Al elegir otro gimnasio, se recupera la suya.</p>${uiButton('Ver inventario',uiGo({name:'gym',kind:eq==='mancuerna'?'dumbbells':eq==='barra'?'bars':'plates'}),'gym','secondary')}${uiButton('Es otra máquina',uiAction('promptDuplicateEx',key,view.exname||key),'copy','text')}<p class="hint">Una variante de máquina lleva un historial separado.</p></aside></div>`;
+ return `<div class="n-detail-grid"><section><div class="n-section-head"><h2>¿Con qué lo haces?</h2><span class="n-place-label">${uiIcon('gym')}${esc(db.gym.name)}</span></div><div class="n-equipment-choices">${EQUIP_KEYS.map(k=>`<button class="${m.equip===k?'on':''}" aria-pressed="${m.equip===k}" onclick="setExEquip('${uiInlineKey(key)}','${k}')">${uiIcon(k==='mancuerna'?'dumbbell':k==='placas'?'stack':k==='nada'?'user':k==='discos'?'plate':'barbell')}<b>${k==='nada'?'Sin equipo':k==='placas'?'Torre con pin':EQUIP[k].label}</b></button>`).join('')}</div><section class="n-panel n-equipment-fields">${details||'<p>Sin equipo adicional. Puedes seguir registrando y progresando.</p>'}</section></section><aside class="n-panel"><span class="n-eyebrow">De este lugar</span><h2>El equipo cambia contigo.</h2><p>Esta configuración pertenece a ${esc(db.gym.name)}. Al elegir otro gimnasio, se recupera la suya.</p>${uiButton('Ver inventario',uiAction('uiOpenInventory',eq==='mancuerna'?'dumbbells':eq==='barra'?'bars':eq==='placas'?'machines':'plates'),'gym','secondary')}${uiButton('Es otra máquina',uiAction('promptDuplicateEx',key,view.exname||key),'copy','text')}<p class="hint">Una variante de máquina lleva un historial separado.</p></aside></div>`;
 }
 function uiTargetScope(scope){view.targetScope=scope;render();}
+function uiEditRange(key,scope){
+ const a=document.getElementById('n-range-lo'),b=document.getElementById('n-range-hi'),error=document.getElementById('n-range-error');
+ const lo=a.value===''?null:Number(a.value),hi=b.value===''?null:Number(b.value),m=exMeta(key),defaults=m.type==='tiempo'?TIEMPO_RANGE:goalRange();
+ const lower=lo??(scope==='plan'?m.lo:null)??defaults.lo,upper=hi??(scope==='plan'?m.hi:null)??defaults.hi;
+ const valid=Number.isInteger(lower)&&Number.isInteger(upper)&&lower>0&&upper>lower;
+ if(error)error.textContent=valid?'':'El máximo debe ser mayor que el mínimo. Conservamos el rango anterior hasta que esté completo.';
+ a.setAttribute?.('aria-invalid',String(!valid));b.setAttribute?.('aria-invalid',String(!valid));
+ if(!valid)return;
+ commitChange(()=>{const sp=db.splits.find(s=>s.id===ctxSplitId());if(sp&&!sp.exconf)sp.exconf={};const target=scope==='plan'&&sp?(sp.exconf[key]||={}):m;for(const [k,v] of [['lo',lo],['hi',hi]]){if(v===null)delete target[k];else target[k]=v;}refreshActiveSugg(key);});
+}
 function uiTargets(key){
  const m=exMeta(key),sp=db.splits.find(s=>s.id===ctxSplitId()),scope=view.targetScope==='plan'&&sp?'plan':'general',oc=scope==='plan'?(sp.exconf||{})[key]||{}:m;
  const change=scope==='plan'?'setSplitConf':'setExRange',range=m.type==='tiempo'?TIEMPO_RANGE:goalRange();
- const inputs=`<div class="n-form-pair">${uiNumberField('Rango mínimo',oc.lo,`${change}('${uiInlineKey(key)}','lo',this.value)`,{placeholder:String(m.lo||range.lo),min:1,step:1})}${uiNumberField('Rango máximo',oc.hi,`${change}('${uiInlineKey(key)}','hi',this.value)`,{placeholder:String(m.hi||range.hi),min:2,step:1})}</div>`;
- return `<div class="n-detail-grid"><section><div class="n-section-head"><h2>Cómo mides el esfuerzo</h2></div><div class="n-type-grid">${[['normal','Peso y reps'],['asistido','Con asistencia'],['corporal','Peso corporal'],['tiempo','Por tiempo']].map(([v,l])=>`<button class="${m.type===v?'on':''}" onclick="setExType('${uiInlineKey(key)}','${v}')" aria-pressed="${m.type===v}">${l}</button>`).join('')}</div><p class="n-context-note">${m.type==='asistido'?'Se progresa reduciendo la ayuda de la máquina.':m.type==='tiempo'?'El rango indica segundos, no repeticiones.':m.type==='corporal'?'La referencia principal son tus repeticiones; el lastre es opcional.':'Completa el rango y después aumenta la carga disponible.'}</p><section class="n-panel">${sp?uiSubnav([['general','Reglas generales'],['plan','Solo este plan']],scope,'uiTargetScope'):''}<h2>${scope==='plan'?esc(sp.name):'Tu rango y descanso'}</h2><p>${scope==='plan'?'Los campos vacíos heredan las reglas generales.':'Los campos vacíos siguen tu objetivo general.'}</p>${inputs}${scope==='plan'?uiNumberField('Series previstas',oc.sets,`setSplitConf('${uiInlineKey(key)}','sets',this.value)`,{placeholder:'Automáticas',min:1,step:1}):''}<label class="field"><span>Descanso</span><select onchange="${scope==='plan'?`setSplitConf('${uiInlineKey(key)}','rest',this.value)`:`setExRest('${uiInlineKey(key)}',this.value)`}"><option value="auto" ${!oc.rest?'selected':''}>${scope==='plan'?'Heredar descanso general':'Según tus preferencias'}</option>${[45,60,90,120,150,180,240,300].map(s=>`<option value="${s}" ${Number(oc.rest)===s?'selected':''}>${fmtClock(s)}</option>`).join('')}</select></label>${scope==='general'?`<label class="field"><span>Aumento mínimo</span><select onchange="setExStep('${uiInlineKey(key)}',this.value)">${stepOptionsHTML(m.step)}</select></label>${m.type==='normal'&&effEquip(key)!=='placas'?uiNumberField('Carga máxima disponible',m.cap!=null?inputWEx(key,m.cap):'',`setExCap('${uiInlineKey(key)}',this.value)`,{unit:uLabelEx(key)}):''}`:''}</section></section><aside><section class="n-panel"><label class="field"><span>Grupo muscular principal</span><select onchange="setExMuscle('${uiInlineKey(key)}',this.value)"><option value="none" ${!m.muscle||m.muscle==='none'?'selected':''}>Sin asignar</option>${MUSCLES.map(([k,l])=>`<option value="${k}" ${m.muscle===k?'selected':''}>${l}</option>`).join('')}</select></label><p class="hint">Alimenta tu mapa corporal. Puedes mantener «Pierna» o elegir un grupo más específico.</p></section><section class="n-panel n-notes"><label class="field"><span>Nota al entrenar</span><textarea maxlength="300" placeholder="Asiento, agarre, técnica…" oninput="setExNotes('${uiInlineKey(key)}',this.value)">${esc(m.notes||'')}</textarea></label><p class="hint">Se guarda automáticamente y aparece destacada durante la sesión.</p></section></aside></div>`;
+ const inputs=`<div class="n-form-pair">${uiNumberField('Rango mínimo',oc.lo,`uiEditRange('${uiInlineKey(key)}','${scope}')`,{id:'n-range-lo',placeholder:String(m.lo||range.lo),min:1,step:1})}${uiNumberField('Rango máximo',oc.hi,`uiEditRange('${uiInlineKey(key)}','${scope}')`,{id:'n-range-hi',placeholder:String(m.hi||range.hi),min:2,step:1})}</div><p id="n-range-error" class="n-sync-error" role="alert"></p>`;
+ return `<div class="n-detail-grid"><section><div class="n-section-head"><h2>Cómo mides el esfuerzo</h2></div><div class="n-type-grid">${[['normal','Peso y reps'],['asistido','Con asistencia'],['corporal','Peso corporal'],['tiempo','Por tiempo']].map(([v,l])=>`<button class="${m.type===v?'on':''}" onclick="setExType('${uiInlineKey(key)}','${v}')" aria-pressed="${m.type===v}">${l}</button>`).join('')}</div><p class="n-context-note">${m.type==='asistido'?'Se progresa reduciendo la ayuda de la máquina.':m.type==='tiempo'?'El rango indica segundos, no repeticiones.':m.type==='corporal'?'La referencia principal son tus repeticiones; el lastre es opcional.':'Completa el rango y después aumenta la carga disponible.'}</p><section class="n-panel">${sp?uiSubnav([['general','Reglas generales'],['plan','Solo este plan']],scope,'uiTargetScope'):''}<h2>${scope==='plan'?esc(sp.name):'Tu rango y descanso'}</h2><p>${scope==='plan'?'Los campos vacíos heredan las reglas generales.':'Los campos vacíos siguen tu objetivo general.'}</p>${inputs}${scope==='plan'?uiNumberField('Series previstas',oc.sets,`setSplitConf('${uiInlineKey(key)}','sets',this.value)`,{placeholder:'Automáticas',min:1,step:1}):''}<label class="field"><span>Descanso</span><select onchange="${scope==='plan'?`setSplitConf('${uiInlineKey(key)}','rest',this.value)`:`setExRest('${uiInlineKey(key)}',this.value)`}"><option value="auto" ${!oc.rest?'selected':''}>${scope==='plan'?'Heredar descanso general':'Según tus preferencias'}</option>${[45,60,90,120,150,180,240,300].map(s=>`<option value="${s}" ${Number(oc.rest)===s?'selected':''}>${fmtClock(s)}</option>`).join('')}</select></label>${scope==='general'?`<label class="field"><span>Aumento mínimo</span><select onchange="setExStep('${uiInlineKey(key)}',this.value)">${stepOptionsHTML(m.step)}</select></label>${m.type==='normal'&&effEquip(key)!=='placas'?uiNumberField('Carga máxima disponible',m.cap!=null?inputWEx(key,m.cap):'',`setExCap('${uiInlineKey(key)}',this.value)`,{unit:uLabelEx(key)}):''}`:''}</section></section><aside><section class="n-panel"><label class="field"><span>Grupo muscular principal</span><select onchange="setExMuscle('${uiInlineKey(key)}',this.value)"><option value="none" ${!m.muscle||m.muscle==='none'?'selected':''}>Sin asignar</option>${MUSCLES.map(([k,l])=>`<option value="${k}" ${m.muscle===k?'selected':''}>${l}</option>`).join('')}</select></label><p class="hint">Alimenta tu mapa corporal. Puedes mantener «Pierna» o elegir un grupo más específico.</p></section><section class="n-panel n-notes"><label class="field"><span>Ajuste de ${esc(db.gym.name)}</span><textarea maxlength="300" placeholder="Asiento, altura de polea, accesorios…" oninput="setGymNotes('${uiInlineKey(key)}',this.value)">${esc(m.gymNotes||'')}</textarea></label><p class="hint">Se recupera al elegir este gimnasio.</p><label class="field"><span>Técnica · todos tus gimnasios</span><textarea maxlength="300" placeholder="Agarre, recorrido, ritmo…" oninput="setExNotes('${uiInlineKey(key)}',this.value)">${esc(m.notes||'')}</textarea></label><p class="hint">Se guarda automáticamente y aparece al entrenar en cualquier lugar.</p></section></aside></div>`;
 }
 
 /* Three personal task categories, each with its own short page. */
@@ -934,7 +1027,18 @@ function uiData(){
  const dsb=daysSinceBackup();
  return `<div class="n-detail-grid"><section class="n-panel"><span class="n-eyebrow">En este dispositivo</span><h2>Tu historia merece <br>una copia.</h2><p>${db.history.length} sesiones · ${Math.max(1,Math.round(JSON.stringify(db).length/1024))} KB. <br>${dsb===null?'Aún no has descargado un respaldo.':`Último respaldo: hace ${dsb} días.`}</p>${uiButton('Descargar respaldo','exportBackup()','download')}<p class="hint">Incluye planes, historial, progreso, gimnasios y sesión en curso.</p></section><section>${uiRow('Importar un plan','Días y ejercicios de un archivo de Hierro',"go({name:'splits'});document.getElementById('splitfile').click()",'plan')}${uiRow('Restaurar respaldo','Reemplaza los datos actuales después de confirmar',"document.getElementById('backupfile').click()",'download')}${uiRow('Importar desde Hevy','Añade tu historial desde un CSV',"document.getElementById('hevyfile').click()",'download')}<p class="hint">En Hevy: Perfil → Ajustes → Export data. Una importación repetida no duplica sesiones.</p><input id="backupfile" type="file" accept=".json,application/json" hidden onchange="importBackup(this.files[0]);this.value=''"><input id="hevyfile" type="file" accept=".csv,text/csv" hidden onchange="importHevy(this.files[0]);this.value=''">${uiButton('Borrar todos mis datos','askWipe()','trash','danger')}</section></div>`;
 }
-function uiOfflineInfo(){infoModal('Hierro te acompaña sin conexión','Abre la app una vez con conexión para guardar sus recursos. Puedes añadirla a la pantalla de inicio desde el menú del navegador. Tus registros se guardan en este navegador y dispositivo; descarga un respaldo antes de cambiarlos o borrar sus datos.');}
+async function uiOfflineInfo(){
+ openModal(`<h2>Hierro sin conexión</h2><p id="n-offline-state" class="n-context-note" role="status">Comprobando la copia de la app en este dispositivo…</p><p>Puedes entrenar y guardar series sin internet. La sincronización y las notificaciones con la pantalla bloqueada necesitan conexión.</p><p class="hint">Añade Hierro a la pantalla de inicio desde el menú del navegador. Descarga un respaldo antes de borrar sus datos o cambiar de navegador.</p>${uiButton('Volver a comprobar','uiOfflineInfo()','shield','secondary')}${uiButton('Cerrar','closeModal()','close','text')}`);
+ const status=document.getElementById('n-offline-state');let text='No pudimos confirmar la copia sin conexión. Abre Hierro con internet y vuelve a comprobar.';
+ try{
+  const worker=navigator.serviceWorker?.controller;
+  if(worker){
+   const result=await new Promise(resolve=>{const channel=new MessageChannel();const timeout=setTimeout(()=>{channel.port1.close();resolve(null);},3500);channel.port1.onmessage=e=>{clearTimeout(timeout);channel.port1.close();resolve(e.data);};worker.postMessage({tipo:'consultar-offline'},[channel.port2]);});
+   if(result?.ready)text=`Lista para abrir sin conexión · versión ${result.version}. Tus registros se guardan en este dispositivo.`;
+  }
+ }catch{}
+ if(status?.isConnected)status.textContent=text;
+}
 function uiGymPicker(){
  openModal(`<h2>¿Dónde entrenas hoy?</h2><p class="muted">Cada lugar recuerda su equipo y sus máquinas.</p>${db.gyms.map(g=>uiRow(esc(g.name),g.id===db.settings.gymId?'Estás aquí':gymSummary(g),uiAction('pickGym',g.id),g.id===db.settings.gymId?'check':'chevron',`<span class="n-row-icon">${uiIcon('gym')}</span>`)).join('')}${uiButton('Administrar mis gimnasios',`closeModal();${uiGo({name:'settings',section:'gyms'})}`,'settings','text')}${uiButton('Volver','closeModal()','back','secondary')}`);
 }
@@ -942,15 +1046,16 @@ function uiGyms(){return `<div class="n-plan-grid">${db.gyms.map(g=>`<section cl
 function uiOpenGym(id){setActiveGym(id);go({name:'gym',kind:'plates'});}
 function uiGymTab(kind){view.kind=kind;render();}
 function uiGym(){
- const kind=view.kind||'plates',tabs=uiSubnav([['plates','Discos'],['bars','Barras'],['dumbbells','Mancuernas'],['machines','Máquinas']],kind,'uiGymTab');
+ const kind=view.kind||'plates',tabs=uiSubnav([['plates','Discos'],['bars','Barras'],['dumbbells','Mancuernas'],['machines','Montajes']],kind,'uiGymTab');
  if(kind==='machines')return tabs+`<div class="n-machines">${[...allExerciseNames()].filter(([k])=>effEquip(k)&&effEquip(k)!=='nada').map(([k,inf])=>uiRow(esc(exBaseName(inf.name)),EQUIP[effEquip(k)]?.label||'',uiAction('uiOpenMachine',k),'settings')).join('')||'<div class="n-empty"><h2>Tu equipo, ejercicio a ejercicio.</h2><p>Añade ejercicios a un día y configura su máquina desde la ficha.</p></div>'}</div>`;
  let body='';
  if(kind==='dumbbells')body=`<p class="n-context-note">Toca los pesos disponibles. Cada número representa una mancuerna.</p><div class="n-rack">${db.gym.dumbbells.map((d,i)=>({d,i})).sort((a,b)=>a.d.kg-b.d.kg).map(({d,i})=>`<div class="n-rack-item"><button class="n-weight-tile ${d.on?'on':''}" aria-pressed="${!!d.on}" aria-label="Mancuerna ${fmtW(d.kg)} ${uLabel()}" onclick="toggleGym('dumbbells',${i})"><b>${fmtW(d.kg)}</b><small>${uLabel()}${d.on?' · disponible':''}</small>${d.on?uiIcon('check'):''}</button>${d.custom?`<button class="n-remove-weight" aria-label="Eliminar mancuerna ${fmtW(d.kg)}" onclick="removeGym('dumbbells',${i})">${uiIcon('trash')}</button>`:''}</div>`).join('')}</div>`;
  else if(kind==='plates')body=`<p class="n-context-note">Marca los discos que hay y cuántos pares tienes. Así se propone un montaje posible.</p><div class="n-plates-grid">${db.gym.plates.map((p,i)=>({p,i})).sort((a,b)=>b.p.kg-a.p.kg).map(({p,i})=>`<section class="n-plate-card ${p.on?'on':''}"><button class="n-plate-select" aria-pressed="${!!p.on}" aria-label="Disco ${fmtW(p.kg)} ${uLabel()}" onclick="toggleGym('plates',${i})"><span class="n-plate-art" style="--plate-color:${plateColor(p.kg)}"><i></i></span><span><b>${fmtW(p.kg)} <small>${uLabel()}</small></b><small>${p.on?`${p.pairs*2} discos disponibles`:'No disponible'}</small></span>${uiIcon(p.on?'check':'plus')}</button>${p.on?`<div class="n-plate-qty"><span>Pares</span><div class="qty"><button aria-label="Menos pares de ${fmtW(p.kg)}" onclick="setPairs(${i},-1)">−</button><span>${p.pairs}</span><button aria-label="Más pares de ${fmtW(p.kg)}" onclick="setPairs(${i},1)">+</button></div></div>`:''}${p.custom?uiButton('Quitar peso',`removeGym('plates',${i})`,'trash','text'):''}</section>`).join('')}</div>`;
  else body=`<p class="n-context-note">La barra predeterminada se usa cuando el ejercicio no tiene otra elegida.</p><div class="n-bar-grid">${db.gym.bars.map((b,i)=>`<section class="n-bar-card ${b.on?'on':''}"><span class="n-eyebrow">${b.on&&b.def?'Tu barra predeterminada':b.on?'Disponible':'No disponible'}</span>${uiIcon('barbell')}<h2>${esc(b.name)}</h2><strong>${fmtW(b.kg)}<small>${uLabel()}</small></strong><div class="n-toolbar">${uiButton(b.on?'Desactivar':'Tengo esta barra',`toggleGym('bars',${i})`,b.on?'check':'plus','secondary')}${b.on&&!b.def?uiButton('Predeterminada',`setDefaultBar(${i})`,'check','text'):''}${uiButton('Cambiar nombre',uiAction('uiRenameBar',b.id),'edit','text')}${b.custom?uiButton('Quitar',`removeGym('bars',${i})`,'trash','text'):''}</div></section>`).join('')}</div>`;
- return `${tabs}${body}<div class="n-inventory-footer"><div class="n-toolbar">${uiButton(kind==='bars'?'Añadir barra':'Añadir peso',uiAction('promptGymItem',kind),'plus','secondary')}${kind==='dumbbells'?uiButton('Generar un rango','uiDumbbellRange()','list','text'):''}</div>${unitPillHTML()}</div><div class="n-inventory-reset">${uiButton('Restaurar juego estándar',uiAction('askResetGymKind',kind),'list','text')}<p>Reemplaza esta lista por los pesos iniciales en ${uLabel()}. Te pediremos confirmar antes de cambiarla.</p></div>`;
+ return `${tabs}<div class="n-inventory-unit">${unitPillHTML()}</div>${body}<div class="n-inventory-footer"><div class="n-toolbar">${uiButton(kind==='bars'?'Añadir barra':'Añadir peso',uiAction('promptGymItem',kind),'plus','secondary')}${kind==='dumbbells'?uiButton('Generar un rango','uiDumbbellRange()','list','text'):''}</div></div><div class="n-inventory-reset">${uiButton('Restaurar juego estándar',uiAction('askResetGymKind',kind),'list','text')}<p>Reemplaza esta lista por los pesos iniciales en ${uLabel()}. Te pediremos confirmar antes de cambiarla.</p></div>`;
 }
-function uiOpenMachine(key){openExerciseByKey(key);view.exTab='equipment';view.from='gym';render();}
+function uiOpenMachine(key){if(view.inventoryReturn?.key===key){go({...view.inventoryReturn,exTab:'equipment'});return;}openExerciseByKey(key);view.exTab='equipment';view.from='gym';render();}
+function uiOpenInventory(kind){go({name:'gym',kind,inventoryReturn:{...view}});}
 function uiInventoryOptions(kind){askResetGymKind(kind);}
 function uiRenameBar(id){
  const bar=db.gym.bars.find(b=>b.id===id);if(!bar)return;
@@ -1021,13 +1126,23 @@ function uiSaveHistory(){
  if(ed.entries.some(e=>e.sets.some(s=>!uiValidSet(e.key,s)))){document.getElementById('n-history-error').textContent='Cada serie necesita un peso válido y un número entero de repeticiones o segundos. Tus cambios siguen aquí.';return;}
  saveEditedSession();
 }
+function uiFormSemantics(root){
+ if(!root?.querySelectorAll)return;
+ root.querySelectorAll('.field').forEach(field=>{const input=field.querySelector('input,textarea,select'),label=field.querySelector('span');if(input&&label&&!input.closest('label')&&!input.hasAttribute('aria-label'))input.setAttribute('aria-label',label.textContent.trim());});
+ root.querySelectorAll('.pill-sw button,.n-goals button,.n-rir-options button').forEach(button=>button.setAttribute('aria-pressed',String(button.classList.contains('on'))));
+ root.querySelectorAll('select:not([aria-label])').forEach(el=>{if(!el.closest('label'))el.setAttribute('aria-label',el.closest('.line')?.querySelector('.l-t')?.textContent||'Elegir opción');});
+}
 function uiAfterRender(){
  uiSyncModalState();
  if(!document.querySelectorAll)return;
  uiApplyAppearance();
  uiArrangeActions(document.getElementById('main'));
- uiAnimateView();
- document.querySelectorAll('select:not([aria-label])').forEach(el=>{if(!el.closest('label'))el.setAttribute('aria-label',el.closest('.line')?.querySelector('.l-t')?.textContent||'Elegir opción');});
+ uiAnimateView();uiSaveState();
+ const record=document.querySelector('.n-record-dock>.n-primary');if(record)record.id='n-record';
+ const warm=document.querySelector('#warmup-record,#warmup-next');if(warm){const dock=document.createElement('div');dock.className='n-work-action';warm.before(dock);dock.append(warm);}
+ document.body.dataset.workAction=record||warm?'on':'off';
+ if(window.__removedSet&&db.active?.id===window.__removedSet.session)document.getElementById('main').insertAdjacentHTML('beforeend',`<div class="n-undo-bar" role="status"><span>Serie eliminada</span>${uiButton('Deshacer','uiUndoRemovedSet()','back','text')}</div>`);
+ uiFormSemantics(document);
  document.querySelectorAll('[role="button"]:not(button)').forEach(el=>{el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}};});
  if(db.active&&view.name!=='session'&&view.name!=='home')document.getElementById('main').insertAdjacentHTML('afterbegin',`<div class="n-minimized">${uiResume()}</div>`);
 }

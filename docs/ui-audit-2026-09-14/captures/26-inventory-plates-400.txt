@@ -1,0 +1,81 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Mis gimnasios":
+    - text: Mis gimnasios
+  - generic: Equipo de este gimnasio
+  - heading "SmartFit · Buenavista" [level=1]
+  - 'button "Cambiar de gimnasio: SmartFit · Buenavista"':
+    - generic: SmartFit · Buenavista
+- main:
+  - group "Secciones":
+    - button "Discos" [pressed]
+    - button "Barras"
+    - button "Mancuernas"
+    - button "Máquinas"
+  - paragraph: Marca los discos que hay y cuántos pares tienes. Así se propone un montaje posible.
+  - button "Disco 25 kg" [pressed]:
+    - generic: 25 kg
+    - generic: 4 discos disponibles
+  - generic: Pares
+  - button "Menos pares de 25": −
+  - generic: "2"
+  - button "Más pares de 25": +
+  - button "Disco 20 kg" [pressed]:
+    - generic: 20 kg
+    - generic: 4 discos disponibles
+  - generic: Pares
+  - button "Menos pares de 20": −
+  - generic: "2"
+  - button "Más pares de 20": +
+  - button "Disco 15 kg" [pressed]:
+    - generic: 15 kg
+    - generic: 4 discos disponibles
+  - generic: Pares
+  - button "Menos pares de 15": −
+  - generic: "2"
+  - button "Más pares de 15": +
+  - button "Disco 10 kg" [pressed]:
+    - generic: 10 kg
+    - generic: 4 discos disponibles
+  - generic: Pares
+  - button "Menos pares de 10": −
+  - generic: "2"
+  - button "Más pares de 10": +
+  - button "Disco 5 kg" [pressed]:
+    - generic: 5 kg
+    - generic: 4 discos disponibles
+  - generic: Pares
+  - button "Menos pares de 5": −
+  - generic: "2"
+  - button "Más pares de 5": +
+  - button "Disco 2,5 kg" [pressed]:
+    - generic: 2,5 kg
+    - generic: 4 discos disponibles
+  - generic: Pares
+  - button "Menos pares de 2,5": −
+  - generic: "2"
+  - button "Más pares de 2,5": +
+  - button "Disco 1,25 kg" [pressed]:
+    - generic: 1,25 kg
+    - generic: 4 discos disponibles
+  - generic: Pares
+  - button "Menos pares de 1,25": −
+  - generic: "2"
+  - button "Más pares de 1,25": +
+  - button "Añadir peso":
+    - generic: Añadir peso
+  - button "kg"
+  - button "lb"
+  - button "Restaurar juego estándar":
+    - generic: Restaurar juego estándar
+  - paragraph: Reemplaza esta lista por los pesos iniciales en kg. Te pediremos confirmar antes de cambiarla.
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

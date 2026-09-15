@@ -1,0 +1,65 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Tu espacio":
+    - text: Tu espacio
+  - generic: A tu manera
+  - heading "Preferencias de sesión" [level=1]
+- main:
+  - heading "Lo que buscas" [level=2]
+  - button "Hipertrofia 8–12 reps":
+    - generic: Hipertrofia
+    - generic: 8–12 reps
+  - button "Fuerza 4–6 reps":
+    - generic: Fuerza
+    - generic: 4–6 reps
+  - button "Ambas 6–10 reps":
+    - generic: Ambas
+    - generic: 6–10 reps
+  - paragraph: Define el rango y el descanso automático. Cada ejercicio puede tener sus propias reglas.
+  - text: Unidad de peso
+  - paragraph: Los ejercicios con torre siguen la unidad de su máquina.
+  - button "kg"
+  - button "lb"
+  - generic: Descanso entre series
+  - combobox "Descanso entre series":
+    - option "Según mi objetivo" [selected]
+    - option "1:00"
+    - option "1:30"
+    - option "2:00"
+    - option "2:30"
+    - option "3:00"
+    - option "4:00"
+    - option "5:00"
+    - option "Sin temporizador"
+  - paragraph: Comienza al registrar una serie. También puedes definirlo por ejercicio o plan.
+  - complementary:
+    - heading "Escucha tu siguiente serie." [level=2]
+    - generic: Sonidos del temporizador
+    - generic: Pitidos en los últimos 3 segundos y una señal al terminar.
+    - switch "Sonidos del temporizador"
+    - generic: Vibración
+    - generic: Un toque breve con cada aviso del temporizador.
+    - switch "Vibración"
+    - button "Probar aviso":
+      - generic: Probar aviso
+    - status
+    - paragraph: Con la app abierta, los avisos acompañan el reloj. Para recibir el fin del descanso con la pantalla bloqueada, activa Notificaciones del teléfono.
+    - button "Notificaciones del teléfono Descansos, recordatorios y carga del siguiente ejercicio":
+      - generic: Notificaciones del teléfono
+      - generic: Descansos, recordatorios y carga del siguiente ejercicio
+    - generic: Pantalla encendida
+    - generic: Mantenerla activa durante la sesión
+    - switch "Pantalla encendida" [checked]
+    - generic: Guardar en Apple Salud
+    - generic: Mostrar la acción al terminar · requiere un atajo
+    - switch "Guardar en Apple Salud"
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

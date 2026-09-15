@@ -27,6 +27,7 @@ const run=s=>vm.runInContext(s,context);let count=0;const ok=(v,m)=>{assert.ok(v
  const copy=run('pushSnapshot().rest.next.body');
  ok(copy.includes('Placa 13')&&copy.includes('ajuste fino 3 lb'),'el aviso usa placa y ajuste fino reales de la máquina en libras');
  ok(copy.includes('65,5 lb')&&copy.includes('6 reps'),'la carga mantiene la unidad de la torre aunque el gimnasio esté en kilos');
+ run('db.active.localOnly=true');ok(run('pushSnapshot()')===null,'una sesión independiente no programa avisos para la sesión de otro dispositivo');run('delete db.active.localOnly');
  run(`db.active.exercises[0].warmup={phase:'set',completed:0,plan:{steps:[{w:10,reps:8},{w:20,reps:5}]}};`);
  ok(run('pushSnapshot().next.body').startsWith('Calentamiento'),'el recordatorio muestra el calentamiento pendiente y no la carga de trabajo');
  run(`db.active.exercises[0].warmup.phase='rest';db.active.exercises[0].warmup.completed=1;db.active.exercises[0].warmup.restUntil=Date.now()+30000;`);

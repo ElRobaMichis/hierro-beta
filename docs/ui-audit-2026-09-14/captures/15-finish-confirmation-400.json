@@ -1,0 +1,69 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 1
+      },
+      {
+        "id": "skip-link",
+        "nodes": 1
+      }
+    ],
+    "passes": 31,
+    "time": "2026-09-14T23:23:44.039Z",
+    "version": "4.13.0",
+    "view": "session",
+    "violations": []
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 52,
+      "label": "Terminar y guardar",
+      "tag": "BUTTON",
+      "w": 352,
+      "x": 24,
+      "y": 769
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 48,
+      "label": "Cancelar",
+      "tag": "BUTTON",
+      "w": 352,
+      "x": 24,
+      "y": 832
+    }
+  ],
+  "documentHeight": 922,
+  "documentWidth": 400,
+  "focused": "<div class=\"modal\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ui-dialog-title\" tabindex=\"-1\">\n    <h2 id=\"ui-dialog-title\">¿Terminar la sesión?</h2>\n    <p class=\"muted\">Llevas 0 min 32 s y regi",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "27px",
+      "h": 30,
+      "text": "¿Terminar la sesión?",
+      "w": 352,
+      "x": 24,
+      "y": 659
+    }
+  ],
+  "height": 907,
+  "scrollY": 0,
+  "smallText": [],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "session",
+  "width": 400,
+  "name": "15-finish-confirmation-400",
+  "image": "15-finish-confirmation-400.jpg",
+  "imageSize": [
+    400,
+    907
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

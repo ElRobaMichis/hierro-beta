@@ -1,0 +1,130 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Mis gimnasios":
+    - text: Mis gimnasios
+  - generic: Equipo de este gimnasio
+  - heading "SmartFit · Buenavista" [level=1]
+  - 'button "Cambiar de gimnasio: SmartFit · Buenavista"':
+    - generic: SmartFit · Buenavista
+- main:
+  - group "Secciones":
+    - button "Discos"
+    - button "Barras"
+    - button "Mancuernas" [pressed]
+    - button "Máquinas"
+  - paragraph: Toca los pesos disponibles. Cada número representa una mancuerna.
+  - button "Mancuerna 1 kg" [pressed]:
+    - generic: "1"
+    - generic: kg · disponible
+  - button "Mancuerna 2 kg" [pressed]:
+    - generic: "2"
+    - generic: kg · disponible
+  - button "Mancuerna 3 kg" [pressed]:
+    - generic: "3"
+    - generic: kg · disponible
+  - button "Mancuerna 4 kg" [pressed]:
+    - generic: "4"
+    - generic: kg · disponible
+  - button "Mancuerna 5 kg" [pressed]:
+    - generic: "5"
+    - generic: kg · disponible
+  - button "Mancuerna 6 kg" [pressed]:
+    - generic: "6"
+    - generic: kg · disponible
+  - button "Mancuerna 7 kg" [pressed]:
+    - generic: "7"
+    - generic: kg · disponible
+  - button "Mancuerna 8 kg" [pressed]:
+    - generic: "8"
+    - generic: kg · disponible
+  - button "Mancuerna 9 kg" [pressed]:
+    - generic: "9"
+    - generic: kg · disponible
+  - button "Mancuerna 10 kg" [pressed]:
+    - generic: "10"
+    - generic: kg · disponible
+  - button "Mancuerna 11 kg" [pressed]:
+    - generic: "11"
+    - generic: kg · disponible
+  - button "Mancuerna 12 kg" [pressed]:
+    - generic: "12"
+    - generic: kg · disponible
+  - button "Mancuerna 13 kg" [pressed]:
+    - generic: "13"
+    - generic: kg · disponible
+  - button "Mancuerna 14 kg" [pressed]:
+    - generic: "14"
+    - generic: kg · disponible
+  - button "Mancuerna 15 kg" [pressed]:
+    - generic: "15"
+    - generic: kg · disponible
+  - button "Mancuerna 16 kg" [pressed]:
+    - generic: "16"
+    - generic: kg · disponible
+  - button "Mancuerna 17 kg" [pressed]:
+    - generic: "17"
+    - generic: kg · disponible
+  - button "Mancuerna 18 kg" [pressed]:
+    - generic: "18"
+    - generic: kg · disponible
+  - button "Mancuerna 19 kg" [pressed]:
+    - generic: "19"
+    - generic: kg · disponible
+  - button "Mancuerna 20 kg" [pressed]:
+    - generic: "20"
+    - generic: kg · disponible
+  - button "Mancuerna 21 kg" [pressed]:
+    - generic: "21"
+    - generic: kg · disponible
+  - button "Mancuerna 22 kg" [pressed]:
+    - generic: "22"
+    - generic: kg · disponible
+  - button "Mancuerna 23 kg" [pressed]:
+    - generic: "23"
+    - generic: kg · disponible
+  - button "Mancuerna 24 kg" [pressed]:
+    - generic: "24"
+    - generic: kg · disponible
+  - button "Mancuerna 26 kg" [pressed]:
+    - generic: "26"
+    - generic: kg · disponible
+  - button "Mancuerna 28 kg" [pressed]:
+    - generic: "28"
+    - generic: kg · disponible
+  - button "Mancuerna 30 kg" [pressed]:
+    - generic: "30"
+    - generic: kg · disponible
+  - button "Mancuerna 32 kg" [pressed]:
+    - generic: "32"
+    - generic: kg · disponible
+  - button "Mancuerna 34 kg" [pressed]:
+    - generic: "34"
+    - generic: kg · disponible
+  - button "Mancuerna 36 kg" [pressed]:
+    - generic: "36"
+    - generic: kg · disponible
+  - button "Mancuerna 38 kg" [pressed]:
+    - generic: "38"
+    - generic: kg · disponible
+  - button "Mancuerna 40 kg" [pressed]:
+    - generic: "40"
+    - generic: kg · disponible
+  - button "Añadir peso":
+    - generic: Añadir peso
+  - button "Generar un rango":
+    - generic: Generar un rango
+  - button "kg"
+  - button "lb"
+  - button "Restaurar juego estándar":
+    - generic: Restaurar juego estándar
+  - paragraph: Reemplaza esta lista por los pesos iniciales en kg. Te pediremos confirmar antes de cambiarla.
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

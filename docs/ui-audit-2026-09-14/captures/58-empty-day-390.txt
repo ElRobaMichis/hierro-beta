@@ -1,0 +1,24 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Volver al plan":
+    - text: Volver al plan
+  - generic: Tu día de entrenamiento
+  - heading "Movilidad en casa" [level=1]
+  - button "Opciones":
+    - generic: Opciones
+- main:
+  - heading "Así se construye tu próxima sesión" [level=2]
+  - heading "Dale forma a este día." [level=2]
+  - paragraph: Busca un ejercicio que ya usas o crea uno nuevo.
+  - button "Añadir ejercicios":
+    - generic: Añadir ejercicios
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

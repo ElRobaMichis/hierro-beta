@@ -1,0 +1,343 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 2
+      }
+    ],
+    "passes": 39,
+    "time": "2026-09-14T23:24:48.892Z",
+    "version": "4.13.0",
+    "view": "exercise",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span data-sync-short=\"\">En tu dispositivo</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.0pt (8px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-mobile-brand > .n-local.n-sync-badge > span[data-sync-short=\"\"]"
+            ]
+          },
+          {
+            "html": "<div class=\"n-eyebrow\">Espalda</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-heading > div > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<button aria-pressed=\"false\" class=\"\" onclick=\"uiExerciseTab(&quot;equipment&quot;)\">Equipo</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiExerciseTab(\\\"equipment\\\")\"]"
+            ]
+          },
+          {
+            "html": "<button aria-pressed=\"false\" class=\"\" onclick=\"uiExerciseTab(&quot;targets&quot;)\">Objetivos</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiExerciseTab(\\\"targets\\\")\"]"
+            ]
+          },
+          {
+            "html": "<span>vie, 11 sept</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-history-ex:nth-child(3) > span"
+            ]
+          },
+          {
+            "html": "<span>mié, 2 sept</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-history-ex:nth-child(4) > span"
+            ]
+          },
+          {
+            "html": "<span>dom, 30 ago</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-history-ex:nth-child(5) > span"
+            ]
+          },
+          {
+            "html": "<span>vie, 21 ago</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-history-ex:nth-child(6) > span"
+            ]
+          },
+          {
+            "html": "<span>mar, 18 ago</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-history-ex:nth-child(7) > span"
+            ]
+          },
+          {
+            "html": "<span>dom, 9 ago</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-history-ex:nth-child(8) > span"
+            ]
+          },
+          {
+            "html": "<span>jue, 6 ago</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-history-ex:nth-child(9) > span"
+            ]
+          },
+          {
+            "html": "<span>mar, 28 jul</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-history-ex:nth-child(10) > span"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 44,
+      "label": "Volver al diario",
+      "tag": "BUTTON",
+      "w": 107,
+      "x": 22,
+      "y": 81
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 50,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 59,
+      "x": 22,
+      "y": 242
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 50,
+      "label": "Equipo",
+      "tag": "BUTTON",
+      "w": 42,
+      "x": 105,
+      "y": 242
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 50,
+      "label": "Objetivos",
+      "tag": "BUTTON",
+      "w": 56,
+      "x": 171,
+      "y": 242
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Explorar registros de Dead hang",
+      "tag": "INPUT",
+      "w": 289,
+      "x": 48,
+      "y": 956
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Revisar objetivos",
+      "tag": "BUTTON",
+      "w": 125,
+      "x": 45,
+      "y": 1909
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 116,
+      "x": 12,
+      "y": 839
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 116,
+      "x": 134,
+      "y": 839
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 116,
+      "x": 257,
+      "y": 839
+    }
+  ],
+  "documentHeight": 2101,
+  "documentWidth": 385,
+  "focused": "<body data-view=\"exercise\" style=\"\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-mobile-brand\"><span class=\"n-brand\"><svg vi",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "41px",
+      "h": 44,
+      "text": "Dead hang",
+      "w": 188,
+      "x": 22,
+      "y": 172
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "18px",
+      "h": 21,
+      "text": "Últimas veces",
+      "w": 107,
+      "x": 22,
+      "y": 1092
+    }
+  ],
+  "height": 907,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "TU MEJOR TIEMPO"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Desde el primer registro"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "29 MAY"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "11 SEPT"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "Toca la gráfica o desliza para explorar cada sesión"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "11px",
+      "text": "Escala ajustada a tus registros · s."
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "vie, 11 sept"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "mié, 2 sept"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "dom, 30 ago"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "vie, 21 ago"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "mar, 18 ago"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "dom, 9 ago"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "jue, 6 ago"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "mar, 28 jul"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "TU SIGUIENTE PASO"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Entrenar"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Evolución"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Tú"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "exercise",
+  "width": 400,
+  "name": "22-time-progress-400",
+  "image": "22-time-progress-400.jpg",
+  "imageSize": [
+    385,
+    873
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

@@ -1,0 +1,232 @@
+{
+  "axe": {
+    "incomplete": [],
+    "passes": 39,
+    "signature": "[1280,900,\"dark\",\"exercise\",\"Jalón en polea|Evolución|Últimas veces\",\"\"]",
+    "theme": "dark",
+    "time": "2026-09-14T23:33:41.395Z",
+    "version": "4.13.0",
+    "view": "exercise",
+    "violations": []
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 44,
+      "label": "Volver al día",
+      "tag": "BUTTON",
+      "w": 92,
+      "x": 115,
+      "y": 126
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 63,
+      "x": 115,
+      "y": 317
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Equipo",
+      "tag": "BUTTON",
+      "w": 45,
+      "x": 205,
+      "y": 317
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Objetivos",
+      "tag": "BUTTON",
+      "w": 60,
+      "x": 277,
+      "y": 317
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Explorar registros de Jalón en polea",
+      "tag": "INPUT",
+      "w": 526,
+      "x": 144,
+      "y": 1043
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Revisar objetivos",
+      "tag": "BUTTON",
+      "w": 125,
+      "x": 760,
+      "y": 561
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 126,
+      "x": 448,
+      "y": 22
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 133,
+      "x": 582,
+      "y": 22
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 92,
+      "x": 723,
+      "y": 22
+    }
+  ],
+  "documentHeight": 1932,
+  "documentWidth": 1265,
+  "focused": "<body data-view=\"exercise\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-mobile-brand\"><span class=\"n-brand\"><svg viewBox=\"0 ",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "56.32px",
+      "h": 59,
+      "text": "Jalón en polea",
+      "w": 342,
+      "x": 115,
+      "y": 226
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "19px",
+      "h": 22,
+      "text": "Últimas veces",
+      "w": 113,
+      "x": 115,
+      "y": 1182
+    }
+  ],
+  "height": 900,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(172, 184, 168)",
+      "font": "11px",
+      "text": "1RM ESTIMADO"
+    },
+    {
+      "color": "rgb(172, 184, 168)",
+      "font": "11px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(172, 184, 168)",
+      "font": "11px",
+      "text": "Desde el primer registro"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "29 MAY"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "2 SEPT"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "Toca la gráfica o desliza para explorar cada sesión"
+    },
+    {
+      "color": "rgb(188, 200, 180)",
+      "font": "11px",
+      "text": "Escala ajustada a tus registros · lb."
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "mié, 2 sept"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "vie, 21 ago"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "dom, 9 ago"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "mar, 28 jul"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "jue, 16 jul"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "sáb, 4 jul"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "lun, 22 jun"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "mié, 10 jun"
+    },
+    {
+      "color": "rgb(172, 184, 168)",
+      "font": "11px",
+      "text": "TU SIGUIENTE PASO"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "10px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "10px",
+      "text": "EN TU DISPOSITIVO"
+    }
+  ],
+  "theme": "dark",
+  "url": "http://127.0.0.1:4183/?fixture=home&theme=dark",
+  "view": "exercise",
+  "width": 1280,
+  "name": "51-exercise-dark-1280",
+  "image": "51-exercise-dark-1280.jpg",
+  "imageSize": [
+    1265,
+    889
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

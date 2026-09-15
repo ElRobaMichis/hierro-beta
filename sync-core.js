@@ -8,7 +8,7 @@
   'use strict';
   const VERSION=1,MAX_PLAIN=6*1024*1024;
   const LOCAL_SETTINGS=['gymId','unit','theme','motion','sound','vibration','notify','screenOn','health','lastBackup'];
-  const MACHINE_FIELDS=['equip','points','base','bar','step','cap','stack'];
+  const MACHINE_FIELDS=['equip','points','base','bar','step','cap','stack','gymNotes'];
   const forbidden=new Set(['__proto__','prototype','constructor']);
   const clone=v=>v===undefined?undefined:JSON.parse(JSON.stringify(v));
   const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
@@ -60,7 +60,7 @@
     for(const k of LOCAL_SETTINGS)delete settings[k];
     for(const m of Object.values(d.exmeta||{}))for(const k of MACHINE_FIELDS)delete m[k];
     for(const h of d.history)delete h.prs;
-    return validate({schema:1,settings,gyms:d.gyms,splits:d.splits,routines:d.routines,exmeta:d.exmeta,history:d.history,active:d.active?{owner:device,gymId:db.settings.gymId,session:d.active}:clone(foreign)});
+    return validate({schema:1,settings,gyms:d.gyms,splits:d.splits,routines:d.routines,exmeta:d.exmeta,history:d.history,active:d.active&&!d.active.localOnly?{owner:device,gymId:db.settings.gymId,session:d.active}:clone(foreign)});
   }
   const ptr=k=>String(k).replace(/~/g,'~0').replace(/\//g,'~1');
   // Stable IDs merge independent additions/removals. Arrays without IDs (sets,

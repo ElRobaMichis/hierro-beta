@@ -1,0 +1,1556 @@
+{
+  "schema": "hierro-logic-audit-v1",
+  "auditDate": "2026-09-14",
+  "generatedAt": "2026-09-14T23:51:58.631Z",
+  "applicationVersion": "3.5.1",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "win32",
+    "timezone": "America/Mexico_City"
+  },
+  "root": "C:\\Users\\Agustin\\Documents\\hierro-beta",
+  "script": {
+    "file": "logic-repro.cjs",
+    "sha256": "8a25fbdcd916b469f3254828f38e5a084f38d8fdbd17a4ec4fc0f15446c9255a"
+  },
+  "sourceFiles": [
+    {
+      "file": "index.html",
+      "sha256": "a2d21226b6fc8d29417c4a4498531ba7ac442c0972452613f006e8787a5cc641",
+      "sha256After": "a2d21226b6fc8d29417c4a4498531ba7ac442c0972452613f006e8787a5cc641",
+      "bytes": 281156
+    },
+    {
+      "file": "ui.js",
+      "sha256": "6b93d845a8e8eeda06fb47c36c50d7d23ab2857ca213cc272a8bcc3580176f4d",
+      "sha256After": "6b93d845a8e8eeda06fb47c36c50d7d23ab2857ca213cc272a8bcc3580176f4d",
+      "bytes": 131704
+    },
+    {
+      "file": "sync-core.js",
+      "sha256": "f80af44212f389730e3e9a3a1ecf5344ca838d303a48ee57e595f7f98f938e06",
+      "sha256After": "f80af44212f389730e3e9a3a1ecf5344ca838d303a48ee57e595f7f98f938e06",
+      "bytes": 12987
+    },
+    {
+      "file": "sync-engine.js",
+      "sha256": "fd2717dfb3a1a2a375b7bf114c68b6c2f71397f8fe8592a9002eb60171a1f96b",
+      "sha256After": "fd2717dfb3a1a2a375b7bf114c68b6c2f71397f8fe8592a9002eb60171a1f96b",
+      "bytes": 11041
+    },
+    {
+      "file": "sync.js",
+      "sha256": "7156999f9c00961ebecbb85788a73d40d28a10aed882592e6213028c6e8bfc73",
+      "sha256After": "7156999f9c00961ebecbb85788a73d40d28a10aed882592e6213028c6e8bfc73",
+      "bytes": 27752
+    },
+    {
+      "file": "push-core.js",
+      "sha256": "50983d7abb3799317e336c273034053b7a55e9ea97245d25e081438e13f2e0fa",
+      "sha256After": "50983d7abb3799317e336c273034053b7a55e9ea97245d25e081438e13f2e0fa",
+      "bytes": 3629
+    },
+    {
+      "file": "push.js",
+      "sha256": "87f9c2dfb2cf975175e0251847340966af39ab5aa08d08df31b5f725158a3e66",
+      "sha256After": "87f9c2dfb2cf975175e0251847340966af39ab5aa08d08df31b5f725158a3e66",
+      "bytes": 16942
+    }
+  ],
+  "scope": {
+    "requestedOriginalFindings": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      10,
+      12,
+      13,
+      14,
+      18,
+      20,
+      21,
+      22,
+      23,
+      24,
+      28,
+      31
+    ],
+    "executedOriginalFindings": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      10,
+      12,
+      13,
+      14,
+      18,
+      20,
+      21,
+      22,
+      23,
+      24,
+      28,
+      31
+    ],
+    "appFilesWritten": 0,
+    "realDataRead": false,
+    "realNetwork": false,
+    "browserUsed": false,
+    "entryPoint": "Scripts clásicos actuales; se omite únicamente la IIFE final init del HTML.",
+    "stubs": [
+      "render general registra llamadas; F03 ejecuta uiHome real",
+      "DOM mínimo de campos por id; selectores complejos devuelven vacío y uiSetupModal no aplica decoración/foco",
+      "localStorage y FileReader de memoria",
+      "Date y scheduler manuales",
+      "Notification recolecta intención de aviso",
+      "fetch explícito del Engine F24 responde en memoria; el global rechaza toda petición",
+      "sin audio, Wake Lock, service worker, IndexedDB ni arranque push"
+    ],
+    "retained": "Se conservan las funciones de negocio, cálculos, importadores, go, apertura/cierre/confirmación de modal, preparación, registro, persistencia, adaptador sync y motor sync actuales.",
+    "limitations": [
+      "No reproduce foco, inert, teclados, gestos, CSS, tamaños, scroll real, retrasos del sistema ni entrega de notificaciones.",
+      "El timer demuestra qué ocurre si un callback se retrasa; no demuestra que ese retraso ocurra en un dispositivo concreto.",
+      "F03 prueba un respaldo mínimo inválido, no todos los archivos malformados.",
+      "F24 y F31 no usan un servicio remoto ni credenciales reales.",
+      "No se ejecutan las 37 capturas del usuario. Los hallazgos de navegador se documentan aparte."
+    ],
+    "statusMeaning": "reproduced = el comportamiento auditado ocurrió y sus controles pasaron; no significa app correcta. harness_error/control_failed = no usar como evidencia del defecto."
+  },
+  "controls": [
+    {
+      "label": "VMs y almacenamiento aislados",
+      "passed": true
+    },
+    {
+      "label": "No se exponen require/process ni IndexedDB al código de app",
+      "passed": true
+    },
+    {
+      "label": "El stub DOM no inventa campos ausentes",
+      "passed": true
+    },
+    {
+      "label": "Sin inicialización de service worker, push o sync",
+      "passed": true
+    },
+    {
+      "label": "Proyección y validación de sync reales aceptan la base sintética",
+      "passed": true
+    },
+    {
+      "label": "Ningún escenario intentó usar fetch/XHR/WebSocket reales",
+      "passed": true
+    },
+    {
+      "label": "La sonda del guard de red se rechaza localmente",
+      "passed": true
+    },
+    {
+      "label": "Los siete archivos de aplicación conservan su SHA-256",
+      "passed": true
+    }
+  ],
+  "summary": {
+    "requested": 20,
+    "executed": 21,
+    "includesNotesGym": true,
+    "caseControls": 49,
+    "reproduced": 19,
+    "not_reproduced": 1,
+    "harness_control_failed": 1,
+    "harness_error": 0,
+    "globalControlsPassed": true
+  },
+  "cases": [
+    {
+      "id": "F01",
+      "title": "El final anuncia guardado aunque falle el almacenamiento",
+      "status": "reproduced",
+      "scope": "QuotaExceededError simulado en localStorage; preparación y registro reales. No simula una cuota real del navegador.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 899,
+          "anchor": "function save()"
+        },
+        {
+          "file": "index.html",
+          "line": 4665,
+          "anchor": "function finishSession()"
+        },
+        {
+          "file": "index.html",
+          "line": 4740,
+          "anchor": "openFullModal(finishScreenHTML"
+        }
+      ],
+      "checks": [
+        {
+          "label": "El aviso de fallo existió",
+          "passed": true
+        },
+        {
+          "label": "El final sustituye el aviso y afirma que la sesión está guardada",
+          "passed": true
+        },
+        {
+          "label": "Memoria finalizada pero el almacenamiento conserva el borrador anterior",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Sin fallo la misma ruta persiste una sesión finalizada",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "after": {
+          "active": null,
+          "history": 1
+        },
+        "afterReload": {
+          "active": true,
+          "history": 0
+        }
+      }
+    },
+    {
+      "id": "F02",
+      "title": "Carga dañada o inaccesible vuelve silenciosamente a datos vacíos",
+      "status": "reproduced",
+      "scope": "No demuestra borrado físico por load(); demuestra sustitución en memoria sin aviso.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 892,
+          "anchor": "function load()"
+        }
+      ],
+      "checks": [
+        {
+          "label": "JSON inválido devuelve base vacía sin aviso",
+          "passed": true
+        },
+        {
+          "label": "Error de lectura también devuelve vacío",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Una copia válida se carga",
+          "passed": true
+        },
+        {
+          "label": "load no ha borrado el texto dañado",
+          "passed": true
+        },
+        {
+          "label": "Retirar el fallo recupera el historial intacto",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "malformed": {
+          "history": 0,
+          "routines": 0
+        }
+      }
+    },
+    {
+      "id": "F03",
+      "title": "Restaurar valida arrays exteriores pero persiste historial inválido",
+      "status": "reproduced",
+      "scope": "FileReader de memoria. La confirmación y la escritura son reales. Se ejecuta uiHome para comprobar el fallo posterior con código de presentación real.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 5204,
+          "anchor": "function importBackup("
+        },
+        {
+          "file": "index.html",
+          "line": 5226,
+          "anchor": "function applyBackup("
+        },
+        {
+          "file": "ui.js",
+          "line": 37,
+          "anchor": "function uiMuscleStats("
+        }
+      ],
+      "checks": [
+        {
+          "label": "Acepta y guarda history:[null]",
+          "passed": true
+        },
+        {
+          "label": "La presentación real falla después de escribir",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Se llegó a la confirmación de restauración",
+          "passed": true
+        },
+        {
+          "label": "Misma ruta y uiHome aceptan el respaldo válido",
+          "passed": true
+        },
+        {
+          "label": "Falta del array routines se rechaza antes de aplicar",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "renderError": {
+          "message": "Cannot read properties of null (reading 'entries')",
+          "stack": "index.html:1902\n  for(const h of db.history) for(const e of h.entries){\n                                              ^\n\nTypeError: Cannot read properties of null (reading 'entries')\n    at systemicFatigue (index.html:1902:47)\n    at uiHome (ui.js:458:12)\n    at render (audit-scenario.vm.js:4:112)\n    at go (index.html:1678:3)\n    at applyBackup (index.html:5230:25)\n    at window.__confirmFn (index.html:5452:46)\n    at audit-scenario.vm.js:1:8\n    at Script.runInContext (node:vm:149:12)\n    at Object.runInContext (node:vm:301:6)\n    at Object.run (C:\\Users\\Agustin\\Documents\\hierro-beta\\docs\\ui-audit-2026-09-14\\logic-repro.cjs:125:22)"
+        }
+      }
+    },
+    {
+      "id": "F04",
+      "title": "Cambiar series del plan B redimensiona una sesión del plan A",
+      "status": "reproduced",
+      "scope": "Se usan go y setSplitConf reales; solo el render general está sustituido por un registrador.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 2664,
+          "anchor": "function setSplitConf("
+        },
+        {
+          "file": "index.html",
+          "line": 2648,
+          "anchor": "function syncActiveSets("
+        }
+      ],
+      "checks": [
+        {
+          "label": "A conserva 3 en configuración pero su sesión pasa a 5 por editar B",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Editar el propio plan sí debe redimensionar la sesión",
+          "passed": true
+        },
+        {
+          "label": "El protector de borradores escritos sigue funcionando",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "after": {
+          "sessionPlan": "plan-a",
+          "a": 3,
+          "b": 5,
+          "activeSets": 5
+        }
+      }
+    },
+    {
+      "id": "F05",
+      "title": "Mover un día cambia el plan del historial y el contexto activo",
+      "status": "reproduced",
+      "scope": "La reasignación histórica se observa por historySplitId; no modifica las series históricas.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 2354,
+          "anchor": "function doMoveRoutine("
+        },
+        {
+          "file": "index.html",
+          "line": 1065,
+          "anchor": "function historySplitId("
+        },
+        {
+          "file": "index.html",
+          "line": 1975,
+          "anchor": "function ctxSplitId("
+        }
+      ],
+      "checks": [
+        {
+          "label": "Historial y descanso activo pasan a B",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Los valores del historial no fueron inventados o cambiados por el harness",
+          "passed": true
+        },
+        {
+          "label": "Copiar conserva la atribución del original",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "before": {
+          "historyPlan": "plan-a",
+          "rest": 60,
+          "entries": [
+            {
+              "key": "press de prueba",
+              "name": "Press de prueba",
+              "sets": [
+                {
+                  "w": 40,
+                  "r": 10,
+                  "rir": 2
+                }
+              ]
+            }
+          ]
+        },
+        "after": {
+          "historyPlan": "plan-b",
+          "rest": 180,
+          "entries": [
+            {
+              "key": "press de prueba",
+              "name": "Press de prueba",
+              "sets": [
+                {
+                  "w": 40,
+                  "r": 10,
+                  "rir": 2
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "F06",
+      "title": "Inventario o unidad cambian el peso físico de un borrador",
+      "status": "harness_control_failed",
+      "scope": "Borradores de barra sin confirmar. Controles con cambio por ejercicio y con serie confirmada; no se atribuye el fallo a todas las conversiones.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 3738,
+          "anchor": "function setDefaultBar("
+        },
+        {
+          "file": "index.html",
+          "line": 4824,
+          "anchor": "function setUnit("
+        },
+        {
+          "file": "index.html",
+          "line": 3002,
+          "anchor": "function recordedSetKg("
+        },
+        {
+          "file": "index.html",
+          "line": 2616,
+          "anchor": "function setExBarSel("
+        }
+      ],
+      "checks": [
+        {
+          "label": "10 kg de discos pasan de total 30 a 25 kg",
+          "passed": false
+        },
+        {
+          "label": "El inventario estándar en lb altera el total del borrador",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "La ruta de cambio de barra del ejercicio preserva 30 kg",
+          "passed": false
+        },
+        {
+          "label": "Una serie confirmada conserva su total canónico al cambiar unidad",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "defaultBarKg": {
+          "before": 10,
+          "after": 10
+        },
+        "pristineUnitKg": {
+          "before": 30,
+          "after": 30.412,
+          "delta": 0.41199999999999903
+        }
+      }
+    },
+    {
+      "id": "F07",
+      "title": "Hevy crea días sin plan hasta normalizar de nuevo",
+      "status": "reproduced",
+      "scope": "CSV mínimo sintético leído por el parser actual. No valida exportaciones reales ni el aspecto visual de importar.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 5271,
+          "anchor": "function importHevy("
+        },
+        {
+          "file": "index.html",
+          "line": 5360,
+          "anchor": "function applyHevyImport("
+        },
+        {
+          "file": "index.html",
+          "line": 2026,
+          "anchor": "function nextDay("
+        },
+        {
+          "file": "index.html",
+          "line": 838,
+          "anchor": "const huerfanas ="
+        }
+      ],
+      "checks": [
+        {
+          "label": "Día importado sin split y sin siguiente día navegable",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "El parser encontró una sesión",
+          "passed": true
+        },
+        {
+          "label": "La normalización en load vuelve a hacerlo navegable",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "beforeReload": {
+          "history": 1,
+          "routines": 1,
+          "split": null,
+          "plans": 0,
+          "next": null
+        },
+        "afterReload": {
+          "split": "spvmhpv9",
+          "plans": 1,
+          "next": {
+            "split": {
+              "id": "spvmhpv9",
+              "name": "Torso sintético",
+              "active": true,
+              "created": "2026-09-14T18:00:00.000Z",
+              "exconf": {}
+            },
+            "routine": {
+              "id": "p3j4vyw4",
+              "name": "Torso sintético",
+              "exercises": [
+                {
+                  "id": "5282ihdc",
+                  "name": "Press sintético",
+                  "key": "press sintetico"
+                }
+              ],
+              "split": "spvmhpv9"
+            },
+            "idx": 0,
+            "total": 1,
+            "last": {
+              "name": "Torso sintético",
+              "date": "2026-09-13T00:00:00.000Z"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "F08",
+      "title": "Timer de serie mide callbacks y se pierde al cerrar el modal",
+      "status": "reproduced",
+      "scope": "Demuestra contabilidad del timer y closeModal. No prueba throttling real, bloqueo de pantalla, Escape, gesto exterior ni foco del navegador.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 4273,
+          "anchor": "function startSetTimer("
+        },
+        {
+          "file": "index.html",
+          "line": 4321,
+          "anchor": "function stopSetTimer("
+        },
+        {
+          "file": "index.html",
+          "line": 5450,
+          "anchor": "function closeModal("
+        },
+        {
+          "file": "ui.js",
+          "line": 738,
+          "anchor": "function uiWarmupTimedStart("
+        }
+      ],
+      "checks": [
+        {
+          "label": "15 s de reloj y un callback descuentan solo 1 s",
+          "passed": true
+        },
+        {
+          "label": "Cerrar borra estado y cancela intervalo",
+          "passed": true
+        },
+        {
+          "label": "Al reabrir reinicia la preparación",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Con callbacks puntuales Terminar antes escribe 5 s",
+          "passed": true
+        },
+        {
+          "label": "Terminar el timer no confirma automáticamente la serie",
+          "passed": true
+        },
+        {
+          "label": "20 callbacks completan un objetivo de 20 s",
+          "passed": true
+        },
+        {
+          "label": "El descanso sí vence por reloj con una sola actualización",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "delayedCallback": {
+          "wallElapsedSeconds": 15,
+          "state": {
+            "xi": 0,
+            "si": 0,
+            "target": 20,
+            "phase": "run",
+            "count": 19
+          }
+        }
+      }
+    },
+    {
+      "id": "F10",
+      "title": "Cambiar en la cola cancela descanso; quitar ejercicio lo deja en el siguiente",
+      "status": "reproduced",
+      "scope": "Navegación de estado mediante handlers reales y uiSession como texto. No mide navegación visual ni historial del navegador.",
+      "sources": [
+        {
+          "file": "ui.js",
+          "line": 801,
+          "anchor": "function uiSelectExercise("
+        },
+        {
+          "file": "ui.js",
+          "line": 797,
+          "anchor": "function uiResetRest("
+        },
+        {
+          "file": "index.html",
+          "line": 4161,
+          "anchor": "function doRemoveSessionEx("
+        }
+      ],
+      "checks": [
+        {
+          "label": "Elegir el mismo ejercicio borra el descanso",
+          "passed": true
+        },
+        {
+          "label": "El siguiente ejercicio hereda descanso sin serie confirmada",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Cerrar la cola sin seleccionar conserva el descanso",
+          "passed": true
+        },
+        {
+          "label": "Quitar solo de la sesión conserva el día del plan",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "afterRemove": {
+          "key": "remo de prueba",
+          "uiRest": true,
+          "rest": 1789408950000,
+          "done": 0
+        }
+      }
+    },
+    {
+      "id": "F12",
+      "title": "Las etiquetas ocultan el sufijo que distingue máquinas",
+      "status": "not_reproduced",
+      "scope": "Comprueba el texto generado; no hay colisión de claves ni borrado de ejercicios. No evalúa tamaño o truncado por CSS.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 1709,
+          "anchor": "function exBaseName("
+        },
+        {
+          "file": "ui.js",
+          "line": 802,
+          "anchor": "function uiSessionQueue("
+        }
+      ],
+      "checks": [
+        {
+          "label": "Tres variantes terminan etiquetadas Remo",
+          "passed": true
+        },
+        {
+          "label": "La cola omite los tres sufijos",
+          "passed": false
+        }
+      ],
+      "controls": [
+        {
+          "label": "Claves y nombres completos permanecen distintos",
+          "passed": true
+        },
+        {
+          "label": "Nombre sin paréntesis se conserva",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "variants": [
+          {
+            "key": "remo (cable)",
+            "storedName": "Remo (Cable)",
+            "label": "Remo"
+          },
+          {
+            "key": "remo (discos)",
+            "storedName": "Remo (Discos)",
+            "label": "Remo"
+          },
+          {
+            "key": "remo (2)",
+            "storedName": "Remo (2)",
+            "label": "Remo"
+          }
+        ]
+      }
+    },
+    {
+      "id": "F13",
+      "title": "Otra máquina se añade a todos los días y no a la sesión abierta",
+      "status": "reproduced",
+      "scope": "Formulario y navegación reales con inputs de memoria; el alcance de la mutación está limitado a la VM.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 3983,
+          "anchor": "function promptDuplicateEx("
+        },
+        {
+          "file": "index.html",
+          "line": 3999,
+          "anchor": "function doDuplicateEx("
+        },
+        {
+          "file": "index.html",
+          "line": 2954,
+          "anchor": "function openExerciseByKey("
+        }
+      ],
+      "checks": [
+        {
+          "label": "La variante se añade a ambos días, incluso al de otro plan",
+          "passed": true
+        },
+        {
+          "label": "No se añade a la sesión desde la que se inició",
+          "passed": true
+        },
+        {
+          "label": "La ficha de destino pierde from=session",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "El original permanece en las dos rutinas y en la sesión",
+          "passed": true
+        },
+        {
+          "label": "El mismo nombre se rechaza sin otra inserción",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "after": {
+          "routines": [
+            [
+              "Press de prueba",
+              "Press de prueba (Cable)"
+            ],
+            [
+              "Press de prueba",
+              "Press de prueba (Cable)"
+            ]
+          ],
+          "active": [
+            "Press de prueba"
+          ],
+          "view": {
+            "name": "exercise",
+            "key": "press de prueba (cable)",
+            "exname": "Press de prueba (Cable)",
+            "rid": "dia-a"
+          }
+        }
+      }
+    },
+    {
+      "id": "F14",
+      "title": "Crear Plancha no define el tipo tiempo y pide carga",
+      "status": "reproduced",
+      "scope": "La inferencia de tipo es una decisión UX: se reproduce el valor por defecto y el bloqueo de preparación, sin evaluar si todas las planchas deben ser temporizadas.",
+      "sources": [
+        {
+          "file": "ui.js",
+          "line": 599,
+          "anchor": "function uiLibraryAdd("
+        },
+        {
+          "file": "index.html",
+          "line": 985,
+          "anchor": "function exMeta("
+        },
+        {
+          "file": "index.html",
+          "line": 4950,
+          "anchor": "function ensureWarmup("
+        }
+      ],
+      "checks": [
+        {
+          "label": "Se asigna grupo core pero tipo normal y preparación setup",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Elegir Tiempo manualmente permite preparación sin peso",
+          "passed": true
+        },
+        {
+          "label": "La inferencia específica para Assisted sí se ejecuta",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "created": {
+          "meta": {
+            "type": "normal",
+            "lo": null,
+            "hi": null,
+            "step": null,
+            "notes": "",
+            "rest": null,
+            "muscle": "core",
+            "equip": null,
+            "bar": null,
+            "points": null,
+            "base": null,
+            "stack": {
+              "unit": null,
+              "step": null,
+              "start": null
+            }
+          },
+          "warmup": {
+            "phase": "setup"
+          }
+        }
+      }
+    },
+    {
+      "id": "F18",
+      "title": "Rango incoherente y objetivo nuevo dejan reglas/propuesta desalineadas",
+      "status": "reproduced",
+      "scope": "Dos subcasos: rango guardado frente a efectivo; propuesta creada por el motor antes/después de setGoal.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 2620,
+          "anchor": "function setExRange("
+        },
+        {
+          "file": "index.html",
+          "line": 1018,
+          "anchor": "function effRange("
+        },
+        {
+          "file": "index.html",
+          "line": 4743,
+          "anchor": "function setGoal("
+        },
+        {
+          "file": "index.html",
+          "line": 2973,
+          "anchor": "function refreshActiveSugg("
+        }
+      ],
+      "checks": [
+        {
+          "label": "Se guarda 10–6 pero se usa 10–11",
+          "passed": true
+        },
+        {
+          "label": "La propuesta anterior permanece fuera del rango Fuerza",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Un rango válido permanece 10–12",
+          "passed": true
+        },
+        {
+          "label": "El motor sí actualiza la propuesta al pedir refresco explícito",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "range": {
+          "stored": {
+            "lo": 10,
+            "hi": 6
+          },
+          "effective": {
+            "lo": 10,
+            "hi": 11
+          }
+        },
+        "goalChange": {
+          "before": {
+            "w": 40,
+            "reps": 11,
+            "type": "reps",
+            "msg": "Mismo peso (<b>40 kg</b>), apunta a <b>11 reps</b>",
+            "why": "Doble progresión: primero llena el rango de reps (8–12), después sube el peso.",
+            "sets": 3
+          },
+          "after": {
+            "w": 40,
+            "reps": 11,
+            "type": "reps",
+            "msg": "Mismo peso (<b>40 kg</b>), apunta a <b>11 reps</b>",
+            "why": "Doble progresión: primero llena el rango de reps (8–12), después sube el peso.",
+            "sets": 3
+          },
+          "range": {
+            "lo": 4,
+            "hi": 6
+          }
+        },
+        "explicitRefresh": {
+          "w": 42.5,
+          "reps": 4,
+          "type": "up",
+          "msg": "Sube el peso: <b>42,5 kg × 4</b>",
+          "why": "Llegaste a 6 reps en todas las series con 40 kg. Toca progresar la carga (~2.5 %).",
+          "sets": 3
+        }
+      }
+    },
+    {
+      "id": "F20",
+      "title": "Editar historial deja récords almacenados obsoletos",
+      "status": "reproduced",
+      "scope": "Se generan PR mediante migratePRs actual antes de editar. No usa una marca arbitraria inventada como causa.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 3386,
+          "anchor": "function saveEditedSession("
+        },
+        {
+          "file": "index.html",
+          "line": 5541,
+          "anchor": "function migratePRs("
+        }
+      ],
+      "checks": [
+        {
+          "label": "La carga se corrige a 10 y la marca antigua sigue intacta",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "El motor produjo un récord para 100 × 10",
+          "passed": true
+        },
+        {
+          "label": "Recalcular sin el caché elimina ese falso récord",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "afterEdit": {
+          "sets": [
+            {
+              "w": 10,
+              "r": 10,
+              "rir": 2
+            }
+          ],
+          "prs": [
+            {
+              "key": "press de prueba",
+              "name": "Press de prueba",
+              "now": 133.33333333333331,
+              "prev": 53.33333333333333,
+              "assist": false,
+              "unit": "kg"
+            }
+          ],
+          "e1rm": 13.333333333333332
+        }
+      }
+    },
+    {
+      "id": "F21",
+      "title": "Una descarga entra en referencias de fuerza y evolución",
+      "status": "reproduced",
+      "scope": "Descarga sintética deliberadamente superior a la referencia anterior para hacer visible su inclusión. No predice que toda descarga suba las marcas.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 4393,
+          "anchor": "function bestMetricBefore("
+        },
+        {
+          "file": "ui.js",
+          "line": 837,
+          "anchor": "function uiExerciseMetric("
+        },
+        {
+          "file": "index.html",
+          "line": 4381,
+          "anchor": "function bestAssistBefore("
+        }
+      ],
+      "checks": [
+        {
+          "label": "Referencia y evolución incluyen la descarga superior",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Retirar solo la descarga devuelve la referencia regular",
+          "passed": true
+        },
+        {
+          "label": "El cálculo de récord asistido sí excluye descargas",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "withDeload": {
+          "reference": 26.666666666666664,
+          "regular": 13.333333333333332,
+          "metric": {
+            "hist": [
+              {
+                "date": "2026-09-10T18:00:00Z",
+                "sets": [
+                  {
+                    "w": 10,
+                    "r": 10,
+                    "rir": 2
+                  }
+                ]
+              },
+              {
+                "date": "2026-09-12T18:00:00.000Z",
+                "sets": [
+                  {
+                    "w": 20,
+                    "r": 10,
+                    "rir": 2
+                  }
+                ]
+              }
+            ],
+            "pts": [
+              {
+                "date": "2026-09-10T18:00:00Z",
+                "v": 13.3
+              },
+              {
+                "date": "2026-09-12T18:00:00.000Z",
+                "v": 26.7
+              }
+            ],
+            "assist": false,
+            "time": false,
+            "corp": false,
+            "unit": "kg",
+            "title": "1RM estimado",
+            "best": 26.7
+          }
+        }
+      }
+    },
+    {
+      "id": "F22",
+      "title": "Menos asistencia cuenta como regresión en fatiga",
+      "status": "reproduced",
+      "scope": "Solo la regla del aviso, no un diagnóstico físico. Dos asistidos mejoran con menos ayuda y dos normales permanecen iguales.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 1898,
+          "anchor": "function systemicFatigue("
+        }
+      ],
+      "checks": [
+        {
+          "label": "La mejora asistida produce aviso 2 de 4 en regresión",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Sin variación no hay aviso",
+          "passed": true
+        },
+        {
+          "label": "La regla actual tampoco detecta más ayuda como regresión",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "alert": {
+          "regressed": 2,
+          "evaluated": 4
+        }
+      }
+    },
+    {
+      "id": "F23",
+      "title": "Abrir progreso desde recibo elige el primer día del ejercicio",
+      "status": "reproduced",
+      "scope": "La vuelta al recibo sí se conserva; el problema probado es el plan/rango usado dentro de la ficha.",
+      "sources": [
+        {
+          "file": "ui.js",
+          "line": 854,
+          "anchor": "function uiOpenProgress("
+        },
+        {
+          "file": "index.html",
+          "line": 2954,
+          "anchor": "function openExerciseByKey("
+        },
+        {
+          "file": "ui.js",
+          "line": 837,
+          "anchor": "function uiExerciseMetric("
+        }
+      ],
+      "checks": [
+        {
+          "label": "Recibo de B entra con rid A y mínimo de A",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Se conserva el recibo y la vista de retorno",
+          "passed": true
+        },
+        {
+          "label": "Solo corregir el contexto cambia el mínimo válido a 40 kg",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "fromReceiptB": {
+          "view": {
+            "name": "exercise",
+            "key": "press de prueba",
+            "exname": "Press de prueba",
+            "rid": "dia-a",
+            "from": "history",
+            "exTab": "progress",
+            "historyReturn": {
+              "name": "history",
+              "progressTab": "diary",
+              "historyQuery": "Día B"
+            },
+            "receiptId": "receipt-b"
+          },
+          "range": {
+            "lo": 4,
+            "hi": 6
+          },
+          "best": 20
+        },
+        "correctContext": {
+          "range": {
+            "lo": 8,
+            "hi": 12
+          },
+          "best": 40
+        }
+      }
+    },
+    {
+      "id": "F24",
+      "title": "Sesión remota bloquea inicio local y reclamar requiere transporte",
+      "status": "reproduced",
+      "scope": "Engine y cifrado actuales, transporte totalmente en memoria. No prueba dos dispositivos reales, latencia ni disponibilidad del servicio.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 4032,
+          "anchor": "function startSession("
+        },
+        {
+          "file": "sync.js",
+          "line": 222,
+          "anchor": "function syncOfferContinue("
+        },
+        {
+          "file": "sync.js",
+          "line": 223,
+          "anchor": "async function uiSyncClaim("
+        },
+        {
+          "file": "sync-engine.js",
+          "line": 127,
+          "anchor": "async claim(device)"
+        }
+      ],
+      "checks": [
+        {
+          "label": "Con sesión ajena no crea una sesión local nueva",
+          "passed": true
+        },
+        {
+          "label": "Reclamar sin transporte no desbloquea y muestra error",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Mismo Engine con respuesta sintética válida transfiere la sesión",
+          "passed": true
+        },
+        {
+          "label": "Transferencia usa GET y PUT, sin fetch real",
+          "passed": true
+        },
+        {
+          "label": "Sin sesión remota sí se puede iniciar localmente sin red",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "offline": {
+          "requests": [
+            "GET"
+          ],
+          "active": null,
+          "errorModal": "No se pudo traer la sesión Sin conexión al servicio. Tus cambios se enviarán al volver. Entendido"
+        }
+      }
+    },
+    {
+      "id": "F28",
+      "title": "Aviso local ignora preferencias específicas de descanso e inactividad",
+      "status": "reproduced",
+      "scope": "Notification es un receptor de memoria. Se comprueba decisión de emitir, no entrega del SO; rama fallback con permiso concedido y push no registrado.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 5042,
+          "anchor": "function notify("
+        },
+        {
+          "file": "index.html",
+          "line": 5078,
+          "anchor": "function checkIdleSession("
+        },
+        {
+          "file": "push-core.js",
+          "line": 32,
+          "anchor": "function schedule("
+        },
+        {
+          "file": "push.js",
+          "line": 6,
+          "anchor": "function pushActive("
+        }
+      ],
+      "checks": [
+        {
+          "label": "rest=false no evita el aviso local al vencer",
+          "passed": true
+        },
+        {
+          "label": "idle=false no evita aviso local tras 15 min",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Visible no emite",
+          "passed": true
+        },
+        {
+          "label": "El interruptor global off sí impide emitir",
+          "passed": true
+        },
+        {
+          "label": "El programador push sí respeta ambas preferencias false",
+          "passed": true
+        },
+        {
+          "label": "Con preferencias activas programa descanso y recordatorio a 5 min",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "fallbackNotifications": [
+          {
+            "title": "Descanso listo",
+            "body": "A la siguiente serie.",
+            "tag": "hierro-rest"
+          },
+          {
+            "title": "Tu sesión sigue en curso",
+            "body": "Llevas 15 min sin anotar series. ¿Seguimos? Si ya acabaste, entra y toca “Terminar” para guardarla.",
+            "tag": "hierro-idle"
+          }
+        ],
+        "pushSchedule": [
+          {
+            "kind": "rest",
+            "secondsFromNow": 90
+          },
+          {
+            "kind": "idle",
+            "secondsFromNow": 300
+          }
+        ]
+      }
+    },
+    {
+      "id": "F31",
+      "title": "Restaurar respaldo no restaura el reloj de descanso en memoria",
+      "status": "reproduced",
+      "scope": "Restauración local y rama vinculada. El checkpoint vinculado usa el Engine actual con almacén en memoria; no se sincroniza con un servidor.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 5226,
+          "anchor": "function applyBackup("
+        },
+        {
+          "file": "sync.js",
+          "line": 242,
+          "anchor": "function syncConfirmRestore("
+        },
+        {
+          "file": "sync.js",
+          "line": 51,
+          "anchor": "restUntil=db.active?.restUntil||null"
+        }
+      ],
+      "checks": [
+        {
+          "label": "Restauración local deja deadline en db y reloj global null",
+          "passed": true
+        },
+        {
+          "label": "La rama vinculada también deja el reloj global null",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "syncApply normal sí repone el reloj",
+          "passed": true
+        },
+        {
+          "label": "Se ejecutó checkpoint real antes de restaurar",
+          "passed": true
+        },
+        {
+          "label": "La restauración no toca la variable global ni si ya existía",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "localRestore": {
+          "activeRest": 1789408950000,
+          "globalRest": null
+        },
+        "linkedRestore": {
+          "activeRest": 1789408950000,
+          "globalRest": null,
+          "checkpointCount": 1
+        },
+        "restoreOverRest": {
+          "activeRest": 1789408950000,
+          "globalRest": 1789408950000
+        }
+      }
+    },
+    {
+      "id": "NOTAS-GYM",
+      "title": "Nota técnica global frente a configuración por gimnasio",
+      "status": "reproduced",
+      "scope": "Persistencia local sintética, normalización y proyección/merge de sync. Verifica el alcance actual; no presupone que una nota técnica deba ser por gimnasio.",
+      "sources": [
+        {
+          "file": "index.html",
+          "line": 2677,
+          "anchor": "function setExNotes("
+        },
+        {
+          "file": "index.html",
+          "line": 3421,
+          "anchor": "const MACHINE_FIELDS"
+        },
+        {
+          "file": "index.html",
+          "line": 3435,
+          "anchor": "function snapshotActiveGym("
+        },
+        {
+          "file": "index.html",
+          "line": 3446,
+          "anchor": "function applyGymMachines("
+        },
+        {
+          "file": "sync-core.js",
+          "line": 50,
+          "anchor": "function project("
+        }
+      ],
+      "checks": [
+        {
+          "label": "La nota de A aparece en B y editarla en B cambia también A",
+          "passed": true
+        },
+        {
+          "label": "Reload y sync mantienen una nota global y no la incluyen en machines",
+          "passed": true
+        },
+        {
+          "label": "Editar la misma nota desde dos gimnasios entra en conflicto global",
+          "passed": true
+        }
+      ],
+      "controls": [
+        {
+          "label": "Unidad y torre sí recuperan valores propios de cada gym",
+          "passed": true
+        },
+        {
+          "label": "Configuraciones distintas por gym se combinan sin conflicto",
+          "passed": true
+        }
+      ],
+      "observations": {
+        "visitB": {
+          "note": "Asiento 4 en A",
+          "unit": "lb",
+          "stack": {
+            "unit": "lb",
+            "step": 10,
+            "start": 10,
+            "extra": null,
+            "extraMax": null
+          }
+        },
+        "returnA": {
+          "note": "Asiento 7 en B",
+          "unit": "kg",
+          "stack": {
+            "unit": "kg",
+            "step": 5,
+            "start": 5,
+            "extra": null,
+            "extraMax": null
+          }
+        },
+        "persistedAndProjected": {
+          "note": "Asiento 7 en B",
+          "globalNote": "Asiento 7 en B",
+          "gyms": [
+            {
+              "id": "gym-a",
+              "unit": "kg",
+              "machine": {
+                "equip": "placas",
+                "stack": {
+                  "unit": "kg",
+                  "step": 5,
+                  "start": 5,
+                  "extra": null,
+                  "extraMax": null
+                }
+              }
+            },
+            {
+              "id": "gym-b",
+              "unit": "lb",
+              "machine": {
+                "equip": "placas",
+                "stack": {
+                  "unit": "lb",
+                  "step": 10,
+                  "start": 10,
+                  "extra": null,
+                  "extraMax": null
+                }
+              }
+            }
+          ],
+          "globalEquip": null
+        },
+        "concurrentNoteConflicts": [
+          "/exmeta/press de prueba/notes"
+        ]
+      }
+    }
+  ]
+}

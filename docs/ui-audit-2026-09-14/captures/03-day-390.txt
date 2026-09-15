@@ -1,0 +1,169 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Tus días":
+    - text: Tus días
+  - generic: Tu día de entrenamiento
+  - heading "Full body" [level=1]
+  - button "Opciones":
+    - generic: Opciones
+- main:
+  - generic: Consultar otro día
+  - combobox "Día de este plan":
+    - option "Full body · Siguiente" [selected]
+    - option "Upper"
+    - option "Lower"
+    - option "Arms & delts"
+  - text: La próxima vez
+  - heading "Tu esfuerzo abre el siguiente paso." [level=2]:
+    - text: Tu esfuerzo abre
+    - text: el siguiente paso.
+  - paragraph: 3 para avanzar · 2 para sumar reps.
+  - text: 3 rangos completos
+  - generic: 5 ejercicios · 10 series propuestas
+  - 'button "Cambiar de gimnasio: SmartFit · Buenavista"':
+    - generic: SmartFit · Buenavista
+  - button "Empezar este día":
+    - generic: Empezar este día
+  - paragraph: La propuesta se actualiza con tu registro y el equipo de este gimnasio.
+  - heading "Así se construye tu próxima sesión" [level=2]
+  - button "Ordenar y quitar":
+    - generic: Ordenar y quitar
+  - 'article "Jalón en polea: ver evolución y ajustes"':
+    - generic: "01"
+    - 'button "Jalón en polea: ver evolución y ajustes"':
+      - heading "Jalón en polea" [level=3]
+    - text: Subir carga
+    - strong: 65,5
+    - generic: lb
+    - generic: +1,65 lb
+    - paragraph: 2 series · apunta a 6 reps
+    - generic: carga total
+    - generic: Placa 13 + 3
+    - generic: Último registro
+    - time: 2 sept · 63,85 lb totales
+    - generic: S1
+    - text: "10"
+    - 'meter "Serie 1: 10 reps; tope 10"'
+    - generic: S2
+    - text: "10"
+    - 'meter "Serie 2: 10 reps; tope 10"'
+    - generic: Repeticiones · rango 6–10
+    - generic: Tope 10
+    - paragraph:
+      - generic: Rango completo. Ese trabajo ya está hecho.
+    - paragraph:
+      - generic: Asiento en 4. Rodillos ajustados al muslo. Agarre neutro; evita balancearte.
+    - generic "Por qué esta propuesta":
+      - text: Por qué esta propuesta
+  - 'article "Press de banca con barra: ver evolución y ajustes"':
+    - generic: "02"
+    - 'button "Press de banca con barra: ver evolución y ajustes"':
+      - heading "Press de banca con barra" [level=3]
+    - text: Mismo peso · suma reps
+    - strong: "60"
+    - generic: kg
+    - generic: +0,5 kg
+    - paragraph: 2 series · apunta a 9 reps
+    - generic: total, incluida la barra
+    - generic: 20 kg por lado
+    - generic: Último registro
+    - time: 5 sept · 59,5 kg totales
+    - generic: S1
+    - generic: "8"
+    - 'meter "Serie 1: 8 reps; tope 10"'
+    - generic: S2
+    - generic: "8"
+    - 'meter "Serie 2: 8 reps; tope 10"'
+    - generic: Repeticiones · rango 6–10
+    - generic: Tope 10
+    - paragraph:
+      - generic: 0 de 2 series en el tope del rango.
+    - generic "Por qué esta propuesta":
+      - text: Por qué esta propuesta
+  - 'article "Sentadilla con barra: ver evolución y ajustes"':
+    - generic: "03"
+    - 'button "Sentadilla con barra: ver evolución y ajustes"':
+      - heading "Sentadilla con barra" [level=3]
+    - text: Mismo peso · suma reps
+    - strong: "80"
+    - generic: kg
+    - generic: +0,25 kg
+    - paragraph: 2 series · apunta a 10 reps
+    - generic: total, incluida la barra
+    - generic: 15 + 15 kg por lado
+    - generic: Último registro
+    - time: 8 sept · 79,75 kg totales
+    - generic: S1
+    - generic: "9"
+    - 'meter "Serie 1: 9 reps; tope 10"'
+    - generic: S2
+    - generic: "9"
+    - 'meter "Serie 2: 9 reps; tope 10"'
+    - generic: Repeticiones · rango 6–10
+    - generic: Tope 10
+    - paragraph:
+      - generic: 0 de 2 series en el tope del rango.
+    - generic "Por qué esta propuesta":
+      - text: Por qué esta propuesta
+  - 'article "Elevaciones laterales: ver evolución y ajustes"':
+    - generic: "04"
+    - 'button "Elevaciones laterales: ver evolución y ajustes"':
+      - heading "Elevaciones laterales" [level=3]
+    - text: Subir carga
+    - strong: "14"
+    - generic: kg
+    - generic: +2 kg
+    - paragraph: 2 series · apunta a 6 reps
+    - generic: total de las dos mancuernas
+    - generic: 7 kg en cada mano
+    - generic: Último registro
+    - time: 11 sept · 12 kg totales
+    - generic: S1
+    - text: "10"
+    - 'meter "Serie 1: 10 reps; tope 10"'
+    - generic: S2
+    - text: "10"
+    - 'meter "Serie 2: 10 reps; tope 10"'
+    - generic: Repeticiones · rango 6–10
+    - generic: Tope 10
+    - paragraph:
+      - generic: Rango completo. Ese trabajo ya está hecho.
+    - generic "Por qué esta propuesta":
+      - text: Por qué esta propuesta
+  - 'article "Dead hang: ver evolución y ajustes"':
+    - generic: "05"
+    - 'button "Dead hang: ver evolución y ajustes"':
+      - heading "Dead hang" [level=3]
+    - text: Sumar tiempo
+    - strong: "35"
+    - generic: s
+    - generic: +5 s
+    - paragraph: 2 series · objetivo por serie
+    - generic: Último registro
+    - time: 11 sept
+    - generic: S1
+    - text: "30"
+    - 'meter "Serie 1: 30 s; tope 10"'
+    - generic: S2
+    - text: "25"
+    - 'meter "Serie 2: 25 s; tope 10"'
+    - generic: Segundos · rango 6–10
+    - generic: Tope 10
+    - paragraph:
+      - generic: Rango completo. Ese trabajo ya está hecho.
+    - generic "Por qué esta propuesta":
+      - text: Por qué esta propuesta
+  - button "Añadir ejercicios":
+    - generic: Añadir ejercicios
+  - button "Hacer una descarga":
+    - generic: Hacer una descarga
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

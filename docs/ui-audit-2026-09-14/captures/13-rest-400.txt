@@ -1,0 +1,32 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - button "Minimizar":
+    - generic: Minimizar
+  - generic: Full body
+  - text: 0:16
+  - button "Terminar":
+    - generic: Terminar
+  - progressbar "Series confirmadas"
+- main:
+  - text: Ejercicio 01 / 05
+  - heading "Jalón en polea" [level=1]
+  - button "Ver cola de ejercicios":
+  - text: Serie guardada
+  - generic: Descansando
+  - strong: 1:51
+  - paragraph: Respira. La siguiente puede esperar.
+  - button "+30 segundos":
+    - generic: +30 segundos
+  - generic: "2"
+  - generic: "Siguiente: serie 2 de 2"
+  - generic: Jalón en polea
+  - button "Saltar descanso":
+    - generic: Saltar descanso
+  - button "Corregir la última serie":
+    - generic: Corregir la última serie
+  - button "Ejercicio":
+    - generic: Ejercicio
+  - 'button "Cambiar de gimnasio: SmartFit · Buenavista"':
+    - generic: SmartFit · Buenavista
+  - generic: Volumen vs última sesión · 31 %

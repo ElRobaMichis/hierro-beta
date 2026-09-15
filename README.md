@@ -4,7 +4,9 @@ Prueba la aplicación en **https://elrobamichis.github.io/hierro-beta/**.
 
 Abre ese enlace en tu teléfono y añádelo a la pantalla de inicio. Se instala como **Hierro Beta**. Después del primer acceso con conexión, la app puede abrir sin internet.
 
-Los planes y el historial se guardan en tu dispositivo. Puedes restaurar un respaldo de Hierro desde **Tú → Datos y respaldos**. Esta beta utiliza almacenamiento y cachés independientes de la aplicación principal; importar o editar aquí no cambia sus datos. No hay sincronización automática entre dispositivos.
+Los planes y el historial se guardan en tu dispositivo. Puedes restaurar un respaldo de Hierro desde **Tú → Datos y respaldos**. Esta beta utiliza almacenamiento y cachés independientes de la aplicación principal; importar o editar aquí no cambia sus datos. La sincronización cifrada es opcional: crea o vincula tu espacio desde **Tú → Sincronización**. Los avisos remotos se activan por dispositivo y necesitan internet.
+
+La versión **3.6.0** aplica el análisis de experiencia conservando el estilo, los degradados y las animaciones de Hierro. Acerca el registro de series al pulgar, compacta los días y el inventario, distingue carga real de fuerza estimada, permite retomar el cronómetro y mejora la recuperación de cambios. Consulta la [revisión de la implementación y sus capturas](docs/ui-refinement-2026-09-14/README.md).
 
 Desde la versión 3.3.0, los ejercicios que requieren calentamiento empiezan con una preparación guiada y descansos de 30 segundos, ampliables a un minuto. Al terminar aparecen las series de trabajo. Consulta los [criterios y funcionamiento del calentamiento](docs/warmups.md).
 

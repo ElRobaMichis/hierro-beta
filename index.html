@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.5.1">
+<link rel="stylesheet" href="ui.css?v=3.6.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.5.1"></script>
-<script src="sync-core.js?v=3.5.1"></script>
-<script src="sync-engine.js?v=3.5.1"></script>
-<script src="qr.js?v=3.5.1"></script>
-<script src="sync.js?v=3.5.1"></script>
-<script src="push-core.js?v=3.5.1"></script>
-<script src="push.js?v=3.5.1"></script>
+<script src="ui.js?v=3.6.0"></script>
+<script src="sync-core.js?v=3.6.0"></script>
+<script src="sync-engine.js?v=3.6.0"></script>
+<script src="qr.js?v=3.6.0"></script>
+<script src="sync.js?v=3.6.0"></script>
+<script src="push-core.js?v=3.6.0"></script>
+<script src="push.js?v=3.6.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.5.1';
+const APP_VERSION = '3.6.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -814,6 +814,7 @@ let view = { name:'home' };
 let timerInt = null;
 let restUntil = db.active && Number.isFinite(db.active.restUntil) ? db.active.restUntil : null;
 let audioCtx = null;
+let storageBatch = 0;
 
 function normalize(d){
   d = (d && typeof d === 'object') ? d : {};
@@ -892,29 +893,63 @@ function normGym(g, unitFallback){
 function load(){
   try{
     const raw = localStorage.getItem(LS_KEY);
-    if(raw) return normalize(JSON.parse(raw));
-  }catch(e){}
+    const value=raw?JSON.parse(raw):null;
+    if(raw&&!validBackup(value))throw new Error('Los datos guardados necesitan recuperarse.');
+    window.__loadError=null;
+    return normalize(value);
+  }catch(e){window.__loadError=e.message||'No se pudieron leer los datos guardados.';}
   return normalize(null);
 }
 function save(){
+  if(storageBatch)return true;
+  if(window.__loadError)return false;
   try{
     if(typeof syncBeforeSave==='function'&&!syncBeforeSave())return false;
     localStorage.setItem(LS_KEY, JSON.stringify(db));
-    if(typeof syncSaved==='function')syncSaved();
-    if(typeof pushChanged==='function')pushChanged();
-    return true;
+    window.__saveError=null;
   }catch(e){
-    /* la cuota (~5 MB) equivale a décadas de sesiones, pero si el navegador
-       rechaza la escritura que no sea en silencio: sin guardar, todo lo que
-       hagas se esfuma al cerrar */
-    if(!window.__quotaWarned){
-      window.__quotaWarned = true;
-      infoModal('No se pudo guardar', `El navegador rechazó la escritura (¿almacenamiento lleno?).
-        Descarga un respaldo desde Ajustes ahora mismo y libera espacio del sitio; sin espacio,
-        lo que registres se pierde al cerrar la app.`);
-    }
+    window.__saveError='No pudimos guardar los últimos cambios. Mantén Hierro abierta y vuelve a intentar o descarga una copia.';
+    if(typeof uiSaveState==='function')uiSaveState();
     return false;
   }
+  /* A notification or network hook cannot undo a durable local write. */
+  try{if(typeof syncSaved==='function')syncSaved();}catch{}
+  try{if(typeof pushChanged==='function')pushChanged();}catch{}
+  if(typeof uiSaveState==='function')uiSaveState();
+  return true;
+}
+/* Sensitive actions commit once. A rejected write keeps the editable session. */
+function commitChange(change){
+  const before=JSON.stringify(db),rest=restUntil;
+  storageBatch++;
+  try{change();}catch(e){db=normalize(JSON.parse(before));restUntil=rest;throw e;}
+  finally{storageBatch--;}
+  if(save())return true;
+  db=normalize(JSON.parse(before));restUntil=rest;invalidatePlates();
+  return false;
+}
+function validBackup(d){
+  const obj=x=>!!x&&typeof x==='object'&&!Array.isArray(x);
+  const entry=e=>obj(e)&&typeof e.key==='string'&&typeof e.name==='string'&&Array.isArray(e.sets)&&e.sets.every(s=>obj(s)&&Number.isFinite(s.w)&&s.w>=0&&Number.isFinite(s.r)&&s.r>0);
+  if(!obj(d)||!Array.isArray(d.routines)||!Array.isArray(d.history))return false;
+  if(d.routines.some(r=>!obj(r)||typeof r.name!=='string'||!Array.isArray(r.exercises)||r.exercises.some(e=>!obj(e)||typeof e.key!=='string'||typeof e.name!=='string')))return false;
+  if(d.history.some(h=>!obj(h)||!Number.isFinite(Date.parse(h.date))||!Array.isArray(h.entries)||!h.entries.every(entry)))return false;
+  if(d.active&&(!obj(d.active)||!Array.isArray(d.active.exercises)||d.active.exercises.some(e=>!obj(e)||typeof e.key!=='string'||!Array.isArray(e.sets)||e.sets.some(s=>!obj(s)))))return false;
+  if(d.exmeta&&(!obj(d.exmeta)||Object.values(d.exmeta).some(m=>!obj(m))))return false;
+  if(d.splits&&(!Array.isArray(d.splits)||d.splits.some(s=>!obj(s)||typeof s.name!=='string')))return false;
+  return true;
+}
+function restoreBackupData(data){
+  if(!validBackup(data)){infoModal('Respaldo no válido','La estructura de este archivo está incompleta. Tu información actual se conserva.');return false;}
+  const before=db,oldError=window.__loadError,oldRest=restUntil;
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(raw)localStorage.setItem(LS_KEY+'.recovery',raw);
+    db=normalize(JSON.parse(JSON.stringify(data)));window.__loadError=null;
+    restUntil=db.active?.restUntil||null;
+    if(!save())throw new Error('No hay espacio para guardar el respaldo.');
+    invalidatePlates();return true;
+  }catch(e){db=before;restUntil=oldRest;window.__loadError=oldError;window.__saveError=e.message;uiSaveState();return false;}
 }
 function uid(){ return Math.random().toString(36).slice(2,10); }
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -1063,6 +1098,7 @@ function avgRIR(sets){
    ancla en el del split — así un plan de fuerza (30 kg × 6) y uno de
    hipertrofia (16 kg × 15) del mismo ejercicio no se pisan los pesos. */
 function historySplitId(h){
+  if(Object.prototype.hasOwnProperty.call(h,'splitId'))return h.splitId;
   const known = h.routineId && db.routines.find(r => r.id === h.routineId);
   const r = known || db.routines.find(r => r.name === h.routineName);
   return (r && r.split) || null;
@@ -1666,14 +1702,17 @@ const scrollMem = {};
 function viewKey(v){
   if(!v || !v.name) return 'home';
   if(v.name === 'routine')  return 'routine:' + v.id + (v.sort ? ':orden' : '');
-  if(v.name === 'exercise') return 'exercise:' + v.key;
-  if(v.name === 'gym')      return 'gym:' + (v.kind || 'plates');
+  if(v.name === 'exercise') return 'exercise:' + v.key + ':' + (v.exTab || 'progress');
+  if(v.name === 'gym')      return 'gym:' + db.settings.gymId + ':' + (v.kind || 'plates');
   if(v.name === 'split')    return 'split:' + v.id;
+  if(v.name === 'settings') return 'settings:'+(v.section||'root');
+  if(v.name === 'history')  return 'history:'+(v.progressTab||'overview');
   return v.name;
 }
 function scrollNow(){ return window.scrollY || window.pageYOffset || 0; }
 function go(v){
   scrollMem[viewKey(view)] = scrollNow();
+  if(typeof uiRememberNavigation==='function')uiRememberNavigation(v);
   view = v;
   render();
   const y = scrollMem[viewKey(v)] || 0;
@@ -1910,6 +1949,11 @@ function systemicFatigue(){
     const lastE = arr[arr.length-1], prev = arr[arr.length-2];
     if(!prev || lastE.date < cut) continue;                        /* no entrenado en la ventana */
     if(new Date(lastE.date) - new Date(prev.date) > 45*864e5) continue;  /* comparación sin sentido */
+    if(exMeta(key).type==='asistido'){
+      const lo=effRange(key).lo,now=Math.min(...lastE.sets.filter(st=>st.r>=lo).map(st=>st.w)),before=Math.min(...prev.sets.filter(st=>st.r>=lo).map(st=>st.w));
+      if(!Number.isFinite(now)||!Number.isFinite(before))continue;
+      evaluated++;if(now>before*1.02+0.001)regressed++;continue;
+    }
     const repsMode = ['corporal','tiempo'].includes(exMeta(key).type);
     const mNow = repsMode ? Math.max(...lastE.sets.map(s=>s.r)) : bestE1RM(lastE.sets);
     const mPrev = repsMode ? Math.max(...prev.sets.map(s=>s.r)) : bestE1RM(prev.sets);
@@ -1973,7 +2017,8 @@ function withSplitContext(id,read){
   try{return read();}finally{ctxSplitOverride=previous;}
 }
 function ctxSplitId(){
-  if(ctxSplitOverride) return ctxSplitOverride;
+  if(ctxSplitOverride)return ctxSplitOverride;
+  if(view?.name==='exercise'&&view.from==='history'&&view.progressPlan)return view.progressPlan;
   /* An explicitly viewed day or its exercise uses that plan. Session work
      keeps its own context, including refreshes performed from another page. */
   if(view?.name==='routine'||(view?.name==='exercise'&&view.from!=='session')){
@@ -1982,6 +2027,7 @@ function ctxSplitId(){
   }
   /* una sesión en curso manda: su rutina dice de qué split es */
   if(db.active){
+    if(db.active.splitId)return db.active.splitId;
     const r = db.routines.find(x => x.id === db.active.routineId);
     if(r && r.split) return r.split;
   }
@@ -2283,10 +2329,13 @@ function deleteSplit(id){
   confirmModal(`¿Eliminar “${esc(sp.name)}”?`,
     `Se eliminarán el plan y sus ${days.length} día${days.length===1?'':'s'}. Tu historial y las marcas de cada ejercicio se conservan. ${next?`El plan activo será “${esc(next.name)}”.`:'Te quedarás sin planes; podrás crear uno nuevo cuando quieras.'}`,
     'Eliminar plan', () => {
-      db.routines = db.routines.filter(r => r.split !== id);
-      db.splits = db.splits.filter(x => x.id !== id);
-      if(db.splits.length&&!db.splits.some(x => x.active)) db.splits[0].active = true;
-      save(); go({name:'splits',notice:`“${sp.name}” se eliminó. Tu historial se conserva.`});
+      if(!commitChange(()=>{
+        for(const h of db.history)if(!Object.prototype.hasOwnProperty.call(h,'splitId'))h.splitId=historySplitId(h);
+        db.routines = db.routines.filter(r => r.split !== id);
+        db.splits = db.splits.filter(x => x.id !== id);
+        if(db.splits.length&&!db.splits.some(x => x.active)) db.splits[0].active = true;
+      }))return;
+      go({name:'splits',notice:`“${sp.name}” se eliminó. Tu historial se conserva.`});
     });
 }
 /* mover un día dentro de su split */
@@ -2305,7 +2354,7 @@ function promptMoveRoutine(rid){
   const r = db.routines.find(x => x.id === rid);
   if(!r) return;
   if(db.splits.length < 2){
-    infoModal('Solo tienes un split', 'Crea otro desde Rutinas → Cambiar y entonces podrás mover días entre ellos.');
+    infoModal('Solo tienes un split', 'Crea otro desde Entrenar → Organizar y entonces podrás mover días entre ellos.');
     return;
   }
   window.__moveTo = db.splits.find(x => x.id !== r.split).id;
@@ -2362,6 +2411,8 @@ function doMoveRoutine(rid){
     db.routines.push(copia);
     save(); closeModal(); go({name:'routine', id:copia.id});
   } else {
+    for(const h of db.history)if(!Object.prototype.hasOwnProperty.call(h,'splitId'))h.splitId=historySplitId(h);
+    if(db.active&&!db.active.splitId)db.active.splitId=db.routines.find(x=>x.id===db.active.routineId)?.split||null;
     r.split = to;
     save(); closeModal(); render();
   }
@@ -2414,7 +2465,7 @@ function exerciseHistory(key){
   const out = [];
   for(const h of db.history){
     const e = h.entries.find(x => x.key === key);
-    if(e && e.sets.length) out.push({ date:h.date, sets:e.sets });
+    if(e && e.sets.length) out.push({ id:h.id,date:h.date,sets:e.sets,deload:!!h.deload,splitId:historySplitId(h) });
   }
   out.sort((a,b) => a.date < b.date ? -1 : 1);
   return out;
@@ -2480,7 +2531,7 @@ function equipConfigHTML(key, meta){
       </div>
       <div class="hint">${ minStep > 0
         ? `Con ${pts === 1 ? 'un solo pitón' : (pts === 2 ? 'dos lados' : 'cuatro pitones')}, el salto más pequeño que puedes armar es <b>${fmtW(minStep)} ${uLabel()}</b>${pts > 1 ? ` — un disco de ${fmtW(minStep/pts)} en cada uno` : ''}.`
-        : 'Marca algún disco en Ajustes → Mi equipo para poder calcular la carga.' }
+        : 'Marca algún disco en Tú → Mis gimnasios para poder calcular la carga.' }
         ${ eq === 'discos' ? (effBase(key) > 0
           ? ` Como anotaste su peso, en la sesión escribes <b>solo los discos que pones</b> (15 por lado = 30): la app suma el aparato y tu historial guarda el peso real.`
           : ' Dejar el peso en blanco no rompe nada: el coach compara tus series entre sí. Si lo anotas, en la sesión tecleas solo los discos y la app suma el aparato por ti.') : '' }
@@ -2618,6 +2669,9 @@ function setExBarSel(key, v){
   render();
 }
 function setExRange(key, which, val){
+  const m=exMeta(key),v=val===''?null:parseInt(val,10),range=m.type==='tiempo'?TIEMPO_RANGE:goalRange();
+  const lo=which==='lo'?(v??range.lo):(m.lo??range.lo),hi=which==='hi'?(v??range.hi):(m.hi??range.hi);
+  if(!Number.isFinite(lo)||!Number.isFinite(hi)||lo<1||hi<=lo)return false;
   withExChange(key, () => {
     const v = parseInt(val,10);
     exMeta(key)[which] = isNaN(v) ? null : v;
@@ -2647,6 +2701,8 @@ function openSplitConf(){ view.splitConf = true; view.configure = true; render()
    creadas: crecen con filas vacías, y solo se quitan colas SIN anotar */
 function syncActiveSets(key){
   if(!db.active) return;
+  const sessionPlan=db.active.splitId||db.routines.find(r=>r.id===db.active.routineId)?.split;
+  if(ctxSplitId()!==sessionPlan)return;
   const want = splitSetsOverride(key);
   if(!want) return;
   for(const ex of db.active.exercises){
@@ -2667,6 +2723,11 @@ function setSplitConf(key, field, val){
   if(!sp.exconf || typeof sp.exconf !== 'object') sp.exconf = {};
   const oc = sp.exconf[key] || (sp.exconf[key] = {});
   const v = parseInt(val, 10);
+  if(['lo','hi'].includes(field)){
+    const range=exMeta(key).type==='tiempo'?TIEMPO_RANGE:goalRange(),base=exMeta(key);
+    const candidate={...oc,[field]:Number.isFinite(v)?v:null},lo=candidate.lo??base.lo??range.lo,hi=candidate.hi??base.hi??range.hi;
+    if(lo<1||hi<=lo)return false;
+  }
   if(val === '' || val === 'auto' || isNaN(v) || v < 1) delete oc[field];
   else oc[field] = v;
   if(!Object.keys(oc).length) delete sp.exconf[key];
@@ -2675,6 +2736,8 @@ function setSplitConf(key, field, val){
   save();
 }
 function setExNotes(key, val){ exMeta(key).notes = val.slice(0,300); save(); }
+function setGymNotes(key,val){exMeta(key).gymNotes=String(val).slice(0,300);save();}
+function exerciseNotes(key){const m=exMeta(key);return [m.gymNotes,m.notes].filter(Boolean).join('\n');}
 function setExRest(key, val){
   exMeta(key).rest = (val === 'auto') ? null : parseInt(val,10);
   save();
@@ -2732,19 +2795,13 @@ function toggleSetDone(xi, si){
   save(); render();
 }
 function editExNotes(xi){
-  const ex = db.active.exercises[xi];
-  openModal(`
-    <h2>Notas — ${esc(exBaseName(ex.name))}</h2>
-    <p class="muted">Se guardan en el ejercicio y las verás cada vez que lo entrenes.</p>
-    <textarea id="exnotes" aria-label="Nota del ejercicio" placeholder="Ej. agarre ancho, asiento en 4, bajar lento…">${esc(exMeta(ex.key).notes || '')}</textarea>
-    <button class="btn" style="margin-top:16px" onclick="saveExNotes('${ex.key}')">Guardar</button>
-    <button class="btn ghost" onclick="closeModal()">Cancelar</button>`);
-  setTimeout(() => document.getElementById('exnotes')?.focus(), 60);
+  const ex=db.active.exercises[xi],m=exMeta(ex.key);
+  openModal(`<h2>Tu nota al entrenar</h2><p class="muted">${esc(ex.name)}</p><label class="field"><span>Ajuste de ${esc(db.gym.name)}</span><textarea id="gymnotes" maxlength="300" placeholder="Asiento 4, polea alta…">${esc(m.gymNotes||'')}</textarea></label><label class="field"><span>Técnica · en todos tus gimnasios</span><textarea id="exnotes" maxlength="300" placeholder="Agarre, recorrido, ritmo…">${esc(m.notes||'')}</textarea></label><button class="btn" onclick="${uiAction('saveExNotes',ex.key)}">Guardar notas</button><button class="btn ghost" onclick="closeModal()">Cancelar</button>`);
 }
 function saveExNotes(key){
-  const t = document.getElementById('exnotes');
-  if(t) setExNotes(key, t.value);
-  closeModal(); render();
+  const general=document.getElementById('exnotes'),local=document.getElementById('gymnotes');
+  if(!commitChange(()=>{if(general)exMeta(key).notes=general.value.slice(0,300);if(local)exMeta(key).gymNotes=local.value.slice(0,300);})){uiSaveState();return;}
+  closeModal();render();
 }
 
 /* la cabecera de la columna del peso: en mancuernas a dos manos avisa
@@ -2972,7 +3029,7 @@ function openExFromSession(xi, tab){
    deja de proponer kilos que esa máquina no tiene */
 function refreshActiveSugg(key){
   if(!db.active) return;
-  const split=db.routines.find(r=>r.id===db.active.routineId)?.split;
+  const split=db.active.splitId||db.routines.find(r=>r.id===db.active.routineId)?.split;
   withSplitContext(split,()=>{for(const ex of db.active.exercises){
     if(ex.key !== key) continue;
     let sg = computeSuggestion(key);
@@ -3044,7 +3101,7 @@ function withExChange(key, fn){
 function pickBar(key){
   const bars = availableBars();
   if(!bars.length){
-    infoModal('Sin barras configuradas', 'Marca al menos una barra en Ajustes → Mi equipo.');
+    infoModal('Sin barras configuradas', 'Activa al menos una barra en Tú → Gimnasios → Abrir equipo → Barras.');
     return;
   }
   const cur = barFor(key);
@@ -3334,10 +3391,12 @@ function viewHistory(){
 function rebuildProgress(persist=true){
   db.history.sort((a,b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
   db.progress = {};
-  for(const h of db.history){
+  storageBatch++;
+  try{for(const h of db.history){
     if(h.deload) continue;   /* las descargas no alimentan la progresión */
-    for(const e of h.entries) updateProgress(e.key, e.sets, h.date);
+    withSplitContext(historySplitId(h),()=>{for(const e of h.entries)updateProgress(e.key,e.sets,h.date);});
   }
+  }finally{storageBatch--;}
   if(persist)save();
 }
 function deleteSession(id){
@@ -3346,8 +3405,12 @@ function deleteSession(id){
   confirmModal(`¿Borrar la sesión de ${esc(h.routineName)}?`,
     `${fmtDate(h.date)} · ${h.entries.reduce((a,e)=>a+e.sets.length,0)} series. Las sugerencias del coach se recalculan sin ella. No se puede deshacer.`,
     'Borrar sesión', () => {
-      db.history = db.history.filter(x => x.id !== id);
-      rebuildProgress(); render();
+      if(!commitChange(()=>{
+        db.history = db.history.filter(x => x.id !== id);
+        for(const rec of db.history)delete rec.prs;
+        rebuildProgress(false);migratePRs(false);
+      }))return;
+      render();
     });
 }
 function editSession(id){
@@ -3403,8 +3466,8 @@ function saveEditedSession(){
   closeModal();
   if(!entries.length){ deleteSession(ed.id); return; }   /* quedó vacía → ofrecer borrarla */
   const h = db.history.find(x => x.id === ed.id);
-  h.entries = entries;
-  rebuildProgress(); render();
+  if(!commitChange(()=>{h.entries=entries;for(const rec of db.history)delete rec.prs;rebuildProgress(false);migratePRs(false);})){window.__edit=ed;renderEditModal();uiSaveState();return false;}
+  render();return true;
 }
 
 /* =====================================================================
@@ -3418,7 +3481,7 @@ function saveEditedSession(){
    la 1.0); al cambiar se guarda una foto en gym.machines y se aplica la
    del gimnasio nuevo. Así el motor sigue leyendo de un solo sitio.
    ===================================================================== */
-const MACHINE_FIELDS = ['equip','points','base','bar','step','cap','stack'];
+const MACHINE_FIELDS = ['equip','points','base','bar','step','cap','stack','gymNotes'];
 /* lo que un ejercicio tiene configurado de SU máquina; null si nada */
 function machineSnapshot(m){
   const out = {}; let any = false;
@@ -3453,6 +3516,7 @@ function applyGymMachines(g){
     m.bar    = (mc && mc.bar    != null) ? mc.bar    : null;
     m.step   = (mc && mc.step   != null) ? mc.step   : null;
     m.cap    = (mc && mc.cap    != null) ? mc.cap    : null;
+    m.gymNotes = typeof mc?.gymNotes==='string'?mc.gymNotes:'';
     m.stack  = (mc && mc.stack)
       ? { unit: mc.stack.unit ?? null, step: mc.stack.step ?? null, start: mc.stack.start ?? null,
           extra: mc.stack.extra ?? null, extraMax: mc.stack.extraMax ?? null }
@@ -3525,7 +3589,7 @@ function promptNewGym(){
         <b>Desde cero, en libras</b><span>Equipo estándar en lb; las máquinas, sin configurar.</span>
       </button>
       <button class="btn" type="submit">Crear y entrenar ahí</button>
-      <button class="btn ghost" type="button" onclick="gymPickerModal()">Cancelar</button>
+      <button class="btn ghost" type="button" onclick="closeModal()">Cancelar</button>
     </form>`);
   setTimeout(() => document.getElementById('newgymname')?.focus(), 60);
 }
@@ -3539,7 +3603,7 @@ function selGymBase(v){
 function createGym(ev){
   ev.preventDefault();
   const name = (document.getElementById('newgymname').value || '').trim();
-  if(!name) return;
+  if(!name){uiFieldError('newgymname','Escribe el nombre de este gimnasio.');return;}
   const base = window.__gymBase || 'copy';
   let g;
   if(base === 'copy'){
@@ -3767,7 +3831,7 @@ function promptGymItem(kind){
 function addGymItem(ev, kind){
   ev.preventDefault();
   const v = parseFloat(document.getElementById('gymW').value);
-  if(isNaN(v) || v <= 0) return;
+  if(!Number.isFinite(v)||v<=0){uiFieldError('gymW','Escribe un peso mayor que cero.');return;}
   const kg = Math.round(toKg(v) * 1000) / 1000;
   if(db.gym[kind].some(x => Math.abs(x.kg - kg) < 1e-9)){
     closeModal();
@@ -3787,12 +3851,12 @@ function applyDbRange(){
   const from = parseFloat(document.getElementById('dbFrom').value);
   const to   = parseFloat(document.getElementById('dbTo').value);
   const step = parseFloat(document.getElementById('dbStep').value);
-  if(isNaN(from) || isNaN(to) || isNaN(step) || step <= 0 || to < from){
-    infoModal('Rango no válido', 'Revisa los tres números: el salto tiene que ser mayor que cero y el final no puede ser menor que el inicio.');
+  if(!Number.isFinite(from)||!Number.isFinite(to)||!Number.isFinite(step)||from<=0||step<=0||to<from){
+    uiFieldError('dbFrom','Revisa el rango: inicio y salto mayores que cero, final igual o mayor que el inicio.');
     return;
   }
   if((to - from) / step > 200){
-    infoModal('Rango demasiado largo', 'Salen más de 200 mancuernas. Sube el salto o acorta el rango.');
+    uiFieldError('dbStep','Salen más de 200 mancuernas. Sube el salto o acorta el rango.');
     return;
   }
   confirmModal('¿Rehacer la lista?',
@@ -3836,7 +3900,7 @@ function createRoutine(ev){
     db.splits.push(nuevo); r.split = nuevo.id;
   }
   db.routines.push(r); save(); closeModal();
-  go({name:'routine', id:r.id, edit:true});
+  go({name:'routine', id:r.id, edit:true});uiLibrary(r.id);
 }
 function promptRenameRoutine(id){
   const r = db.routines.find(x => x.id === id);
@@ -3873,8 +3937,11 @@ function deleteRoutine(id){
   confirmModal(`¿Eliminar “${esc(r.name)}”?`,
     'El historial de sesiones ya guardadas no se borra.',
     'Eliminar día', () => {
-      db.routines = db.routines.filter(x => x.id !== id);
-      save(); go(r.split?{name:'split',id:r.split,sort:sorting}:{name:'home'});
+      if(!commitChange(()=>{
+        for(const h of db.history)if(!Object.prototype.hasOwnProperty.call(h,'splitId'))h.splitId=historySplitId(h);
+        db.routines = db.routines.filter(x => x.id !== id);
+      }))return;
+      go(r.split?{name:'split',id:r.split,sort:sorting}:{name:'home'});
     });
 }
 function addExercise(ev, rid){
@@ -3982,6 +4049,7 @@ function moveEx(rid, i, dir){
    de cable no es 90 en la de discos. Se separan, pero sin trabajo. */
 function promptDuplicateEx(key, name){
   window.__dupFrom = key;
+  window.__dupView = {...view};
   openModal(`
     <h2>Duplicar para otra máquina</h2>
     <p class="muted">Crea un ejercicio aparte partiendo de <b>${esc(exBaseName(name))}</b>. Empieza sin
@@ -3992,33 +4060,45 @@ function promptDuplicateEx(key, name){
       <button class="btn" type="submit">Crear</button>
       <button class="btn ghost" type="button" onclick="closeModal()">Cancelar</button>
     </form>
-    <div class="hint">Se copian el rango de reps, el grupo muscular y el descanso. Lo que cambies después
-      en uno no toca al otro.</div>`);
+    <div class="hint">Se copian el rango de reps, el grupo muscular y el descanso. La variante se añade solo a este día; el ejercicio original se conserva.</div>`);
   setTimeout(() => document.getElementById('dupname')?.select(), 60);
 }
 function doDuplicateEx(ev){
   ev.preventDefault();
   const from = window.__dupFrom;
   const name = document.getElementById('dupname').value.trim();
-  if(!from || !name) return;
+  if(!from)return;
+  if(!name){uiFieldError('dupname','Pon un nombre a esta variante.');return;}
   const key = exKey(name);
   if(key === from || db.exmeta[key]){
-    infoModal('Ese nombre ya existe', 'Ponle uno que diga de qué máquina es — por ejemplo “(Cable)” o “(Discos)”.');
+    uiFieldError('dupname','Ese nombre ya existe. Incluye la máquina, por ejemplo «Cable» o «Discos».');
     return;
   }
-  const src = exMeta(from);
-  db.exmeta[key] = { type:src.type, lo:src.lo, hi:src.hi, step:null, notes:'', rest:src.rest,
+  const src = exMeta(from),origin=window.__dupView||view;
+  const r=db.routines.find(r=>r.id===origin.rid);
+  if(!commitChange(()=>{
+   db.exmeta[key] = { type:src.type, lo:src.lo, hi:src.hi, step:null, notes:'', rest:src.rest,
                      muscle:src.muscle, equip:null, bar:null, points:null, base:null,
                      stack:{ unit:null, step:null, start:null } };
-  /* se añade a las mismas rutinas donde está el original */
-  for(const r of db.routines){
+   if(r){
     const i = r.exercises.findIndex(e => e.key === from);
     if(i >= 0 && !r.exercises.some(e => e.key === key))
       r.exercises.splice(i + 1, 0, { id:uid(), name, key });
-  }
+   }
+   const sp=db.splits.find(s=>s.id===r?.split),conf=sp?.exconf?.[from];
+   if(conf)sp.exconf[key]=JSON.parse(JSON.stringify(conf));
+   if(db.active&&(db.active.routineId===r?.id||origin.from==='session')){
+    const i=db.active.exercises.findIndex(e=>e.key===from);
+    if(i>=0&&!db.active.exercises.some(e=>e.key===key)){
+      const n=conf?.sets||1;
+      db.active.exercises.splice(i+1,0,{key,name,sugg:null,sets:Array.from({length:n},()=>({w:'',r:'',rir:''}))});
+      if(db.active.open>i)db.active.open++;
+      if(db.active.setTimer?.xi>i)db.active.setTimer.xi++;
+    }
+   }
+  }))return;
   window.__dupFrom = null;
-  save(); closeModal();
-  openExerciseByKey(key);
+  closeModal();go({...origin,name:'exercise',key,exname:name,rid:r?.id||origin.rid,exTab:'equipment'});
 }
 
 function duplicateRoutine(rid){
@@ -4029,16 +4109,16 @@ function duplicateRoutine(rid){
   save(); go({name:'routine', id:copy.id});
 }
 
-function startSession(rid, deload){
-  if(typeof syncForeign!=='undefined'&&syncForeign){syncOfferContinue();return;}
+function startSession(rid, deload, localOnly=false){
+  if(typeof syncForeign!=='undefined'&&syncForeign&&!localOnly){syncOfferContinue(rid,deload);return;}
   if(db.active){ go({name:'session'}); return; }
   const r = db.routines.find(x => x.id === rid);
   if(!r) return;
   db.active = {
     id: uid(),
-    routineId: r.id, routineName: r.name, open:0,
+    routineId: r.id, routineName: r.name, splitId:r.split, open:0,
     start: Date.now(),
-    deload: !!deload,
+    deload: !!deload, localOnly:!!localOnly,
     exercises: withSplitContext(r.split,()=>r.exercises.map(ex => {
       let sugg = computeSuggestion(ex.key);
       if(deload) sugg = deloadSugg(ex.key, sugg);
@@ -4051,7 +4131,7 @@ function startSession(rid, deload){
   };
   restUntil = null;
   delete scrollMem.session;   /* una sesión nueva empieza arriba */
-  save(); go({name:'session'});
+  if(!save())return;closeModal();go({name:'session'});
 }
 
 function setVal(xi, si, field, val){
@@ -4164,6 +4244,8 @@ function doRemoveSessionEx(alsoRoutine){
   window.__removeExIdx = null;
   if(!s || xi == null || !s.exercises[xi]) return;
   const ex = s.exercises[xi];
+  if(s.open===xi||s.open===undefined)uiResetRest();
+  if(s.setTimer?.key===ex.key){delete s.setTimer;clearInterval(setTimerInt);setTimerState=null;}
   s.exercises.splice(xi, 1);
   /* si había un ejercicio fijado como abierto, que siga siendo el mismo */
   if(typeof s.open === 'number'){
@@ -4270,62 +4352,40 @@ function sessionAddExercise(ev){
 /* ---------- cronómetro por serie (ejercicios por tiempo) ---------- */
 let setTimerInt = null;
 let setTimerState = null;
-function startSetTimer(xi, si){
+function startSetTimer(xi,si){
   if(warmupRequired(xi)){uiSelectExercise(xi);return;}
-  const ex = db.active && db.active.exercises[xi];
-  if(!ex) return;
-  const audioReady=unlockAudio();
-  const typed = parseInt(ex.sets[si].r, 10);
-  const target = (!isNaN(typed) && typed > 0) ? typed
-    : (ex.sugg && ex.sugg.reps ? ex.sugg.reps : effRange(ex.key).lo);
-  clearInterval(setTimerInt);
-  setTimerState = { xi, si, target, phase:'prep', count:3 };
-  openModal(`
-    <h2 style="text-align:center;font-size:17px">${esc(ex.name)} · serie ${si+1}</h2>
-    <div class="clock num" id="settimer" style="font-size:76px;text-align:center;margin:10px 0 2px">3</div>
-    <p class="tiny" id="settimerhint" style="text-align:center;margin-bottom:16px">Prepárate… objetivo: ${target} s</p>
-    <button class="btn" onclick="stopSetTimer(true)">Terminar antes</button>
-    <button class="btn ghost" style="margin-top:8px" onclick="stopSetTimer(false)">Cancelar</button>`);
-  const preparation=setTimerState;
-  audioReady.then(()=>{if(setTimerState===preparation&&preparation.count===3)beep('countdown');});
-  setTimerInt = setInterval(() => {
-    const el = document.getElementById('settimer');
-    const st = setTimerState;
-    if(!el || !st){ clearInterval(setTimerInt); return; }
-    if(st.phase === 'prep'){
-      st.count--;
-      if(st.count>0)beep('countdown');
-      if(st.count <= 0){
-        st.phase = 'run'; st.count = st.target;
-        beep();
-        const h = document.getElementById('settimerhint');
-        if(h) h.textContent = '¡Sostén!';
-      }
-      el.textContent = st.count;
-    } else {
-      st.count--;
-      el.textContent = Math.max(0, st.count);
-      if(st.count <= 0) finishSetTimer(st.target);
-    }
-  }, 1000);
+  const ex=db.active?.exercises[xi],set=ex?.sets[si];if(!set||set.done)return;
+  const stored=db.active.setTimer,typed=parseInt(set.r,10),now=Date.now();
+  const target=typed>0?typed:ex.sugg?.reps||effRange(ex.key).lo;
+  setTimerState=stored&&stored.key===ex.key&&stored.si===si?stored:{key:ex.key,xi,si,target,runAt:now+3000,endAt:now+3000+target*1000,phase:'prep',count:3};
+  setTimerState.xi=xi;db.active.setTimer=setTimerState;save();
+  openModal(`<h2 class="n-timer-title">${esc(ex.name)} · serie ${si+1}</h2><div class="clock num n-set-timer" id="settimer" role="timer">${target}</div><p id="settimerhint" class="hint">Prepárate…</p><button class="btn" onclick="stopSetTimer(true)">Terminar esta medición</button><button class="btn quiet" onclick="closeModal()">Minimizar cronómetro</button><button class="btn ghost" onclick="stopSetTimer(false)">Cancelar medición</button>`);
+  unlockAudio().then(()=>{if(setTimerState?.phase==='prep')beep('countdown');});
+  clearInterval(setTimerInt);tickSetTimer();
+  if(setTimerState)setTimerInt=setInterval(tickSetTimer,250);
+}
+function tickSetTimer(){
+  const st=setTimerState;if(!st||!db.active)return;
+  const now=Date.now(),preparing=now<st.runAt;
+  const count=Math.max(0,Math.ceil(((preparing?st.runAt:st.endAt)-now)/1000));
+  if(!preparing&&st.phase==='prep')beep();
+  else if(preparing&&count!==st.count&&count>0)beep('countdown');
+  st.phase=preparing?'prep':'run';st.count=count;
+  const el=document.getElementById('settimer'),hint=document.getElementById('settimerhint');
+  if(el)el.textContent=count;if(hint)hint.textContent=preparing?`Prepárate · objetivo ${st.target} s`:'Sostén · puedes minimizar y volver.';
+  if(!preparing&&count===0)finishSetTimer(st.target);
 }
 function finishSetTimer(seconds){
-  const st = setTimerState;
-  clearInterval(setTimerInt);
-  setTimerState = null;
-  if(!st) return;
-  beep();
-  setVal(st.xi, st.si, 'r', String(seconds));
-  closeModal(); render();
+  const st=setTimerState;if(!st)return;
+  clearInterval(setTimerInt);setTimerState=null;
+  if(db.active)delete db.active.setTimer;
+  const ex=db.active?.exercises[st.xi];if(!ex||ex.key!==st.key||ex.sets[st.si]?.done)return;
+  beep();setVal(st.xi,st.si,'r',String(seconds));closeModal();render();uiFocus('n-record');
 }
 function stopSetTimer(early){
-  const st = setTimerState;
-  clearInterval(setTimerInt);
-  setTimerState = null;
-  if(early && st && st.phase === 'run'){
-    const elapsed = st.target - Math.max(0, st.count);
-    if(elapsed > 0){ setVal(st.xi, st.si, 'r', String(elapsed)); closeModal(); render(); return; }
-  }
+  const st=setTimerState||db.active?.setTimer;
+  if(early&&st&&Date.now()>st.runAt){setTimerState=st;finishSetTimer(Math.max(1,Math.min(st.target,Math.floor((Date.now()-st.runAt)/1000))));return;}
+  if(!early&&st){confirmModal('¿Cancelar la medición?','Los segundos medidos hasta ahora se descartarán. Puedes minimizar para retomarla.','Cancelar medición',()=>{clearInterval(setTimerInt);setTimerState=null;if(db.active)delete db.active.setTimer;save();closeModal();render();},true);return;}
   closeModal();
 }
 
@@ -4394,6 +4454,7 @@ function bestMetricBefore(key){
   const repsMode = ['corporal','tiempo'].includes(exMeta(key).type);
   let best = 0;
   for(const h of db.history){
+    if(h.deload)continue;
     const e = h.entries.find(x => x.key === key);
     if(!e) continue;
     const v = repsMode ? Math.max(0, ...e.sets.map(st => st.r)) : bestE1RM(e.sets);
@@ -4441,7 +4502,7 @@ function routineSessions(rec){
 function bestBeforeDate(key, value, assist){
   let out = null;
   for(const h of db.history){
-    if(assist && h.deload) continue;
+    if(h.deload) continue;
     const e = h.entries.find(x => x.key === key);
     if(!e || !e.sets.length) continue;
     let v;
@@ -4555,6 +4616,7 @@ function finishScreenHTML(rec, prs, failNote){
   const isDeload = !!rec.deload;
   const vol = sessionVolume(rec.entries);
   const nSets = rec.entries.reduce((a, e) => a + e.sets.length, 0);
+  const partial=!!rec.plannedSets&&nSets<rec.plannedSets;
   const fallback = uiSessionMeasure(rec.entries);
   const best = prs.length ? prs[0] : null;
 
@@ -4581,9 +4643,9 @@ function finishScreenHTML(rec, prs, failNote){
          ${dTxt} sobre tu marca${agoLong(best.date)}.`;
     const serie = prMetricSeries(best.key, 6);
     spark = sparkSVG(serie.map(v => best.assist ? -v : v), '#D7A44B');
-    axis = [serie.length>1?`Hace ${serie.length-1} sesión${serie.length===2?'':'es'}`:'Primera referencia', 'Hoy'];
+    axis = [serie.length>1?`Hace ${serie.length-1} ${serie.length===2?'sesión':'sesiones'}`:'Primera referencia', 'Hoy'];
   } else {
-    const prev = routineSessions(rec).filter(h => h.id !== rec.id);
+    const prev = routineSessions(rec).filter(h => h.id !== rec.id&&!h.deload&&(!h.plannedSets||h.entries.reduce((n,e)=>n+e.sets.length,0)>=h.plannedSets));
     const last = prev.length ? prev[prev.length - 1] : null;
     const lastVol = last ? sessionVolume(last.entries) : 0;
     glow = ' up';
@@ -4591,6 +4653,9 @@ function finishScreenHTML(rec, prs, failNote){
       eyebrow = 'Descarga guardada';
       sub = `Series suaves, a propósito. Tu progresión y tus récords no se tocan:
              la próxima sesión normal retoma exactamente donde ibas.`;
+    } else if(partial){
+      eyebrow=`Tu sesión · ${esc(rec.routineName)}`;
+      sub=`Guardaste <b>${nSets} de ${rec.plannedSets} series previstas</b>. Cada una cuenta. Esta sesión parcial se conserva sin compararla con una completa.`;
     } else if(last && lastVol > 0 && vol > 0){
       const d = vol - lastVol, up = d >= 0;
       eyebrow = `Peso movido · ${esc(rec.routineName)}`;
@@ -4602,10 +4667,10 @@ function finishScreenHTML(rec, prs, failNote){
     }
     if(vol > 0){ num = fmtInt(fromKg(vol)); unit = uLabel(); }
     else { num = fmtInt(fallback.value); unit = fallback.unit; }
-    if(!isDeload && vol <= 0 && fallback.unit === 's'){ eyebrow = `Tiempo registrado · ${esc(rec.routineName)}`; sub = `Tu esfuerzo en ${nSets} serie${nSets===1?'':'s'} por tiempo. Cada segundo cuenta.`; }
-    const serie = routineSessions(rec).slice(-5).map(h => sessionVolume(h.entries)).filter(v => v > 0);
-    spark = (vol > 0 && !isDeload) ? sparkSVG(serie, '#7FD3A8') : '';
-    axis = [serie.length>1?`Hace ${serie.length-1} sesión${serie.length===2?'':'es'}`:'Primera referencia', 'Hoy'];
+    if(!isDeload && !partial && vol <= 0 && fallback.unit === 's'){ eyebrow = `Tiempo registrado · ${esc(rec.routineName)}`; sub = `Tu esfuerzo en ${nSets} serie${nSets===1?'':'s'} por tiempo. Cada segundo cuenta.`; }
+    const serie = [...prev,rec].slice(-5).map(h => sessionVolume(h.entries)).filter(v => v > 0);
+    spark = (vol > 0 && !isDeload && !partial) ? sparkSVG(serie, '#7FD3A8') : '';
+    axis = [serie.length>1?`${serie.length-1} ${serie.length===2?'sesión comparable':'sesiones comparables'}`:'Primera referencia', 'Hoy'];
   }
 
   /* ---- los demás récords, o lo más pesado del día ---- */
@@ -4698,7 +4763,8 @@ function finishSession(){
   prs.sort((a, b) => b.gain - a.gain);
 
   const rec = {
-    id: s.id, routineId: s.routineId, routineName: s.routineName,
+    id: s.id, routineId: s.routineId, routineName: s.routineName, splitId:s.splitId||ctxSplitId(),
+    plannedSets:s.exercises.reduce((n,e)=>n+e.sets.length,0),
     date: new Date().toISOString(),
     duration: Math.floor((Date.now() - s.start)/1000),
     entries
@@ -4710,8 +4776,7 @@ function finishSession(){
                                            prev:x.prev, unit:x.unit, assist:!!x.assist }));
   /* nota educativa: sesión mayormente al fallo (RIR 0) — salvo que el split
      esté marcado «al fallo a propósito»: ahí es el programa, no un descuido */
-  const rrF = db.routines.find(x => x.id === rec.routineId);
-  const spF = rrF && db.splits.find(x => x.id === rrF.split);
+  const spF = db.splits.find(x => x.id === rec.splitId);
   const rirAll = entries.flatMap(e => e.sets).filter(s => s.rir !== undefined && s.rir !== null);
   const zeros = rirAll.filter(s => s.rir === 0).length;
   const failNote = (!(spF && spF.failOk) && rirAll.length >= 4 && zeros / rirAll.length >= 0.7) ? `
@@ -4722,25 +4787,20 @@ function finishSession(){
         progresarás igual y llegarás con más energía a la próxima sesión.</div>
     </div>` : '';
 
-  db.history.push(rec);
-  db.active = null;
-  restUntil = null;
-  showUpdateToast();   /* si había una actualización esperando, ya puede salir */
-  releaseWake();
-  save();
-  if(!isDeload){
-    /* la progresión se juzga con las reglas del split de ESTA sesión,
-       aunque hayas cambiado el split en curso antes de terminar */
-    const rr = db.routines.find(x => x.id === rec.routineId);
-    ctxSplitOverride = (rr && rr.split) || null;
-    for(const e of entries) updateProgress(e.key, e.sets, rec.date);
-    ctxSplitOverride = null;
-  }
+  const committed=commitChange(()=>{
+    db.history.push(rec);db.active=null;restUntil=null;
+    if(!isDeload)withSplitContext(rec.splitId,()=>{
+      for(const e of entries)updateProgress(e.key,e.sets,rec.date);
+    });
+  });
+  if(!committed){uiSaveState();return;}
+  clearInterval(setTimerInt);setTimerState=null;
+  showUpdateToast();releaseWake();
   closeModal();
   openFullModal(finishScreenHTML(rec, prs, failNote));
 }
 
-function setGoal(k){ db.settings.goal = k; save(); render(); }
+function setGoal(k){ if(!GOALS[k])return;db.settings.goal=k;if(db.active)for(const ex of db.active.exercises)refreshActiveSugg(ex.key);save();render(); }
 function setRest(v){ db.settings.rest = v; save(); }
 
 /* =====================================================================
@@ -4818,7 +4878,7 @@ function askUnitSwitch(target){
     `Tus datos guardados NO se modifican — internamente todo vive en kg y solo cambia cómo se muestra y cómo escribes.
      ${db.active ? 'Lo que ya escribiste en esta sesión se convierte automáticamente a la nueva unidad.' : ''}
      Puedes alternar cuando quieras. Si es porque entrenas en OTRO gimnasio, mejor crea un gimnasio
-     en Ajustes → Mi equipo: guarda su unidad, su equipo y sus máquinas completas.`,
+     en Tú → Gimnasios → Abrir equipo: guarda su unidad, su equipo y sus máquinas completas.`,
     `Cambiar a ${nu}`, () => setUnit(nu), true);
 }
 function setUnit(u){
@@ -5040,6 +5100,7 @@ function canNotify(){
 }
 /* solo avisa cuando la app NO está a la vista: en pantalla, el sonido/vibración bastan */
 function notify(title, body, tag){
+  if(typeof pushPrefs!=='undefined'&&((tag==='hierro-rest'&&!pushPrefs.rest)||(tag==='hierro-idle'&&!pushPrefs.idle)))return;
   if(typeof pushActive==='function'&&pushActive())return;
   if(!canNotify()) return;
   if(typeof document !== 'undefined' && document.visibilityState === 'visible') return;
@@ -5077,12 +5138,13 @@ function disableNotifications(){ db.settings.notify = 'off'; save(); render(); }
 /* sesión olvidada: abierta 15+ min sin anotar nada */
 function checkIdleSession(){
   if(!db.active) return;
-  const last = db.active.lastLog || db.active.start;
-  if(Date.now() - last > 15*60*1000 && !(db.active.idleNotified > last)){
+  const last = db.active.lastSeriesAt || db.active.start;
+  const deadline=Math.max(last+300000,(db.active.restUntil||0)+60000);
+  if(Date.now() > deadline && !(db.active.idleNotified > last)){
     db.active.idleNotified = Date.now();
     save();
     notify('Tu sesión sigue en curso',
-      'Llevas 15 min sin anotar series. ¿Seguimos? Si ya acabaste, entra y toca “Terminar” para guardarla.', 'hierro-idle');
+      'Llevas 5 min sin registrar una serie. ¿Seguimos? Si ya acabaste, entra y toca “Terminar” para guardarla.', 'hierro-idle');
   }
 }
 
@@ -5144,6 +5206,7 @@ function tickRest(){
     restUntil=null;
     if(db.active){delete db.active.restUntil;delete db.active.restDuration;save();}
     beep();notify('Descanso listo','A la siguiente serie.','hierro-rest');
+    const status=document.getElementById('n-rest-announcement');if(status)status.textContent='Descanso terminado. Tu siguiente paso está listo.';
   }
   if(!box)return;
   const phase=!!db.active?.uiRest;
@@ -5211,23 +5274,23 @@ function importBackup(file){
       /* si es un perfil compartido (gimnasio o split), se importa como tal */
       if(d && d.kind === 'gimnasio' && d.gym && typeof d.gym === 'object'){ confirmGymImport(d); return; }
       if(d && d.kind === 'split' && d.split && typeof d.split === 'object'){ confirmSplitImport(d); return; }
-      if(!d || !Array.isArray(d.routines) || !Array.isArray(d.history)) throw new Error('estructura');
+      if(!validBackup(d))throw new Error('estructura');
       window.__backup = d;
       if(typeof hierroSync!=='undefined'&&hierroSync?.state?.key){syncConfirmRestore();return;}
       confirmModal('¿Restaurar este respaldo?',
         `Contiene ${d.routines.length} rutina${d.routines.length===1?'':'s'} y ${d.history.length} sesiones. REEMPLAZA todo lo que hay ahora en este dispositivo.`,
         'Restaurar', applyBackup, true);
     }catch(e){
-      infoModal('Archivo no válido', 'No parece un respaldo de Hierro (el .json que se descarga desde Ajustes → Respaldo).');
+      infoModal('Archivo no válido', 'No parece un respaldo de Hierro (el .json que se descarga desde Tú → Datos y respaldos).');
     }
   };
   reader.readAsText(file);
 }
 function applyBackup(){
   if(typeof hierroSync!=='undefined'&&hierroSync?.state?.key){syncConfirmRestore();return;}
-  db = normalize(window.__backup);
-  window.__backup = null;
-  save(); closeModal(); go({name:'home'});
+  const recovering=!!window.__loadError;
+  if(!restoreBackupData(window.__backup))return;
+  window.__backup=null;closeModal();if(recovering){location.reload();return;}go({name:db.active?'session':'home'});
 }
 
 /* =====================================================================
@@ -5360,6 +5423,8 @@ function importHevy(file){
 function applyHevyImport(){
   const { news = [], repairs = [] } = window.__hevyImport || {};
   if(!news.length && !repairs.length){ closeModal(); return; }
+  let newRoutines = 0;
+  if(!commitChange(()=>{
   for(const s of news){
     db.history.push({
       id: uid(), hevyKey: s.hevyKey, routineId: null,
@@ -5405,7 +5470,6 @@ function applyHevyImport(){
     const c = byTitle.get(s.title);
     if(!c || s.date > c.date) byTitle.set(s.title, s);
   }
-  let newRoutines = 0;
   for(const [title, s] of byTitle){
     if(db.routines.some(r => r.name.trim().toLowerCase() === title.trim().toLowerCase())) continue;
     db.routines.push({ id: uid(), name: title,
@@ -5413,16 +5477,19 @@ function applyHevyImport(){
     newRoutines++;
   }
 
+  db=normalize(db);
+  for(const h of db.history)if(!Object.prototype.hasOwnProperty.call(h,'splitId'))h.splitId=historySplitId(h);
   /* tipos y grupos musculares de lo recién importado */
-  migrateTypes(); migratePRs();
+  migrateTypes();
+  for(const h of db.history)delete h.prs;
+  migratePRs(false);
 
   /* reconstruir el estado adaptativo reproduciendo todo el historial en orden */
-  db.progress = {};
-  for(const h of db.history)
-    for(const e of h.entries) updateProgress(e.key, e.sets, h.date);
+  rebuildProgress(false);
+  }))return;
 
   window.__hevyImport = null;
-  save(); closeModal();
+  closeModal();
   openModal(`
     <h2>Importación lista</h2>
     <p class="muted">${news.length ? `${news.length} sesiones agregadas al historial` : ''}${news.length && newRoutines ? ` y ${newRoutines} rutina${newRoutines===1?'':'s'} creada${newRoutines===1?'':'s'}` : ''}${news.length && repairs.length ? '. ' : ''}
@@ -5447,7 +5514,7 @@ function openFullModal(html){
     `<div class="overlay full"><div class="modal full" role="dialog" aria-modal="true">${html}</div></div>`;
   uiSetupModal();
 }
-function closeModal(){ clearInterval(setTimerInt);setTimerState=null;document.getElementById('modalhost').innerHTML = ''; uiCloseModal(); }
+function closeModal(){ clearInterval(setTimerInt);setTimerInt=null;document.getElementById('modalhost').innerHTML='';uiCloseModal();if(typeof syncInspectionToken!=='undefined')syncInspectionToken++; }
 function confirmModal(title, body, actionLabel, fn, accent){
   window.__confirmFn = () => { closeModal(); fn(); };
   openModal(`
@@ -5545,6 +5612,7 @@ function migratePRs(persist=true){
   const ordenadas = [...db.history].sort((a,b) => a.date < b.date ? -1 : 1);
   for(const h of ordenadas){
     const prs = [];
+    if(h.deload){h.prs=[];continue;}
     for(const e of h.entries){
       if(!e.sets.length) continue;
       const meta = exMeta(e.key);
@@ -5675,6 +5743,8 @@ function retryStartup(){
     if(document.visibilityState === 'visible' && db.active) acquireWake();
   });
   setInterval(checkIdleSession, 60*1000);
+  if(window.__loadError){uiLoadRecovery();return;}
+  uiInitNavigation();
   migrateTypes(); migratePRs();
   render();
   if(!db.settings.goal) uiWelcome();

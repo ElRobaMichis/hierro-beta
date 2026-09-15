@@ -1,0 +1,26 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - button "Minimizar":
+    - generic: Minimizar
+  - generic: Movilidad en casa
+  - text: 0:07
+  - button "Terminar":
+    - generic: Terminar
+  - progressbar "Series confirmadas"
+- main:
+  - text: Ejercicio 01 / 01
+  - heading "Plancha lateral" [level=1]
+  - button "Ver cola de ejercicios":
+  - text: Primero, la preparación
+  - heading "Preparemos tu carga." [level=2]
+  - paragraph: Aún no tenemos un peso de referencia. Elige con cuánto planeas trabajar y calcularemos la aproximación.
+  - generic: Carga de trabajo · kg
+  - spinbutton "Carga de trabajo · kg"
+  - button "Preparar calentamiento":
+    - generic: Preparar calentamiento
+  - generic: Las series de trabajo aparecen después del calentamiento.
+  - button "Ejercicio":
+    - generic: Ejercicio
+  - 'button "Cambiar de gimnasio: Mi gimnasio"':
+    - generic: Mi gimnasio

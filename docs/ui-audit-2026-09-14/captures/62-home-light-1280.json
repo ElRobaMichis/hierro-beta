@@ -1,0 +1,416 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "aria-prohibited-attr",
+        "nodes": 5
+      },
+      {
+        "id": "color-contrast",
+        "nodes": 18
+      }
+    ],
+    "passes": 32,
+    "signature": "[1280,900,\"light\",\"home\",\"Un rato para ti.  Un paso más fuerte.|Full body|Tus días. Lo que viene.|Estás construyendo algo.\",\"\"]",
+    "theme": "light",
+    "time": "2026-09-14T23:39:52.107Z",
+    "version": "4.13.0",
+    "view": "home",
+    "violations": [
+      {
+        "help": "Elements must only use permitted ARIA attributes",
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<b aria-label=\"martes 8: entrenaste\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" class=\"ui-icon\"><path d=\"m5 12 4 4L19 6\"></path></svg></b>",
+            "summary": "Fix all of the following:\n  aria-label attribute cannot be used on a b with no valid role attribute.",
+            "target": [
+              "b[aria-label=\"martes 8: entrenaste\"]"
+            ]
+          },
+          {
+            "html": "<b aria-label=\"viernes 11: entrenaste\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" class=\"ui-icon\"><path d=\"m5 12 4 4L19 6\"></path></svg></b>",
+            "summary": "Fix all of the following:\n  aria-label attribute cannot be used on a b with no valid role attribute.",
+            "target": [
+              "b[aria-label=\"viernes 11: entrenaste\"]"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/aria-prohibited-attr?application=axeAPI"
+      },
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<div class=\"n-eyebrow\">lunes, 14 de septiembre</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-heading > div > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<span class=\"n-eyebrow\">Mi entrenamiento</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-section-head > div > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<span>Evolución</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-nav-links > button[onclick=\"go({\\\"name\\\":\\\"history\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span>Tú</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"settings\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span data-sync-short=\"\">En tu dispositivo</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-nav-inner > .n-local.n-sync-badge[data-status=\"local\"] > span[data-sync-short=\"\"]"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Cambiar de gimnasio: SmartFit · Buenavista",
+      "tag": "BUTTON",
+      "w": 211,
+      "x": 940,
+      "y": 235
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 58,
+      "label": "Empezar",
+      "tag": "BUTTON",
+      "w": 535,
+      "x": 147,
+      "y": 618
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Organizar",
+      "tag": "BUTTON",
+      "w": 79,
+      "x": 1071,
+      "y": 766
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 226,
+      "label": "01\nSiguiente\nFull body\n2\nejercicios para avanzar\n5 ejercicios · Ver próxima sesión",
+      "tag": "BUTTON",
+      "w": 249,
+      "x": 115,
+      "y": 862
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 226,
+      "label": "02\nUpper\n2\nejercicios para avanzar\n4 ejercicios · Ver próxima sesión",
+      "tag": "BUTTON",
+      "w": 249,
+      "x": 377,
+      "y": 862
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 226,
+      "label": "03\nLower\nCada serie está construyendo el siguiente paso.\n3 ejercicios · Ver próxima sesión",
+      "tag": "BUTTON",
+      "w": 249,
+      "x": 640,
+      "y": 862
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 226,
+      "label": "04\nArms & delts\n3\nejercicios para avanzar\n4 ejercicios · Ver próxima sesión",
+      "tag": "BUTTON",
+      "w": 249,
+      "x": 902,
+      "y": 862
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Ver mi evolución",
+      "tag": "BUTTON",
+      "w": 124,
+      "x": 764,
+      "y": 615
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 126,
+      "x": 448,
+      "y": 22
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 133,
+      "x": 582,
+      "y": 22
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 92,
+      "x": 723,
+      "y": 22
+    }
+  ],
+  "documentHeight": 1170,
+  "documentWidth": 1265,
+  "focused": "<body data-view=\"home\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-mobile-brand\"><span class=\"n-brand\"><svg viewBox=\"0 0 24",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "56.32px",
+      "h": 118,
+      "text": "Un rato para ti.\nUn paso más fuerte.",
+      "w": 476,
+      "x": 115,
+      "y": 168
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "70.4px",
+      "h": 72,
+      "text": "Full body",
+      "w": 260,
+      "x": 147,
+      "y": 389
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "28px",
+      "h": 32,
+      "text": "Tus días. Lo que viene.",
+      "w": 271,
+      "x": 115,
+      "y": 780
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "23px",
+      "h": 26,
+      "text": "Full body",
+      "w": 209,
+      "x": 135,
+      "y": 927
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "23px",
+      "h": 26,
+      "text": "Upper",
+      "w": 209,
+      "x": 397,
+      "y": 927
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "23px",
+      "h": 26,
+      "text": "Lower",
+      "w": 209,
+      "x": 660,
+      "y": 927
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "23px",
+      "h": 26,
+      "text": "Arms & delts",
+      "w": 209,
+      "x": 922,
+      "y": 927
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "19px",
+      "h": 22,
+      "text": "Estás construyendo algo.",
+      "w": 205,
+      "x": 764,
+      "y": 345
+    }
+  ],
+  "height": 900,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(199, 217, 180)",
+      "font": "11px",
+      "text": "TU SIGUIENTE ENTRENAMIENTO"
+    },
+    {
+      "color": "rgb(255, 254, 250)",
+      "font": "11px",
+      "text": "Día 1 de 4"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "MI ENTRENAMIENTO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "01\nSiguiente"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "01"
+    },
+    {
+      "color": "rgb(255, 254, 250)",
+      "font": "10px",
+      "text": "Siguiente"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "10px",
+      "text": "5 ejercicios · Ver próxima sesión"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "02"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "02"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "10px",
+      "text": "4 ejercicios · Ver próxima sesión"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "03"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "03"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "10px",
+      "text": "3 ejercicios · Ver próxima sesión"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "04"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "04"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "10px",
+      "text": "4 ejercicios · Ver próxima sesión"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "M"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "M"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "J"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "V"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "S"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "D"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "L"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "10px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "10px",
+      "text": "EN TU DISPOSITIVO"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=home&theme=light",
+  "view": "home",
+  "width": 1280,
+  "name": "62-home-light-1280",
+  "image": "62-home-light-1280.jpg",
+  "imageSize": [
+    1265,
+    889
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

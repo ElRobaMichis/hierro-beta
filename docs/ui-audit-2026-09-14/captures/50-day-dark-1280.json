@@ -1,0 +1,583 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 7
+      }
+    ],
+    "passes": 41,
+    "signature": "[1280,900,\"dark\",\"routine\",\"Full body|Tu esfuerzo abre el siguiente paso.|Así se construye tu próxima sesión\",\"\"]",
+    "theme": "dark",
+    "time": "2026-09-14T23:33:18.758Z",
+    "version": "4.13.0",
+    "view": "routine",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span>S1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.38 (foreground color: #a4b49e, background color: #344b2b, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-0\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(1) > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>S2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.38 (foreground color: #a4b49e, background color: #344b2b, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-0\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(2) > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>S1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.38 (foreground color: #a4b49e, background color: #344b2b, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-3\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(1) > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>S2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.38 (foreground color: #a4b49e, background color: #344b2b, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-3\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(2) > span:nth-child(1)"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 44,
+      "label": "Tus días",
+      "tag": "BUTTON",
+      "w": 68,
+      "x": 115,
+      "y": 126
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Opciones",
+      "tag": "BUTTON",
+      "w": 81,
+      "x": 1069,
+      "y": 239
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "Día de este plan",
+      "tag": "SELECT",
+      "w": 360,
+      "x": 115,
+      "y": 343
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Cambiar de gimnasio: SmartFit · Buenavista",
+      "tag": "BUTTON",
+      "w": 202,
+      "x": 789,
+      "y": 485
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 58,
+      "label": "Empezar este día",
+      "tag": "BUTTON",
+      "w": 328,
+      "x": 789,
+      "y": 545
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Ordenar y quitar",
+      "tag": "BUTTON",
+      "w": 116,
+      "x": 1035,
+      "y": 757
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Jalón en polea: ver evolución y ajustes",
+      "tag": "BUTTON",
+      "w": 415,
+      "x": 181,
+      "y": 849
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Por qué esta propuesta",
+      "tag": "SUMMARY",
+      "w": 455,
+      "x": 141,
+      "y": 1356
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Press de banca con barra: ver evolución y ajustes",
+      "tag": "BUTTON",
+      "w": 415,
+      "x": 710,
+      "y": 849
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Por qué esta propuesta",
+      "tag": "SUMMARY",
+      "w": 455,
+      "x": 670,
+      "y": 1320
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Sentadilla con barra: ver evolución y ajustes",
+      "tag": "BUTTON",
+      "w": 415,
+      "x": 181,
+      "y": 1476
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Por qué esta propuesta",
+      "tag": "SUMMARY",
+      "w": 455,
+      "x": 141,
+      "y": 1946
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Elevaciones laterales: ver evolución y ajustes",
+      "tag": "BUTTON",
+      "w": 415,
+      "x": 710,
+      "y": 1476
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Por qué esta propuesta",
+      "tag": "SUMMARY",
+      "w": 455,
+      "x": 670,
+      "y": 1946
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Dead hang: ver evolución y ajustes",
+      "tag": "BUTTON",
+      "w": 415,
+      "x": 181,
+      "y": 2066
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Por qué esta propuesta",
+      "tag": "SUMMARY",
+      "w": 455,
+      "x": 141,
+      "y": 2487
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Añadir ejercicios",
+      "tag": "BUTTON",
+      "w": 176,
+      "x": 115,
+      "y": 2581
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Hacer una descarga",
+      "tag": "BUTTON",
+      "w": 142,
+      "x": 303,
+      "y": 2583
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 126,
+      "x": 448,
+      "y": 22
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 133,
+      "x": 582,
+      "y": 22
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 92,
+      "x": 723,
+      "y": 22
+    }
+  ],
+  "documentHeight": 2713,
+  "documentWidth": 1265,
+  "focused": "<body data-view=\"routine\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-mobile-brand\"><span class=\"n-brand\"><svg viewBox=\"0 0",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "56.32px",
+      "h": 59,
+      "text": "Full body",
+      "w": 220,
+      "x": 115,
+      "y": 226
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "44.8px",
+      "h": 96,
+      "text": "Tu esfuerzo abre\nel siguiente paso.",
+      "w": 575,
+      "x": 148,
+      "y": 486
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "22px",
+      "h": 26,
+      "text": "Así se construye tu próxima sesión",
+      "w": 330,
+      "x": 115,
+      "y": 767
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "21px",
+      "h": 25,
+      "text": "Jalón en polea",
+      "w": 132,
+      "x": 181,
+      "y": 859
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "21px",
+      "h": 25,
+      "text": "Press de banca con barra",
+      "w": 227,
+      "x": 710,
+      "y": 859
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "21px",
+      "h": 25,
+      "text": "Sentadilla con barra",
+      "w": 182,
+      "x": 181,
+      "y": 1486
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "21px",
+      "h": 25,
+      "text": "Elevaciones laterales",
+      "w": 186,
+      "x": 710,
+      "y": 1486
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "21px",
+      "h": 25,
+      "text": "Dead hang",
+      "w": 100,
+      "x": 181,
+      "y": 2076
+    }
+  ],
+  "height": 900,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(172, 184, 168)",
+      "font": "11px",
+      "text": "LA PRÓXIMA VEZ"
+    },
+    {
+      "color": "rgb(193, 223, 160)",
+      "font": "11px",
+      "text": "2 rangos completos"
+    },
+    {
+      "color": "rgb(188, 200, 180)",
+      "font": "11px",
+      "text": "5 ejercicios · 10 series propuestas"
+    },
+    {
+      "color": "rgb(188, 200, 180)",
+      "font": "11px",
+      "text": "La propuesta se actualiza con tu registro y el equipo de este gimnasio."
+    },
+    {
+      "color": "rgb(172, 184, 168)",
+      "font": "10px",
+      "text": "01"
+    },
+    {
+      "color": "rgb(216, 239, 181)",
+      "font": "11px",
+      "text": "Subir carga"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "carga total"
+    },
+    {
+      "color": "rgb(188, 200, 180)",
+      "font": "10px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "S1"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "S2"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "Repeticiones · rango 6–10"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "Tope 10"
+    },
+    {
+      "color": "rgb(172, 184, 168)",
+      "font": "10px",
+      "text": "02"
+    },
+    {
+      "color": "rgb(193, 223, 160)",
+      "font": "11px",
+      "text": "Mismo peso · suma reps"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "total, incluida la barra"
+    },
+    {
+      "color": "rgb(188, 200, 180)",
+      "font": "10px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "S1"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "S2"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "Repeticiones · rango 6–10"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "Tope 10"
+    },
+    {
+      "color": "rgb(172, 184, 168)",
+      "font": "10px",
+      "text": "03"
+    },
+    {
+      "color": "rgb(193, 223, 160)",
+      "font": "11px",
+      "text": "Mismo peso · suma reps"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "total, incluida la barra"
+    },
+    {
+      "color": "rgb(188, 200, 180)",
+      "font": "10px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "S1"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "S2"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "Repeticiones · rango 6–10"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "Tope 10"
+    },
+    {
+      "color": "rgb(172, 184, 168)",
+      "font": "10px",
+      "text": "04"
+    },
+    {
+      "color": "rgb(216, 239, 181)",
+      "font": "11px",
+      "text": "Subir carga"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "11px",
+      "text": "total de las dos mancuernas"
+    },
+    {
+      "color": "rgb(188, 200, 180)",
+      "font": "10px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "S1"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "S2"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "Repeticiones · rango 6–10"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "Tope 10"
+    },
+    {
+      "color": "rgb(172, 184, 168)",
+      "font": "10px",
+      "text": "05"
+    },
+    {
+      "color": "rgb(193, 223, 160)",
+      "font": "11px",
+      "text": "Sumar tiempo"
+    },
+    {
+      "color": "rgb(188, 200, 180)",
+      "font": "10px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "S1"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "S2"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "Segundos · rango 20–45"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "9px",
+      "text": "Tope 45"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "10px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(164, 180, 158)",
+      "font": "10px",
+      "text": "EN TU DISPOSITIVO"
+    }
+  ],
+  "theme": "dark",
+  "url": "http://127.0.0.1:4183/?fixture=home&theme=dark",
+  "view": "routine",
+  "width": 1280,
+  "name": "50-day-dark-1280",
+  "image": "50-day-dark-1280.jpg",
+  "imageSize": [
+    1265,
+    889
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

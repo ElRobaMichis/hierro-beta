@@ -1,0 +1,783 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 8
+      }
+    ],
+    "passes": 41,
+    "time": "2026-09-14T23:19:39.618Z",
+    "version": "4.13.0",
+    "view": "routine",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span data-sync-short=\"\">En tu dispositivo</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.0pt (8px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-mobile-brand > .n-local.n-sync-badge > span[data-sync-short=\"\"]"
+            ]
+          },
+          {
+            "html": "<div class=\"n-eyebrow\">Tu día de entrenamiento</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-heading > div > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<span class=\"n-number\">01</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-0\"] > .n-forecast-head > .n-number"
+            ]
+          },
+          {
+            "html": "<time datetime=\"2026-09-03T00:00:00.000Z\">2 sept · 63,85 lb totales</time>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "time[datetime=\"2026-09-03T00:00:00.000Z\"]"
+            ]
+          },
+          {
+            "html": "<span>S1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.09 (foreground color: #687363, background color: #e3edcf, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-0\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(1) > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>S2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.09 (foreground color: #687363, background color: #e3edcf, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-0\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(2) > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>Repeticiones · rango 6–10</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-0\"] > .n-range-story > .n-range-scale > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>Tope 10</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-0\"] > .n-range-story > .n-range-scale > span:nth-child(2)"
+            ]
+          },
+          {
+            "html": "<span class=\"n-number\">02</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-1\"] > .n-forecast-head > .n-number"
+            ]
+          },
+          {
+            "html": "<time datetime=\"2026-09-06T00:00:00.000Z\">5 sept · 59,5 kg totales</time>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "time[datetime=\"2026-09-06T00:00:00.000Z\"]"
+            ]
+          },
+          {
+            "html": "<span>Repeticiones · rango 6–10</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-1\"] > .n-range-story > .n-range-scale > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>Tope 10</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-1\"] > .n-range-story > .n-range-scale > span:nth-child(2)"
+            ]
+          },
+          {
+            "html": "<span class=\"n-number\">03</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-2\"] > .n-forecast-head > .n-number"
+            ]
+          },
+          {
+            "html": "<time datetime=\"2026-09-09T00:00:00.000Z\">8 sept · 79,75 kg totales</time>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "time[datetime=\"2026-09-09T00:00:00.000Z\"]"
+            ]
+          },
+          {
+            "html": "<span>Repeticiones · rango 6–10</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-2\"] > .n-range-story > .n-range-scale > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>Tope 10</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-2\"] > .n-range-story > .n-range-scale > span:nth-child(2)"
+            ]
+          },
+          {
+            "html": "<span class=\"n-number\">04</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-3\"] > .n-forecast-head > .n-number"
+            ]
+          },
+          {
+            "html": "<time datetime=\"2026-09-12T00:00:00.000Z\">11 sept · 12 kg totales</time>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-3\"] > .n-range-story > .n-range-heading > time[datetime=\"2026-09-12T00:00:00.000Z\"]"
+            ]
+          },
+          {
+            "html": "<span>S1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.09 (foreground color: #687363, background color: #e3edcf, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-3\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(1) > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>S2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.09 (foreground color: #687363, background color: #e3edcf, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-3\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(2) > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>Repeticiones · rango 6–10</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-3\"] > .n-range-story > .n-range-scale > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>Tope 10</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-3\"] > .n-range-story > .n-range-scale > span:nth-child(2)"
+            ]
+          },
+          {
+            "html": "<span class=\"n-number\">05</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-4\"] > .n-forecast-head > .n-number"
+            ]
+          },
+          {
+            "html": "<time datetime=\"2026-09-12T00:00:00.000Z\">11 sept</time>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-4\"] > .n-range-story > .n-range-heading > time[datetime=\"2026-09-12T00:00:00.000Z\"]"
+            ]
+          },
+          {
+            "html": "<span>S1</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.09 (foreground color: #687363, background color: #e3edcf, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-4\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(1) > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>S2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.09 (foreground color: #687363, background color: #e3edcf, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-4\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(2) > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>Segundos · rango 6–10</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-4\"] > .n-range-story > .n-range-scale > span:nth-child(1)"
+            ]
+          },
+          {
+            "html": "<span>Tope 10</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "article[aria-labelledby=\"n-forecast-4\"] > .n-range-story > .n-range-scale > span:nth-child(2)"
+            ]
+          },
+          {
+            "html": "<span>Evolución</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"history\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span>Tú</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"settings\\\"})\"] > span"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 44,
+      "label": "Tus días",
+      "tag": "BUTTON",
+      "w": 68,
+      "x": 22,
+      "y": 81
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 44,
+      "label": "Opciones",
+      "tag": "BUTTON",
+      "w": 75,
+      "x": 278,
+      "y": 172
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "Día de este plan",
+      "tag": "SELECT",
+      "w": 331,
+      "x": 22,
+      "y": 262
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Cambiar de gimnasio: SmartFit · Buenavista",
+      "tag": "BUTTON",
+      "w": 281,
+      "x": 47,
+      "y": 616
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 58,
+      "label": "Empezar este día",
+      "tag": "BUTTON",
+      "w": 281,
+      "x": 47,
+      "y": 674
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Ordenar y quitar",
+      "tag": "BUTTON",
+      "w": 106,
+      "x": 247,
+      "y": 830
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Jalón en polea: ver evolución y ajustes",
+      "tag": "BUTTON",
+      "w": 243,
+      "x": 88,
+      "y": 920
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Por qué esta propuesta",
+      "tag": "SUMMARY",
+      "w": 287,
+      "x": 44,
+      "y": 1458
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 49,
+      "label": "Press de banca con barra: ver evolución y ajustes",
+      "tag": "BUTTON",
+      "w": 243,
+      "x": 88,
+      "y": 1566
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Por qué esta propuesta",
+      "tag": "SUMMARY",
+      "w": 287,
+      "x": 44,
+      "y": 2037
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Sentadilla con barra: ver evolución y ajustes",
+      "tag": "BUTTON",
+      "w": 243,
+      "x": 88,
+      "y": 2145
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Por qué esta propuesta",
+      "tag": "SUMMARY",
+      "w": 287,
+      "x": 44,
+      "y": 2610
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Elevaciones laterales: ver evolución y ajustes",
+      "tag": "BUTTON",
+      "w": 243,
+      "x": 88,
+      "y": 2718
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Por qué esta propuesta",
+      "tag": "SUMMARY",
+      "w": 287,
+      "x": 44,
+      "y": 3202
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Dead hang: ver evolución y ajustes",
+      "tag": "BUTTON",
+      "w": 243,
+      "x": 88,
+      "y": 3310
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Por qué esta propuesta",
+      "tag": "SUMMARY",
+      "w": 287,
+      "x": 44,
+      "y": 3743
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 50,
+      "label": "Añadir ejercicios",
+      "tag": "BUTTON",
+      "w": 169,
+      "x": 22,
+      "y": 3833
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Hacer una descarga",
+      "tag": "BUTTON",
+      "w": 142,
+      "x": 203,
+      "y": 3835
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 12,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 131,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 250,
+      "y": 776
+    }
+  ],
+  "documentHeight": 4006,
+  "documentWidth": 375,
+  "focused": "<body data-view=\"routine\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-mobile-brand\"><span class=\"n-brand\"><svg viewBox=\"0 0",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "41px",
+      "h": 44,
+      "text": "Full body",
+      "w": 244,
+      "x": 22,
+      "y": 172
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "36px",
+      "h": 77,
+      "text": "Tu esfuerzo abre\nel siguiente paso.",
+      "w": 281,
+      "x": 47,
+      "y": 397
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "20px",
+      "h": 48,
+      "text": "Así se construye tu próxima sesión",
+      "w": 199,
+      "x": 22,
+      "y": 830
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "21px",
+      "h": 25,
+      "text": "Jalón en polea",
+      "w": 132,
+      "x": 88,
+      "y": 930
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "21px",
+      "h": 49,
+      "text": "Press de banca con barra",
+      "w": 214,
+      "x": 88,
+      "y": 1566
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "21px",
+      "h": 25,
+      "text": "Sentadilla con barra",
+      "w": 182,
+      "x": 88,
+      "y": 2154
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "21px",
+      "h": 25,
+      "text": "Elevaciones laterales",
+      "w": 186,
+      "x": 88,
+      "y": 2728
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "21px",
+      "h": 25,
+      "text": "Dead hang",
+      "w": 100,
+      "x": 88,
+      "y": 3319
+    }
+  ],
+  "height": 844,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "LA PRÓXIMA VEZ"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "3 rangos completos"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "11px",
+      "text": "5 ejercicios · 10 series propuestas"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "11px",
+      "text": "La propuesta se actualiza con tu registro y el equipo de este gimnasio."
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Ordenar y quitar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "01"
+    },
+    {
+      "color": "rgb(51, 83, 35)",
+      "font": "11px",
+      "text": "Subir carga"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "carga total"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "10px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "S1"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "S2"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "Repeticiones · rango 6–10"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "Tope 10"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "02"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Mismo peso · suma reps"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "total, incluida la barra"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "10px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "S1"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "S2"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "Repeticiones · rango 6–10"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "Tope 10"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "03"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Mismo peso · suma reps"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "total, incluida la barra"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "10px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "S1"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "S2"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "Repeticiones · rango 6–10"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "Tope 10"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "04"
+    },
+    {
+      "color": "rgb(51, 83, 35)",
+      "font": "11px",
+      "text": "Subir carga"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "total de las dos mancuernas"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "10px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "S1"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "S2"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "Repeticiones · rango 6–10"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "Tope 10"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "05"
+    },
+    {
+      "color": "rgb(51, 83, 35)",
+      "font": "11px",
+      "text": "Sumar tiempo"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "10px",
+      "text": "Último registro"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "S1"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "S2"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "Segundos · rango 6–10"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "Tope 10"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Entrenar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Evolución"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Tú"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=home",
+  "view": "routine",
+  "width": 390,
+  "name": "03-day-390",
+  "image": "03-day-390.jpg",
+  "imageSize": [
+    375,
+    812
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

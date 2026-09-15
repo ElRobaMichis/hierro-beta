@@ -1,0 +1,61 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Volver al día":
+    - text: Volver al día
+  - generic: Espalda
+  - heading "Jalón en polea" [level=1]
+- main:
+  - group "Secciones":
+    - button "Evolución"
+    - button "Equipo" [pressed]
+    - button "Objetivos"
+  - heading "¿Con qué lo haces?" [level=2]
+  - text: SmartFit · Buenavista
+  - button "Barra":
+    - generic: Barra
+  - button "Discos":
+    - generic: Discos
+  - button "Torre con pin" [pressed]:
+    - generic: Torre con pin
+  - button "Mancuernas":
+    - generic: Mancuernas
+  - button "Sin equipo":
+    - generic: Sin equipo
+  - text: Unidad de la máquina
+  - paragraph: La que aparece en sus placas
+  - button "kg"
+  - button "lb"
+  - generic: Primera placa · lb
+  - spinbutton "Primera placa · lb": "2.5"
+  - generic: Salto entre placas · lb
+  - spinbutton "Salto entre placas · lb": "5"
+  - generic: Peso máximo de la máquina · lb
+  - spinbutton "Peso máximo de la máquina · lb": "250"
+  - paragraph: El peso de la última placa de la torre, sin contar el ajuste fino.
+  - heading "Ajuste fino" [level=3]
+  - paragraph: "Peso adicional que sumas sin mover el pin: discos pequeños, una palanca o accesorios. Deja el salto vacío si no hay ajuste fino."
+  - generic: "Ajuste fino: salto · lb"
+  - 'spinbutton "Ajuste fino: salto · lb"': "1.5"
+  - generic: "Ajuste fino: máximo · lb"
+  - 'spinbutton "Ajuste fino: máximo · lb"': "3"
+  - paragraph: "El máximo es la suma de todos los extras disponibles: dos discos de 1,5 lb permiten añadir hasta 3 lb."
+  - paragraph: "Placas: 2,5 · 7,5 · 12,5 · 17,5 · 22,5 · 27,5 · 32,5 … lb. Última placa: 250 lb. Ajuste fino: 2 pasos de 1,5 lb, hasta +3 lb. Máximo total: 253 lb. El último salto es menor para llegar a la placa máxima indicada."
+  - complementary:
+    - text: De este lugar
+    - heading "El equipo cambia contigo." [level=2]
+    - paragraph: Esta configuración pertenece a SmartFit · Buenavista. Al elegir otro gimnasio, se recupera la suya.
+    - button "Ver inventario":
+      - generic: Ver inventario
+    - button "Es otra máquina":
+      - generic: Es otra máquina
+    - paragraph: Una variante de máquina lleva un historial separado.
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

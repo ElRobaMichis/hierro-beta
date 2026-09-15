@@ -1,0 +1,320 @@
+[
+  {
+    "screen": "home-390",
+    "violations": []
+  },
+  {
+    "screen": "day-390",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              "article[aria-labelledby=\"n-forecast-0\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(1) > span:nth-child(1)"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.4 (foreground color: #626e60, background color: #e3edcf, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "article[aria-labelledby=\"n-forecast-0\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(2) > span:nth-child(1)"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.4 (foreground color: #626e60, background color: #e3edcf, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "article[aria-labelledby=\"n-forecast-3\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(1) > span:nth-child(1)"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.4 (foreground color: #626e60, background color: #e3edcf, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "article[aria-labelledby=\"n-forecast-3\"] > .n-range-story > .n-range-series > .is-full.n-range-set:nth-child(2) > span:nth-child(1)"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.4 (foreground color: #626e60, background color: #e3edcf, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "screen": "equipment-390",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".pill-sw > button:nth-child(1)"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.25 (foreground color: #626e60, background color: #e2e7da, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "screen": "long-320",
+    "violations": []
+  },
+  {
+    "screen": "warmup-390",
+    "violations": []
+  },
+  {
+    "screen": "timer-390",
+    "violations": []
+  },
+  {
+    "screen": "work-dark-390",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".n-ex-heading > div > .n-eyebrow"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.88 (foreground color: #5a655b, background color: #111b17, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span > small"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.92 (foreground color: #64725d, background color: #1e2a1f, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span > strong"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.67 (foreground color: #788079, background color: #1e2a1f, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-current-label > .n-eyebrow"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.88 (foreground color: #5a655b, background color: #111b17, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-set-target > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.65 (foreground color: #616c61, background color: #1e2c23, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-set-target > strong"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.58 (foreground color: #788079, background color: #1e2c23, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".ui-load-label"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #616c61, background color: #16221d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".ui-load-link > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.37 (foreground color: #647757, background color: #16221d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".ui-load-number"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.03 (foreground color: #788079, background color: #16221d, font size: 15.8pt (21px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".ui-load-detail"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.98 (foreground color: #616c61, background color: #16221d, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "label[for=\"n-weight\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.69 (foreground color: #5a655b, background color: #16221d, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "#n-weight-help"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.69 (foreground color: #5a655b, background color: #16221d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "label[for=\"n-reps\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.69 (foreground color: #5a655b, background color: #16221d, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-set-field:nth-child(2) > .n-stepper > small"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.69 (foreground color: #5a655b, background color: #16221d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "small > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.69 (foreground color: #5a655b, background color: #16221d, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-rir > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #616c61, background color: #111b17, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "#n-rir-choice"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.32 (foreground color: #788079, background color: #111b17, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "#n-record > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.32 (foreground color: #111b17, background color: #788079, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "button[onclick=\"uiSessionOptions(0)\"] > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.61 (foreground color: #647757, background color: #111b17, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-gym > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.32 (foreground color: #788079, background color: #111b17, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "screen": "work-dark-390-final",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".n-ex-heading > div > .n-eyebrow"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.55 (foreground color: #687368, background color: #111b17, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span > small"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.56 (foreground color: #74836b, background color: #202d20, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-current-label > .n-eyebrow"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.55 (foreground color: #687368, background color: #111b17, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-set-target > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.17 (foreground color: #707c6f, background color: #203026, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-set-target > strong"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.39 (foreground color: #8b938b, background color: #203026, font size: 12.8pt (17px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".ui-load-label"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.7 (foreground color: #707c6f, background color: #17231e, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".ui-load-link > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.19 (foreground color: #738863, background color: #17231e, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".ui-load-detail"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.7 (foreground color: #707c6f, background color: #17231e, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "label[for=\"n-weight\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.27 (foreground color: #687368, background color: #17231e, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "#n-weight-help"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.27 (foreground color: #687368, background color: #17231e, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "label[for=\"n-reps\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.27 (foreground color: #687368, background color: #17231e, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-set-field:nth-child(2) > .n-stepper > small"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.27 (foreground color: #687368, background color: #17231e, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "small > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.27 (foreground color: #687368, background color: #17231e, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".n-rir > span"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.02 (foreground color: #707c6f, background color: #111b17, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "screen": "work-dark-390-settled",
+    "violations": []
+  },
+  {
+    "screen": "day-390-final",
+    "violations": []
+  },
+  {
+    "screen": "sync-error-390",
+    "violations": []
+  },
+  {
+    "screen": "inventory-320",
+    "violations": []
+  },
+  {
+    "screen": "equipment-390-final",
+    "violations": []
+  },
+  {
+    "screen": "progress-390",
+    "violations": []
+  }
+]

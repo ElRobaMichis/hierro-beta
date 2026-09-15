@@ -1,0 +1,73 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - button "Tus planes":
+    - text: Tus planes
+  - generic: Plan activo
+  - heading "Mi entrenamiento" [level=1]
+  - button "Opciones":
+    - generic: Opciones
+- main:
+  - heading "La secuencia de tus días" [level=2]
+  - generic: 4 días
+  - paragraph: Cambia el orden con las flechas. Quitar un día conserva todo su historial.
+  - region "Ordenar Full body":
+    - generic: "01"
+    - generic: Full body
+    - generic: 5 ejercicios
+    - button "Subir Full body" [disabled]:
+      - generic: Subir
+    - button "Bajar Full body":
+      - generic: Bajar
+    - button "Quitar Full body":
+      - generic: Quitar
+  - region "Ordenar Upper":
+    - generic: "02"
+    - generic: Upper
+    - generic: 4 ejercicios
+    - button "Subir Upper":
+      - generic: Subir
+    - button "Bajar Upper":
+      - generic: Bajar
+    - button "Quitar Upper":
+      - generic: Quitar
+  - region "Ordenar Lower":
+    - generic: "03"
+    - generic: Lower
+    - generic: 3 ejercicios
+    - button "Subir Lower":
+      - generic: Subir
+    - button "Bajar Lower":
+      - generic: Bajar
+    - button "Quitar Lower":
+      - generic: Quitar
+  - region "Ordenar Arms & delts":
+    - generic: "04"
+    - generic: Arms & delts
+    - generic: 4 ejercicios
+    - button "Subir Arms & delts":
+      - generic: Subir
+    - button "Bajar Arms & delts" [disabled]:
+      - generic: Bajar
+    - button "Quitar Arms & delts":
+      - generic: Quitar
+  - button "Añadir día":
+    - generic: Añadir día
+  - button "Terminar orden":
+    - generic: Terminar orden
+  - complementary:
+    - text: Una secuencia, sin prisa
+    - heading "Tú decides cuándo." [level=2]
+    - paragraph: El siguiente día sigue al último que completaste. No necesitas entrenar en fechas fijas.
+    - button "Elegir día para hoy":
+      - generic: Elegir día para hoy
+    - button "Reglas de este plan":
+      - generic: Reglas de este plan
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

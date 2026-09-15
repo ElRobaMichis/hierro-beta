@@ -46,6 +46,10 @@ function request(file,navigate=false){
  let workerReply;
  listeners.message({data:{tipo:'consultar-version'},source:{postMessage:m=>workerReply=m}});
  ok(workerReply?.tipo==='version-disponible'&&workerReply.version===app.match(/const APP_VERSION = '([^']+)'/)[1],'el worker comunica la versión instalada, sin pedir una actualización repetida');
+ async function offlineStatus(){let reply;const work=[];listeners.message({data:{tipo:'consultar-offline'},ports:[{postMessage:m=>reply=m}],waitUntil:p=>work.push(p)});await Promise.all(work);return reply;}
+ ok((await offlineStatus()).ready,'confirma disponibilidad offline solo después de comprobar todos los recursos');
+ const checkBucket=buckets.get(declaredCache),checkURL=absolute('./icon.svg'),checkAsset=checkBucket.get(checkURL);checkBucket.delete(checkURL);
+ ok(!(await offlineStatus()).ready,'una copia incompleta no se anuncia como lista sin conexión');checkBucket.set(checkURL,checkAsset);
  for(const asset of ['./','index.html','ui.css','ui.js','icon.svg','manifest.webmanifest','icon-180.png','icon-192.png','icon-512.png'])ok(await caches.match(asset),'precargado '+asset);
  for(const name of ['sync-core','sync-engine','sync','qr','push-core','push'])ok(await caches.match(name+'.js?v='+version),'sincronización y QR disponibles sin red: '+name);
  buckets.set(cachePrefix+'previous',new Map());buckets.set('otra-app',new Map());

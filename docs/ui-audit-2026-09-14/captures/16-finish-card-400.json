@@ -1,0 +1,151 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 7
+      },
+      {
+        "id": "skip-link",
+        "nodes": 1
+      }
+    ],
+    "passes": 32,
+    "time": "2026-09-14T23:23:45.267Z",
+    "version": "4.13.0",
+    "view": "home",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span>lun, 14 sept</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".ui-finish-brand > span:nth-child(2)"
+            ]
+          },
+          {
+            "html": "<div class=\"ui-finish-intro\">Full body · sesión guardada en tu dispositivo</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".ui-finish-intro"
+            ]
+          },
+          {
+            "html": "<div class=\"fin-lbl\">Lo más pesado del día</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".fin-more:nth-child(5) > .fin-lbl"
+            ]
+          },
+          {
+            "html": "<div class=\"fin-foot\">0 MIN · 1 SERIE · 1 EJERCICIO</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".fin-foot"
+            ]
+          },
+          {
+            "html": "<div class=\"fin-lbl\">El detalle</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".fin-more:nth-child(7) > .fin-lbl"
+            ]
+          },
+          {
+            "html": "<div class=\"fin-sets\">65,5 × 6</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".fin-sets"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 44,
+      "label": "Ver historial",
+      "tag": "BUTTON",
+      "w": 68,
+      "x": 159,
+      "y": 1001
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 54,
+      "label": "Guardar tarjeta para compartir",
+      "tag": "BUTTON",
+      "w": 381,
+      "x": 2,
+      "y": 770
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 54,
+      "label": "Listo",
+      "tag": "BUTTON",
+      "w": 381,
+      "x": 2,
+      "y": 833
+    }
+  ],
+  "documentHeight": 1824,
+  "documentWidth": 400,
+  "focused": "<div class=\"modal full\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ui-dialog-title\" tabindex=\"-1\">\n    <div class=\"ui-finish-brand\"><span class=\"n-brand\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"tr",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "46px",
+      "h": 97,
+      "text": "Hoy te lo ganaste.",
+      "w": 341,
+      "x": 22,
+      "y": 105
+    }
+  ],
+  "height": 907,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "lun, 14 sept"
+    },
+    {
+      "color": "rgb(120, 110, 85)",
+      "font": "10px",
+      "text": "HACE 4 SESIÓNES"
+    },
+    {
+      "color": "rgb(120, 110, 85)",
+      "font": "10px",
+      "text": "HOY"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "9px",
+      "text": "TOTAL MOVIDO"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "home",
+  "width": 400,
+  "name": "16-finish-card-400",
+  "image": "16-finish-card-400.jpg",
+  "imageSize": [
+    400,
+    907
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

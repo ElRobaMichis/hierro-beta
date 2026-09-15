@@ -1,0 +1,162 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 1
+      },
+      {
+        "id": "skip-link",
+        "nodes": 1
+      }
+    ],
+    "passes": 31,
+    "signature": "[390,844,\"light\",\"session\",\"Jalón unilateral en polea alta con agarre neutro — brazo izquierdo|Repeticiones en reserva\",\"\\n       Repeticiones en reservaAl terminar, ¿cuántas más habrías podido hacer con buena técnica?0Al fallo1en reserva2en reserva3en reserva4en reserva5+Con margenDejar sin anotarCerrar\"]",
+    "theme": "light",
+    "time": "2026-09-14T23:34:24.760Z",
+    "version": "4.13.0",
+    "view": "session",
+    "violations": []
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 101,
+      "label": "0\nAl fallo",
+      "tag": "BUTTON",
+      "w": 106,
+      "x": 24,
+      "y": 473
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 101,
+      "label": "1\nen reserva",
+      "tag": "BUTTON",
+      "w": 106,
+      "x": 142,
+      "y": 473
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 101,
+      "label": "2\nen reserva",
+      "tag": "BUTTON",
+      "w": 106,
+      "x": 260,
+      "y": 473
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 101,
+      "label": "3\nen reserva",
+      "tag": "BUTTON",
+      "w": 106,
+      "x": 24,
+      "y": 586
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 101,
+      "label": "4\nen reserva",
+      "tag": "BUTTON",
+      "w": 106,
+      "x": 142,
+      "y": 586
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 101,
+      "label": "5+\nCon margen",
+      "tag": "BUTTON",
+      "w": 106,
+      "x": 260,
+      "y": 586
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 48,
+      "label": "Dejar sin anotar",
+      "tag": "BUTTON",
+      "w": 342,
+      "x": 24,
+      "y": 709
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 48,
+      "label": "Cerrar",
+      "tag": "BUTTON",
+      "w": 342,
+      "x": 24,
+      "y": 769
+    }
+  ],
+  "documentHeight": 1159,
+  "documentWidth": 390,
+  "focused": "<div class=\"modal\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ui-dialog-title\" tabindex=\"-1\"><h2 id=\"ui-dialog-title\">Repeticiones en reserva</h2><p class=\"muted\">Al terminar, ¿cuántas más habrí",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "27px",
+      "h": 30,
+      "text": "Repeticiones en reserva",
+      "w": 342,
+      "x": 24,
+      "y": 363
+    }
+  ],
+  "height": 844,
+  "scrollY": 315,
+  "smallText": [
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Al fallo"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "en reserva"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "en reserva"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "en reserva"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "en reserva"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Con margen"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=long",
+  "view": "session",
+  "width": 390,
+  "name": "53-rir-modal-390",
+  "image": "53-rir-modal-390.jpg",
+  "imageSize": [
+    390,
+    844
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

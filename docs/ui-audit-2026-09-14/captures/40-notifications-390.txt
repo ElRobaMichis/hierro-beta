@@ -1,0 +1,50 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Tu espacio":
+    - text: Tu espacio
+  - generic: A tu manera
+  - heading "Avisos que te acompañan" [level=1]
+- main:
+  - generic: Entrena. Nosotros llevamos el reloj.
+  - heading "Tu siguiente serie, sin mirar el teléfono." [level=2]:
+    - text: Tu siguiente serie,
+    - text: sin mirar el teléfono.
+  - paragraph: Recibe el fin del descanso aunque bloquees la pantalla o cambies de app.
+  - generic "Ejemplo de notificación":
+    - text: HIERRO
+    - generic: ahora
+    - generic: Descanso listo
+    - paragraph: Jalón al pecho · 65 lb × 6 reps. Placa 13 + ajuste fino 2.5 lb.
+    - generic: Ejemplo · tus avisos usarán el equipo de tu gimnasio
+  - status: Se activan solo en este dispositivo.
+  - button "Vincular mi espacio":
+    - generic: Vincular mi espacio
+  - paragraph: Primero crea o vincula tu espacio de sincronización. Así podemos programar los avisos sin una computadora encendida.
+  - complementary:
+    - heading "Elige tus avisos." [level=2]
+    - generic: Descanso terminado
+    - generic: Incluye los descansos de calentamiento.
+    - switch "Descanso terminado" [checked]
+    - generic: Cinco minutos sin registrar
+    - generic: Un recordatorio por pausa. Espera si tu descanso aún no termina.
+    - switch "Cinco minutos sin registrar" [checked]
+    - generic: Carga y montaje en el aviso
+    - generic: Muestra ejercicio, peso, placa y ajuste fino en la pantalla bloqueada.
+    - switch "Carga y montaje en el aviso" [checked]
+    - heading "En tu iPhone" [level=2]
+    - list:
+      - listitem: Abre Hierro en Safari o en un navegador que permita añadirla al inicio.
+      - listitem: Compartir → Añadir a pantalla de inicio.
+      - listitem: Ábrela desde su icono, vincula tu espacio y activa los avisos aquí.
+    - paragraph: Requiere iOS 16.4 o posterior. Si ya lo permitiste, revisa Ajustes → Notificaciones → Hierro Beta.
+    - paragraph: Para programar y recibir avisos hace falta internet. El sistema puede retrasarlos por conexión o concentración. Los pitidos de los últimos 3 segundos funcionan con la app abierta; el sonido del aviso lo decide el teléfono.
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

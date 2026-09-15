@@ -1,0 +1,898 @@
+[
+  {
+    "id": "02-home-390",
+    "image": "02-home-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "03-day-390",
+    "image": "03-day-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "04-exercise-progress-390",
+    "image": "04-exercise-progress-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "05-equipment-390",
+    "image": "05-equipment-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      1930
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "06-objectives-390",
+    "image": "06-objectives-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      1702
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "07-warmup-390",
+    "image": "07-warmup-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "08-warmup-rest-390",
+    "image": "08-warmup-rest-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "09-second-tab-lock-390",
+    "image": "09-second-tab-lock-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": "Estado alterado por siembra de dos fixtures sobre el mismo origen; no representa un problema de producción."
+  },
+  {
+    "id": "10-work-390",
+    "image": "10-work-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "11-work-320",
+    "image": "11-work-320.jpg",
+    "viewport": [
+      320,
+      740
+    ],
+    "imageSize": [
+      305,
+      705
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "12-work-400",
+    "image": "12-work-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "13-rest-400",
+    "image": "13-rest-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "14-edit-set-modal-400",
+    "image": "14-edit-set-modal-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      400,
+      907
+    ],
+    "scrollY": 15,
+    "excluded": null
+  },
+  {
+    "id": "15-finish-confirmation-400",
+    "image": "15-finish-confirmation-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      400,
+      907
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "16-finish-card-400",
+    "image": "16-finish-card-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      400,
+      907
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "17-overview-400",
+    "image": "17-overview-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "18-body-400",
+    "image": "18-body-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "19-muscle-detail-400",
+    "image": "19-muscle-detail-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      400,
+      907
+    ],
+    "scrollY": 336,
+    "excluded": null
+  },
+  {
+    "id": "20-diary-400",
+    "image": "20-diary-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "21-diary-receipt-400",
+    "image": "21-diary-receipt-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      400,
+      907
+    ],
+    "scrollY": 118,
+    "excluded": null
+  },
+  {
+    "id": "22-time-progress-400",
+    "image": "22-time-progress-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "23-you-400",
+    "image": "23-you-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "24-gyms-400",
+    "image": "24-gyms-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      1286
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "25-new-gym-modal-400",
+    "image": "25-new-gym-modal-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      400,
+      907
+    ],
+    "scrollY": 368,
+    "excluded": null
+  },
+  {
+    "id": "26-inventory-plates-400",
+    "image": "26-inventory-plates-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "27-add-plate-modal-400",
+    "image": "27-add-plate-modal-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      400,
+      907
+    ],
+    "scrollY": 1307,
+    "excluded": null
+  },
+  {
+    "id": "28-inventory-bars-400",
+    "image": "28-inventory-bars-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "29-add-bar-modal-400",
+    "image": "29-add-bar-modal-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      400,
+      907
+    ],
+    "scrollY": 1655,
+    "excluded": null
+  },
+  {
+    "id": "30-inventory-dumbbells-400",
+    "image": "30-inventory-dumbbells-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "31-inventory-machines-400",
+    "image": "31-inventory-machines-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "32-plans-400",
+    "image": "32-plans-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "33-plan-400",
+    "image": "33-plan-400.jpg",
+    "viewport": [
+      400,
+      907
+    ],
+    "imageSize": [
+      385,
+      873
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "34-order-days-320",
+    "image": "34-order-days-320.jpg",
+    "viewport": [
+      320,
+      740
+    ],
+    "imageSize": [
+      305,
+      705
+    ],
+    "scrollY": 249,
+    "excluded": null
+  },
+  {
+    "id": "35-order-days-820",
+    "image": "35-order-days-820.jpg",
+    "viewport": [
+      820,
+      1180
+    ],
+    "imageSize": [
+      805,
+      1158
+    ],
+    "scrollY": 129,
+    "excluded": null
+  },
+  {
+    "id": "36-plan-rules-390",
+    "image": "36-plan-rules-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 358,
+    "excluded": null
+  },
+  {
+    "id": "37-day-full-390",
+    "image": "37-day-full-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      3992
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "38-add-exercise-390",
+    "image": "38-add-exercise-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 3125,
+    "excluded": null
+  },
+  {
+    "id": "39-session-preferences-390",
+    "image": "39-session-preferences-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      1749
+    ],
+    "scrollY": 112,
+    "excluded": null
+  },
+  {
+    "id": "40-notifications-390",
+    "image": "40-notifications-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      1896
+    ],
+    "scrollY": 901,
+    "excluded": null
+  },
+  {
+    "id": "41-sync-entry-scroll-390",
+    "image": "41-sync-entry-scroll-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 326,
+    "excluded": null
+  },
+  {
+    "id": "42-sync-invalid-key-390",
+    "image": "42-sync-invalid-key-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 262,
+    "excluded": null
+  },
+  {
+    "id": "43-sync-error-behind-dialog-390",
+    "image": "43-sync-error-behind-dialog-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 306,
+    "excluded": null
+  },
+  {
+    "id": "44-backups-390",
+    "image": "44-backups-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 270,
+    "excluded": null
+  },
+  {
+    "id": "45-help-390",
+    "image": "45-help-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 329,
+    "excluded": null
+  },
+  {
+    "id": "46-guide-modal-390",
+    "image": "46-guide-modal-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 24,
+    "excluded": null
+  },
+  {
+    "id": "47-appearance-dark-390",
+    "image": "47-appearance-dark-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 40,
+    "excluded": null
+  },
+  {
+    "id": "48-home-dark-390",
+    "image": "48-home-dark-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "49-home-dark-1280",
+    "image": "49-home-dark-1280.jpg",
+    "viewport": [
+      1280,
+      900
+    ],
+    "imageSize": [
+      1265,
+      889
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "50-day-dark-1280",
+    "image": "50-day-dark-1280.jpg",
+    "viewport": [
+      1280,
+      900
+    ],
+    "imageSize": [
+      1265,
+      889
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "51-exercise-dark-1280",
+    "image": "51-exercise-dark-1280.jpg",
+    "viewport": [
+      1280,
+      900
+    ],
+    "imageSize": [
+      1265,
+      889
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "52-long-note-390",
+    "image": "52-long-note-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "53-rir-modal-390",
+    "image": "53-rir-modal-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 315,
+    "excluded": null
+  },
+  {
+    "id": "54-timed-exercise-390",
+    "image": "54-timed-exercise-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "55-timer-modal-390",
+    "image": "55-timer-modal-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "56-timed-landscape-844",
+    "image": "56-timed-landscape-844.jpg",
+    "viewport": [
+      844,
+      390
+    ],
+    "imageSize": [
+      180,
+      390
+    ],
+    "scrollY": 0,
+    "excluded": "La captura no conserva la relación del viewport al cambiar de orientación; se repitió como 65-landscape-settled-844."
+  },
+  {
+    "id": "57-welcome-light-390",
+    "image": "57-welcome-light-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "58-empty-day-390",
+    "image": "58-empty-day-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "59-new-timed-exercise-wrong-mode-390",
+    "image": "59-new-timed-exercise-wrong-mode-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "60-home-light-settled-390",
+    "image": "60-home-light-settled-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "61-home-dark-settled-390",
+    "image": "61-home-dark-settled-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      375,
+      812
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "62-home-light-1280",
+    "image": "62-home-light-1280.jpg",
+    "viewport": [
+      1280,
+      900
+    ],
+    "imageSize": [
+      1265,
+      889
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "63-overview-1280",
+    "image": "63-overview-1280.jpg",
+    "viewport": [
+      1280,
+      900
+    ],
+    "imageSize": [
+      1265,
+      889
+    ],
+    "scrollY": 199,
+    "excluded": null
+  },
+  {
+    "id": "64-exercise-search-390",
+    "image": "64-exercise-search-390.jpg",
+    "viewport": [
+      390,
+      844
+    ],
+    "imageSize": [
+      390,
+      844
+    ],
+    "scrollY": 0,
+    "excluded": null
+  },
+  {
+    "id": "65-landscape-settled-844",
+    "image": "65-landscape-settled-844.jpg",
+    "viewport": [
+      844,
+      390
+    ],
+    "imageSize": [
+      829,
+      383
+    ],
+    "scrollY": 0,
+    "excluded": null
+  }
+]

@@ -1,0 +1,31 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Entrenar":
+    - text: Entrenar
+  - generic: Organizar entrenamiento
+  - heading "Tu plan, a tu ritmo." [level=1]
+- main:
+  - text: Entrenando ahora
+  - heading "Mi entrenamiento" [level=2]
+  - paragraph: 4 días · 37 sesiones registradas
+  - button "Abrir plan":
+    - generic: Abrir plan
+  - text: En tu biblioteca
+  - heading "Viajes" [level=2]
+  - paragraph: 1 día · 0 sesiones registradas
+  - button "Abrir plan":
+    - generic: Abrir plan
+  - button "Nuevo plan":
+    - generic: Nuevo plan
+  - button "Importar plan":
+    - generic: Importar plan
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

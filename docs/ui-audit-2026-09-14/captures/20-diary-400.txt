@@ -1,0 +1,210 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - generic: Tu esfuerzo, en perspectiva
+  - heading "Cada sesión deja huella." [level=1]
+- main:
+  - group "Secciones":
+    - button "Panorama"
+    - button "Ejercicios"
+    - button "Tu cuerpo"
+    - button "Diario" [pressed]
+  - heading "Tu diario de entrenamiento" [level=2]
+  - generic: Filtrar por día
+  - combobox "Filtrar por día":
+    - option "Todos los días" [selected]
+    - option "Full body"
+    - option "Upper"
+    - option "Lower"
+    - option "Arms & delts"
+  - button "14 sep Full body 0 min · 1 serie 178kg":
+    - generic: "14"
+    - generic: sep
+    - generic: Full body
+    - generic: 0 min · 1 serie
+    - generic: 178kg
+  - button "11 sep Arms & delts 52 min · 8 series · 1 marca 1t":
+    - generic: "11"
+    - generic: sep
+    - generic: Arms & delts
+    - generic: 52 min · 8 series · 1 marca
+    - generic: 1t
+  - button "8 sep Lower 52 min · 6 series 2,7t":
+    - generic: "8"
+    - generic: sep
+    - generic: Lower
+    - generic: 52 min · 6 series
+    - generic: 2,7t
+  - button "5 sep Upper 52 min · 8 series 1,9t":
+    - generic: "5"
+    - generic: sep
+    - generic: Upper
+    - generic: 52 min · 8 series
+    - generic: 1,9t
+  - button "2 sep Full body 51 min · 10 series 3,6t":
+    - generic: "2"
+    - generic: sep
+    - generic: Full body
+    - generic: 51 min · 10 series
+    - generic: 3,6t
+  - button "30 ago Arms & delts 51 min · 8 series 882kg":
+    - generic: "30"
+    - generic: ago
+    - generic: Arms & delts
+    - generic: 51 min · 8 series
+    - generic: 882kg
+  - button "27 ago Lower 51 min · 6 series · 1 marca 2,4t":
+    - generic: "27"
+    - generic: ago
+    - generic: Lower
+    - generic: 51 min · 6 series · 1 marca
+    - generic: 2,4t
+  - button "24 ago Upper 50 min · 8 series · Descarga 2,3t":
+    - generic: "24"
+    - generic: ago
+    - generic: Upper
+    - generic: 50 min · 8 series · Descarga
+    - generic: 2,3t
+  - button "21 ago Full body 50 min · 10 series 3,1t":
+    - generic: "21"
+    - generic: ago
+    - generic: Full body
+    - generic: 50 min · 10 series
+    - generic: 3,1t
+  - button "18 ago Arms & delts 50 min · 8 series 736kg":
+    - generic: "18"
+    - generic: ago
+    - generic: Arms & delts
+    - generic: 50 min · 8 series
+    - generic: 736kg
+  - button "15 ago Lower 49 min · 6 series 2,9t":
+    - generic: "15"
+    - generic: ago
+    - generic: Lower
+    - generic: 49 min · 6 series
+    - generic: 2,9t
+  - button "12 ago Upper 49 min · 8 series · 1 marca 2t":
+    - generic: "12"
+    - generic: ago
+    - generic: Upper
+    - generic: 49 min · 8 series · 1 marca
+    - generic: 2t
+  - button "9 ago Full body 49 min · 10 series 2,7t":
+    - generic: "9"
+    - generic: ago
+    - generic: Full body
+    - generic: 49 min · 10 series
+    - generic: 2,7t
+  - button "6 ago Arms & delts 48 min · 8 series 860kg":
+    - generic: "6"
+    - generic: ago
+    - generic: Arms & delts
+    - generic: 48 min · 8 series
+    - generic: 860kg
+  - button "3 ago Lower 48 min · 6 series 2,6t":
+    - generic: "3"
+    - generic: ago
+    - generic: Lower
+    - generic: 48 min · 6 series
+    - generic: 2,6t
+  - button "31 jul Upper 48 min · 8 series 1,7t":
+    - generic: "31"
+    - generic: jul
+    - generic: Upper
+    - generic: 48 min · 8 series
+    - generic: 1,7t
+  - button "28 jul Full body 48 min · 10 series · 1 marca 3,3t":
+    - generic: "28"
+    - generic: jul
+    - generic: Full body
+    - generic: 48 min · 10 series · 1 marca
+    - generic: 3,3t
+  - button "25 jul Arms & delts 47 min · 8 series 720kg":
+    - generic: "25"
+    - generic: jul
+    - generic: Arms & delts
+    - generic: 47 min · 8 series
+    - generic: 720kg
+  - button "22 jul Lower 47 min · 6 series 2,3t":
+    - generic: "22"
+    - generic: jul
+    - generic: Lower
+    - generic: 47 min · 6 series
+    - generic: 2,3t
+  - button "19 jul Upper 47 min · 8 series 2t":
+    - generic: "19"
+    - generic: jul
+    - generic: Upper
+    - generic: 47 min · 8 series
+    - generic: 2t
+  - button "16 jul Full body 46 min · 10 series 2,9t":
+    - generic: "16"
+    - generic: jul
+    - generic: Full body
+    - generic: 46 min · 10 series
+    - generic: 2,9t
+  - button "13 jul Arms & delts 46 min · 8 series · 1 marca 592kg":
+    - generic: "13"
+    - generic: jul
+    - generic: Arms & delts
+    - generic: 46 min · 8 series · 1 marca
+    - generic: 592kg
+  - button "10 jul Lower 46 min · 6 series 2,8t":
+    - generic: "10"
+    - generic: jul
+    - generic: Lower
+    - generic: 46 min · 6 series
+    - generic: 2,8t
+  - button "7 jul Upper 45 min · 8 series 1,8t":
+    - generic: "7"
+    - generic: jul
+    - generic: Upper
+    - generic: 45 min · 8 series
+    - generic: 1,8t
+  - button "4 jul Full body 45 min · 10 series 2,5t":
+    - generic: "4"
+    - generic: jul
+    - generic: Full body
+    - generic: 45 min · 10 series
+    - generic: 2,5t
+  - button "1 jul Arms & delts 45 min · 8 series 680kg":
+    - generic: "1"
+    - generic: jul
+    - generic: Arms & delts
+    - generic: 45 min · 8 series
+    - generic: 680kg
+  - button "28 jun Lower 44 min · 6 series · 1 marca 2,5t":
+    - generic: "28"
+    - generic: jun
+    - generic: Lower
+    - generic: 44 min · 6 series · 1 marca
+    - generic: 2,5t
+  - button "25 jun Upper 44 min · 8 series 1,5t":
+    - generic: "25"
+    - generic: jun
+    - generic: Upper
+    - generic: 44 min · 8 series
+    - generic: 1,5t
+  - button "22 jun Full body 44 min · 10 series 3,1t":
+    - generic: "22"
+    - generic: jun
+    - generic: Full body
+    - generic: 44 min · 10 series
+    - generic: 3,1t
+  - button "19 jun Arms & delts 43 min · 8 series 558kg":
+    - generic: "19"
+    - generic: jun
+    - generic: Arms & delts
+    - generic: 43 min · 8 series
+    - generic: 558kg
+  - button "Mostrar más sesiones":
+    - generic: Mostrar más sesiones
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

@@ -488,7 +488,8 @@ startSession('rt');
 prepareFixture(0);startSetTimer(0, 0);
 chk(els['modalhost'].innerHTML.includes('Prepárate'), 'cronómetro: modal con cuenta de preparación');
 stopSetTimer(false);
-chk(els['modalhost'].innerHTML === '', 'cancelar cierra sin registrar');
+chk(els.modalhost.innerHTML.includes('Cancelar la medición'),'cancelar una medición pide confirmar');window.__confirmFn();
+chk(els['modalhost'].innerHTML === ''&&!db.active.setTimer, 'cancelar cierra sin registrar');
 db.active = null;
 /* guardar con lastre en blanco → 0 */
 exMeta('colgado').type = 'tiempo';
@@ -820,6 +821,7 @@ Object.assign(exMeta('hip thrust'), { equip:'placas', muscle:'gluteos', lo:8, hi
 db.routines.push({ id:'r1', name:'G', exercises:[{ id:'a', name:'Hip Thrust', key:'hip thrust' }] });
 document.getElementById('dupname').value = 'Hip Thrust (Discos)';
 window.__dupFrom = 'hip thrust';
+window.__dupView = {name:'exercise',key:'hip thrust',rid:'r1'};
 doDuplicateEx({ preventDefault(){} });
 chk(!!db.exmeta['hip thrust (discos)'], 'se crea el ejercicio nuevo');
 chk(exMeta('hip thrust (discos)').muscle === 'gluteos' && exMeta('hip thrust (discos)').lo === 8,
@@ -1506,11 +1508,11 @@ window.__quotaWarned = false;
 let exploto = false;
 try{ save(); }catch(e){ exploto = true; }
 chk(!exploto, 'save() sobrevive a un QuotaExceededError sin reventar');
-chk(els['modalhost'].innerHTML.includes('No se pudo guardar'), 'y avisa que descargues respaldo');
+chk(window.__saveError?.includes('descarga una copia'),'el fallo conserva una advertencia persistente y una salida de respaldo');
 els['modalhost'].innerHTML = '';
 save();
-chk(els['modalhost'].innerHTML === '' && window.__quotaWarned === true,
-    'el aviso sale una sola vez, no en cada tecla');
+chk(els['modalhost'].innerHTML === '' && !!window.__saveError,
+    'escribir no abre diálogos repetidos y conserva el estado pendiente');
 localStorage.setItem = setItemReal;
 save();
 
@@ -1887,6 +1889,8 @@ startSession('rv');
 db.active.exercises[0].sets[0] = { w:'60', r:'10', rir:'' };
 addSet(0); db.active.exercises[0].sets[1] = { w:'60', r:'10', rir:'' };
 addSet(0); db.active.exercises[0].sets[2] = { w:'60', r:'10', rir:'' };
+/* Esta comparación representa tres series previstas y realizadas. */
+db.active.exercises[0].sets=db.active.exercises[0].sets.filter(st=>st.w!==''&&st.r!=='');
 confirmFixtureSets();finishSession();
 fin = els['modalhost'].innerHTML;
 chk(fin.includes(fmtInt(600) + ' kg más') && fin.includes('anterior'),
@@ -2353,7 +2357,7 @@ chk(restUntil===firstRest,'una confirmación repetida no reinicia el descanso');
 db=normalize(JSON.parse(localStorage.getItem(LS_KEY)));
 chk(db.active.uiRest&&db.active.restUntil===firstRest&&sessionOpenIdx()===0,'la recarga conserva confirmación, ejercicio y descanso');
 uiContinue();
-chk(sessionOpenIdx()===0&&uiSession().includes('Siguiente: Press de banca'),'continuar deja elegir el siguiente ejercicio explícitamente');
+chk(sessionOpenIdx()===1&&!db.active.uiRest,'continuar tras el último descanso lleva al siguiente ejercicio sin otro paso');
 uiSelectExercise(1);uiUseSuggestion(1);prepareFixture(1);uiLogSet(1,0);uiContinue();uiSelectExercise(2);uiUseSuggestion(2);
 chk(collectEntries(db.active).length===2,'el cierre incluye solo las dos series confirmadas, no la tercera propuesta');
 askFinish();
@@ -2402,7 +2406,7 @@ suite('3.0.1 — un único espacio para el día y salidas no redundantes');
 view={name:'routine',id:'time-day'};
 const oneDay=uiRoutine();
 chk(!oneDay.includes('Ver preparación')&&!oneDay.includes('Editar día')&&(oneDay.match(/Añadir ejercicios/g)||[]).length===1,'hay una sola página del día y un único acceso a añadir ejercicios');
-chk(uiIsDismissAction('closeModal();')&&uiIsDismissAction('stopSetTimer(false)')&&!uiIsDismissAction('closeModal();deleteRoutine("x")'),'se distingue cancelar de una acción que cambia datos');
+chk(uiIsDismissAction('closeModal();')&&!uiIsDismissAction('stopSetTimer(false)')&&!uiIsDismissAction('closeModal();deleteRoutine("x")'),'se distingue cerrar de una acción que descarta una medición o cambia datos');
 view={name:'home'};resetDB();
 
 
@@ -2466,7 +2470,7 @@ chk(view.name==='splits'&&uiPlans().includes('Plan A” se eliminó'),'se inform
 deleteSplit('delete-b');chk(els.modalhost.innerHTML.includes('sin planes'),'se puede confirmar la eliminación del último plan');window.__confirmFn();
 db=load();
 chk(db.splits.length===0&&db.routines.length===0&&activeSplit()===null,'recargar no recrea el último plan eliminado');
-chk(JSON.stringify(db.history)===retainedHistory&&JSON.stringify(db.progress)===retainedProgress,'todos los registros y marcas sobreviven a borrar todos los planes');
+chk(JSON.stringify(db.history.map(({splitId,...h})=>h))===retainedHistory&&JSON.stringify(db.progress)===retainedProgress,'todos los registros y marcas sobreviven a borrar todos los planes');
 chk(uiPlans().includes('Crear primer día')&&uiHome().includes('Crear mi primer día'),'el estado vacío permite comenzar otra vez');
 db.splits=[{id:'busy-plan',name:'En uso',active:true,exconf:{}}];db.routines=[{id:'busy-day',name:'Torso',split:'busy-plan',exercises:[]}];
 db.active={routineId:'busy-day',exercises:[],start:Date.now()};deleteSplit('busy-plan');
@@ -2660,7 +2664,7 @@ const retainedDayHistory=JSON.stringify(db.history),retainedDayProgress=JSON.str
 deleteRoutine('mobile-other');closeModal();chk(db.routines.length===2,'cancelar Quitar conserva el día');
 deleteRoutine('mobile-other');window.__confirmFn();
 chk(db.routines.length===1&&view.name==='split'&&view.id==='mobile-plan'&&view.sort,'quitar vuelve al mismo plan y mantiene el modo de orden');
-chk(JSON.stringify(db.history)===retainedDayHistory&&JSON.stringify(db.progress)===retainedDayProgress,'quitar un día conserva sesiones y progresión');
+chk(JSON.stringify(db.history.map(({splitId,...h})=>h))===retainedDayHistory&&db.history[0].splitId==='mobile-plan'&&JSON.stringify(db.progress)===retainedDayProgress,'quitar un día conserva sesiones, su plan de origen y progresión');
 db.active={routineId:'mobile-day',exercises:[],start:Date.now()};deleteRoutine('mobile-day');
 chk(db.routines.length===1&&els.modalhost.innerHTML.includes('Continuar sesión'),'no se quita el día de una sesión en curso');closeModal();db.active=null;
 deleteRoutine('missing-day');chk(db.routines.length===1,'un identificador retirado no provoca una excepción');
@@ -2823,6 +2827,7 @@ setVal(0,0,'r','8');db.settings.rest='auto';uiLogSet(0,0);
 chk(warmEx.sets[0].done&&db.active.uiRest&&restUntil>warmClock,'registrar trabajo mantiene su descanso habitual');
 chk(collectEntries(db.active)[0].loadContext===warmupLoadContext(warmEx.key),'el historial confirmado conserva el contexto para comparar cargas equivalentes');
 uiSelectExercise(1);db.active.exercises[1].sets[0].w='40';
+chk(restUntil>warmClock,'consultar otro ejercicio conserva el descanso');uiContinue();
 chk(warmupPlan(1).reason==='prepared'&&!warmupRequired(1)&&uiSession().includes('Registrar serie'),'trabajo confirmado del mismo músculo permite el acceso directo en rango moderado');
 uiSelectExercise(2);db.active.exercises[2].sets[0].w='40';
 chk(warmupRequired(2)&&warmupPlan(2).first,'un grupo diferente prepara desde su primer escalón');
@@ -2953,6 +2958,87 @@ chk(!/NaN|Infinity|%/.test(uiWeekComparison({vol:2000,current:true},volumeRef)),
 resetDB();
 volumeRef=weeklyVolumeReference(weeklyVolumes(8));
 chk(volumeRef.count===0 && volumeRef.mean===null,'sin historial no hay media numérica');
+
+
+suite('Refinamiento UX — guardado, contexto y recuperación');
+{
+function refineDB(){
+ db=normalize({settings:{goal:'hipertrofia'},history:[],routines:[{id:'ra',name:'A',split:'sa',exercises:[{id:'ea',key:'ref-press',name:'Press'}]},{id:'rb',name:'B',split:'sb',exercises:[{id:'eb',key:'ref-press',name:'Press'}]}],splits:[{id:'sa',name:'Plan A',active:true,exconf:{'ref-press':{sets:3,rest:60}}},{id:'sb',name:'Plan B',active:false,exconf:{'ref-press':{sets:2,rest:180}}}],exmeta:{}});
+ view={name:'home'};restUntil=null;window.__saveError=null;window.__loadError=null;window.__removedSet=null;
+ Object.assign(exMeta('ref-press'),{equip:'nada',lo:6,hi:10});save();
+}
+refineDB();startSession('ra');
+view={name:'exercise',rid:'rb',key:'ref-press'};setSplitConf('ref-press','sets','5');
+chk(db.active.exercises[0].sets.length===3&&db.splits[1].exconf['ref-press'].sets===5,'editar series de B conserva la sesión de A');
+db.history.push({id:'ref-history',routineId:'ra',routineName:'A',date:new Date().toISOString(),entries:[{key:'ref-press',name:'Press',sets:[S(20,8)]}]});
+window.__moveTo='sb';window.__moveCopy=false;doMoveRoutine('ra');
+view={name:'session'};
+chk(historySplitId(db.history[0])==='sa'&&db.active.splitId==='sa'&&restSecs('ref-press')===60,'mover un día conserva atribución y descanso de la sesión');
+
+refineDB();startSession('ra');db.active.exercises[0].sets[0]={w:'20',r:'8',rir:''};prepareFixture(0);save();
+const beforeRejected=localStorage.getItem(LS_KEY),writer=localStorage.setItem;
+localStorage.setItem=()=>{throw new Error('quota');};uiLogSet(0,0);
+chk(!db.active.exercises[0].sets[0].done&&!restUntil,'un registro rechazado sigue editable y no inicia descanso');
+chk(localStorage.getItem(LS_KEY)===beforeRejected,'un registro rechazado conserva la copia anterior');
+localStorage.setItem=writer;db.active.exercises[0].sets[0].done=true;save();const beforeFinishReject=localStorage.getItem(LS_KEY);
+localStorage.setItem=()=>{throw new Error('quota');};finishSession();
+chk(!!db.active&&db.history.length===0&&localStorage.getItem(LS_KEY)===beforeFinishReject,'un cierre rechazado conserva la sesión y no anuncia éxito');
+localStorage.setItem=writer;save();finishSession();
+chk(!db.active&&db.history.length===1&&els.modalhost.innerHTML.includes('sesión parcial')&&!els.modalhost.innerHTML.includes('fin-spark'),'reintentar guarda una sola sesión parcial sin compararla con sesiones completas');closeModal();
+
+refineDB();const original=localStorage.getItem(LS_KEY);
+localStorage.setItem(LS_KEY,'{invalid');const corrupted=load();
+chk(!!window.__loadError&&localStorage.getItem(LS_KEY)==='{invalid','una lectura dañada conserva el original y activa recuperación');
+chk(save()===false&&localStorage.getItem(LS_KEY)==='{invalid','la recuperación bloquea escribir una base vacía sobre datos dañados');
+localStorage.setItem(LS_KEY,original);db=load();
+chk(!window.__loadError&&db.routines.length===2,'al recuperar la lectura reaparecen los datos anteriores');
+chk(!validBackup({routines:[],history:[null]})&&!validBackup({routines:[null],history:[]}), 'un respaldo inválido se rechaza antes de restaurar');
+startSession('ra');db.active.restUntil=Date.now()+60000;save();const restored=JSON.parse(JSON.stringify(db));restUntil=null;
+chk(restoreBackupData(restored)&&restUntil===restored.active.restUntil,'restaurar una sesión recupera el descanso en memoria');
+chk(!!localStorage.getItem(LS_KEY+'.recovery'),'restaurar conserva una copia local del estado previo');
+
+refineDB();const gymA=db.gym.id,gymB=normGym({id:'ref-gym-b',name:'Otro gimnasio'},'kg');db.gyms.push(gymB);
+setExNotes('ref-press','Baja con control');setGymNotes('ref-press','Asiento 4');setActiveGym(gymB.id);
+chk(!exMeta('ref-press').gymNotes&&exMeta('ref-press').notes==='Baja con control','el segundo gimnasio recibe la técnica general y su propio ajuste');
+setGymNotes('ref-press','Asiento 7');setActiveGym(gymA);
+chk(exMeta('ref-press').gymNotes==='Asiento 4'&&exerciseNotes('ref-press').includes('Baja con control'),'volver al gimnasio recupera su asiento sin perder técnica');
+setExRange('ref-press','hi','4');chk(exMeta('ref-press').hi===10,'un rango invertido no se guarda');
+
+refineDB();startSession('ra');db.active.exercises[0].sets[0]={w:'20',r:'8',done:true,totalKg:20};save();uiRemoveSet(0,0);uiUndoRemovedSet();
+chk(db.active.exercises[0].sets[0].done&&db.active.exercises[0].sets[0].totalKg===20,'deshacer restaura la serie confirmada y su carga canónica');
+view={name:'history',progressTab:'exercises',exerciseQuery:'Press'};go({name:'home'});uiTab('history');
+chk(view.progressTab==='exercises'&&view.exerciseQuery==='Press','volver a Evolución conserva pestaña y búsqueda');
+chk(viewKey({name:'settings',section:'data'})!==viewKey({name:'settings',section:'sync'}),'cada ajuste conserva una posición independiente');
+
+refineDB();Object.assign(exMeta('ref-press'),{type:'tiempo',equip:'nada',lo:10,hi:30});startSession('ra');db.active.exercises[0].sets[0].r='20';prepareFixture(0);
+const timerNow=Date.now;let timerClock=timerNow();Date.now=()=>timerClock;
+startSetTimer(0,0);closeModal();
+chk(!!db.active.setTimer,'minimizar conserva una medición en la sesión');
+timerClock+=15000;startSetTimer(0,0);
+chk(db.active.setTimer.count===8&&db.active.setTimer.phase==='run','el cronómetro usa tiempo real: 3 s de preparación y 12 s transcurridos');
+closeModal();timerClock+=10000;startSetTimer(0,0);
+chk(!db.active.setTimer&&db.active.exercises[0].sets[0].r==='20'&&!db.active.exercises[0].sets[0].done,'retomar una medición vencida rellena segundos sin confirmar la serie');
+Date.now=timerNow;closeModal();
+
+refineDB();exMeta('ref-press').lo=6;exMeta('ref-press').hi=10;
+db.history=[{id:'normal',routineName:'A',date:new Date(Date.now()-86400000).toISOString(),entries:[{key:'ref-press',name:'Press',sets:[S(20,8)]}]},{id:'deload',routineName:'A',date:new Date().toISOString(),deload:true,entries:[{key:'ref-press',name:'Press',sets:[S(40,8)]}]}];
+chk(bestMetricBefore('ref-press')===epley(20,8)&&uiExerciseMetric('ref-press').best===20,'descargas no elevan récords ni la gráfica de progreso normal');
+window.__edit={id:'normal',entries:[{key:'ref-press',name:'Press',sets:[{w:'10',r:'8',rir:''}]}]};db.history[0].prs=[{key:'ref-press',now:100,prev:10}];saveEditedSession();
+chk(!db.history[0].prs.some(p=>p.now===100),'corregir historial recalcula los récords almacenados');
+
+refineDB();startSession('ra');view={name:'exercise',rid:'ra',key:'ref-press',from:'session'};
+promptDuplicateEx('ref-press','Press');document.getElementById('dupname').value='Press cable';doDuplicateEx({preventDefault(){}});
+chk(db.routines[0].exercises.length===2&&db.routines[1].exercises.length===1&&db.active.exercises.length===2,'crear una variante afecta solo al día consultado y su sesión');
+chk(db.active.exercises[1].sets.length===3&&view.rid==='ra'&&view.exTab==='equipment','la variante conserva sus series y abre su equipo en el mismo contexto');closeModal();
+refineDB();startSession('ra');db.active.exercises[0].sets=[{w:'20',r:'8',done:true},{w:'',r:'',rir:''}];
+uiRemoveSet(0,0);uiUndoRemovedSet();chk(db.active.exercises[0].sets.length===2&&!db.active.exercises[0].sets[1].done,'deshacer conserva también una serie vacía que ya existía');
+refineDB();const priorImport=localStorage.getItem(LS_KEY);
+window.__hevyImport={news:[{hevyKey:'ux-import',title:'Día importado',date:new Date().toISOString(),duration:600,ex:new Map([['Remo',[S(20,8)]]])}],repairs:[]};
+localStorage.setItem=()=>{throw new Error('quota');};applyHevyImport();
+chk(localStorage.getItem(LS_KEY)===priorImport&&db.history.length===0&&!!window.__hevyImport,'una importación rechazada conserva el estado anterior y puede reintentarse');
+localStorage.setItem=writer;applyHevyImport();
+chk(db.history.length===1&&db.routines.find(r=>r.name==='Día importado')?.split&&window.__hevyImport===null,'reintentar la importación agrega una sola copia y un día asociado a un plan');closeModal();
+}
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));

@@ -1,0 +1,31 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Tu espacio":
+    - text: Tu espacio
+  - generic: A tu manera
+  - heading "Tu apariencia" [level=1]
+- main:
+  - text: Tu ambiente
+  - heading "La luz que te acompaña." [level=2]
+  - paragraph: Elige cómo quieres ver Hierro. «Sistema» sigue la apariencia de tu dispositivo.
+  - button "Sistema":
+    - generic: Sistema
+  - button "Claro":
+    - generic: Claro
+  - button "Oscuro" [active] [pressed]:
+    - generic: Oscuro
+  - complementary:
+    - generic: Animaciones suaves
+    - generic: Transiciones breves entre pantallas y al completar ejercicios. Se respeta el movimiento reducido del sistema.
+    - switch "Animaciones suaves" [checked]
+    - paragraph: Los campos permanecen quietos mientras registras una serie.
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

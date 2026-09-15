@@ -1,0 +1,105 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "skip-link",
+        "nodes": 1
+      }
+    ],
+    "passes": 34,
+    "time": "2026-09-14T23:23:34.024Z",
+    "version": "4.13.0",
+    "view": "session",
+    "violations": []
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "",
+      "tag": "INPUT",
+      "w": 168,
+      "x": 24,
+      "y": 511
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "",
+      "tag": "INPUT",
+      "w": 168,
+      "x": 208,
+      "y": 511
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "",
+      "tag": "INPUT",
+      "w": 352,
+      "x": 24,
+      "y": 618
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 54,
+      "label": "Guardar cambio",
+      "tag": "BUTTON",
+      "w": 352,
+      "x": 24,
+      "y": 696
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 48,
+      "label": "Eliminar esta serie",
+      "tag": "BUTTON",
+      "w": 352,
+      "x": 24,
+      "y": 772
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 48,
+      "label": "Cancelar",
+      "tag": "BUTTON",
+      "w": 352,
+      "x": 24,
+      "y": 832
+    }
+  ],
+  "documentHeight": 922,
+  "documentWidth": 400,
+  "focused": "<div class=\"modal\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ui-dialog-title\" tabindex=\"-1\"><h2 id=\"ui-dialog-title\">Editar serie 1</h2><p class=\"muted\">Jalón en polea</p><form onsubmit=\"uiSave",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "27px",
+      "h": 30,
+      "text": "Editar serie 1",
+      "w": 352,
+      "x": 24,
+      "y": 389
+    }
+  ],
+  "height": 907,
+  "scrollY": 15,
+  "smallText": [],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "session",
+  "width": 400,
+  "name": "14-edit-set-modal-400",
+  "image": "14-edit-set-modal-400.jpg",
+  "imageSize": [
+    400,
+    907
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

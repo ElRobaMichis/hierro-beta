@@ -15,21 +15,21 @@
    tardara dos arranques en verse: el primero servía la vieja y dejaba
    la nueva lista para el siguiente. */
 /* va siempre igual que APP_VERSION en index.html — hay un test que lo verifica */
-const CACHE = 'hierro-3.5.1';
+const CACHE = 'hierro-3.6.0';
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 const ASSETS = [
   './',
   './index.html',
   './ui.css',
   './ui.js',
-  './ui.css?v=3.5.1',
-  './ui.js?v=3.5.1',
-  './sync-core.js?v=3.5.1',
-  './sync-engine.js?v=3.5.1',
-  './sync.js?v=3.5.1',
-  './qr.js?v=3.5.1',
-  './push-core.js?v=3.5.1',
-  './push.js?v=3.5.1',
+  './ui.css?v=3.6.0',
+  './ui.js?v=3.6.0',
+  './sync-core.js?v=3.6.0',
+  './sync-engine.js?v=3.6.0',
+  './sync.js?v=3.6.0',
+  './qr.js?v=3.6.0',
+  './push-core.js?v=3.6.0',
+  './push.js?v=3.6.0',
   './icon.svg',
   './manifest.webmanifest',
   './icon-180.png',
@@ -40,6 +40,11 @@ const RED_MS = 3000;   /* lo que se espera a la red antes de tirar de copia */
 
 self.addEventListener('message', e => {
   if(e.data?.tipo==='consultar-version')e.source?.postMessage({tipo:'version-disponible',version:CACHE.replace('hierro-','')});
+  if(e.data?.tipo==='consultar-offline'&&e.ports?.[0])e.waitUntil((async()=>{
+    let ready=false;
+    try{const cache=await caches.open(CACHE);ready=(await Promise.all(ASSETS.map(asset=>cache.match(asset)))).every(Boolean);}catch{}
+    e.ports[0].postMessage({ready,version:CACHE.replace('hierro-','')});
+  })());
   if(e.data?.tipo==='hierro-push-state'&&e.source?.url?.startsWith(self.registration.scope))e.waitUntil(pushStore('state',e.data.state));
 });
 

@@ -1,0 +1,40 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - button "Minimizar":
+    - generic: Minimizar
+  - generic: Full body
+  - text: 0:06
+  - button "Terminar":
+    - generic: Terminar
+  - progressbar "Series confirmadas"
+- main:
+  - text: Ejercicio 05 / 05
+  - heading "Dead hang" [level=1]
+  - button "Ver cola de ejercicios":
+  - generic: Serie 1 de 2
+  - 'button "Ver propuesta: 35 s"':
+    - generic: Suma tiempo
+    - strong:
+      - text: 35 s
+  - button "Propuesta aplicada" [disabled]:
+    - generic: Aplicada
+  - generic: Lastre opcional · kg
+  - spinbutton "Peso de la serie 1": "0"
+  - button "Reducir peso": −
+  - generic: Vacío = sin lastre
+  - button "Aumentar peso": +
+  - generic: Segundos
+  - spinbutton "Segundos de la serie 1": "35"
+  - button "Reducir segundos": −
+  - generic: Rango 20–45
+  - button "Aumentar segundos": +
+  - button "Medir esta serie":
+    - generic: Medir esta serie
+  - generic: "Por tiempo: no se usa RIR."
+  - button "Registrar serie":
+    - generic: Registrar serie
+  - button "Ejercicio":
+    - generic: Ejercicio
+  - 'button "Cambiar de gimnasio: SmartFit · Buenavista"':
+    - generic: SmartFit · Buenavista

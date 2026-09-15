@@ -78,6 +78,13 @@ async function pair(s){const a=device(s);const key=await a.engine.create();const
   ok(projected.gyms[0].machines.press.cap===source.exmeta.press.cap&&projected.gyms[0].machines.press.stack.extraMax===3,'conserva por separado capacidad de máquina y ajuste fino');
   ok(projected.gyms[1].machines.press.bar==='bar-a'&&!('cap' in projected.exmeta.press)&&projected.gyms[0].unit==='lb','cada gimnasio viaja con su equipo y unidad correctos');
   ok(!projected.settings.theme&&!projected.progress&&source.exmeta.press.cap===113.3980925,'la proyección no muta datos ni sincroniza cachés o preferencias locales');
+  source.exmeta.press.gymNotes='Asiento 4';
+  const withNotes=C.project(source,'device');
+  ok(withNotes.gyms[0].machines.press.gymNotes==='Asiento 4'&&!('gymNotes' in withNotes.exmeta.press),'el ajuste del asiento se sincroniza con su gimnasio, sin duplicarlo como nota general');
+  source.active={id:'independent',localOnly:true,exercises:[]};
+  const foreign={owner:'phone',gymId:'g1',session:{id:'remote',routineName:'Torso',start:1,exercises:[]}};
+  ok(C.equal(C.project(source,'device',foreign).active,foreign),'una sesión independiente no reemplaza la sesión del otro dispositivo');
+  ok(C.project(source,'device').active===null,'una sesión independiente no se publica como sesión en curso');
   let s=server(),pairing=await pair(s);({a,b}=pairing);
   ok(C.equal(a.data,b.data)&&a.engine.status==='synced','dos dispositivos pueden crear y vincular un mismo espacio');
   a.data.exmeta.press.notes='Polea 4';await a.engine.sync();await b.engine.sync();ok(b.data.exmeta.press.notes==='Polea 4','teléfono a web');

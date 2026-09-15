@@ -1,0 +1,53 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Tu espacio":
+    - text: Tu espacio
+  - generic: A tu manera
+  - heading "Aprender con Hierro" [level=1]
+- main:
+  - heading "Entender la progresión" [level=2]
+  - paragraph: Cuándo subir, repetir o descargar
+  - button "Abrir guía":
+    - generic: Abrir guía
+  - heading "Repeticiones en reserva" [level=2]
+  - paragraph: Registrar el esfuerzo con RIR
+  - button "Abrir guía":
+    - generic: Abrir guía
+  - heading "Tu fuerza estimada" [level=2]
+  - paragraph: Qué significa el 1RM estimado
+  - button "Abrir guía":
+    - generic: Abrir guía
+  - heading "Ejercicios asistidos" [level=2]
+  - paragraph: Menos ayuda, más trabajo tuyo
+  - button "Abrir guía":
+    - generic: Abrir guía
+  - heading "Usar sin conexión" [level=2]
+  - paragraph: Instalación y guardado local
+  - button "Abrir guía":
+    - generic: Abrir guía
+  - heading "Apple Salud" [level=2]
+  - paragraph: Configurar el atajo en iPhone o iPad
+  - button "Abrir guía":
+    - generic: Abrir guía
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú
+- dialog "¿Cómo me sugiere progresar el coach?" [active]:
+  - heading "¿Cómo me sugiere progresar el coach?" [level=2]
+  - paragraph:
+    - text: "Usa doble progresión, el método con más respaldo científico:"
+    - text: 1. Cada ejercicio tiene un rango de reps según tu objetivo (ej. 8–12).
+    - text: 2. Con el mismo peso, intenta sumar reps sesión a sesión.
+    - text: 3. Cuando llegas al tope del rango en TODAS las series → sube el peso (~2,5 %) y vuelve a empezar desde el piso del rango.
+    - text: "Además se adapta a ti, por ejercicio: si fallas tras subir, los saltos se hacen más pequeños; si no sostienes el rango 2 veces seguidas, te propone bajar ~5 % y reconstruir; si te estancas varias sesiones, te suma una serie (más volumen = más progreso). En peso corporal progresas por reps y en asistidos bajando la ayuda."
+    - text: "Sobre las series: la zona ideal es 2–4 series por ejercicio — a partir de la 4ª el beneficio por sesión cae en picada. Si vienes haciendo 5 o más, el coach te sugerirá concentrar el trabajo en menos series más intensas. Con 4+ series, la peor no cuenta para evaluar tu progreso (que la última se caiga es fatiga normal)."
+    - text: "Regla de oro: termina tus series dejando 1–3 reps en reserva (RIR 1–3) — esfuerzo alto sin ir al fallo cada vez."
+  - button "Cerrar":
+    - generic: Cerrar

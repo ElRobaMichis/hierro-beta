@@ -1,0 +1,65 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "skip-link",
+        "nodes": 1
+      }
+    ],
+    "passes": 30,
+    "time": "2026-09-14T23:27:48.800Z",
+    "version": "4.13.0",
+    "view": "split",
+    "violations": []
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Fallo a propósito",
+      "tag": "BUTTON",
+      "w": 52,
+      "x": 314,
+      "y": 674
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 48,
+      "label": "Cerrar",
+      "tag": "BUTTON",
+      "w": 342,
+      "x": 24,
+      "y": 769
+    }
+  ],
+  "documentHeight": 1202,
+  "documentWidth": 390,
+  "focused": "<button class=\"tog on\" role=\"switch\" aria-checked=\"true\" aria-label=\"Fallo a propósito\" onclick=\"uiTogglePlanFailure('plan-a',this)\"><i></i></button>",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "27px",
+      "h": 30,
+      "text": "Reglas de Mi entrenamiento",
+      "w": 342,
+      "x": 24,
+      "y": 540
+    }
+  ],
+  "height": 844,
+  "scrollY": 358,
+  "smallText": [],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "split",
+  "width": 390,
+  "name": "36-plan-rules-390",
+  "image": "36-plan-rules-390.jpg",
+  "imageSize": [
+    390,
+    844
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

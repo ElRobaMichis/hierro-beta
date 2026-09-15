@@ -1,0 +1,59 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 2
+      },
+      {
+        "id": "skip-link",
+        "nodes": 1
+      }
+    ],
+    "passes": 31,
+    "time": "2026-09-14T23:31:51.646Z",
+    "version": "4.13.0",
+    "view": "settings",
+    "violations": []
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 48,
+      "label": "Cerrar",
+      "tag": "BUTTON",
+      "w": 342,
+      "x": 24,
+      "y": 769
+    }
+  ],
+  "documentHeight": 1805,
+  "documentWidth": 390,
+  "focused": "<div class=\"modal\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ui-dialog-title\" tabindex=\"-1\">\n    <h2 id=\"ui-dialog-title\">¿Cómo me sugiere progresar el coach?</h2>\n    <p class=\"muted\" style=\"l",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "27px",
+      "h": 60,
+      "text": "¿Cómo me sugiere progresar el coach?",
+      "w": 342,
+      "x": 24,
+      "y": 113
+    }
+  ],
+  "height": 844,
+  "scrollY": 24,
+  "smallText": [],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "settings",
+  "width": 390,
+  "name": "46-guide-modal-390",
+  "image": "46-guide-modal-390.jpg",
+  "imageSize": [
+    390,
+    844
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

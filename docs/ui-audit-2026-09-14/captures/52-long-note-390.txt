@@ -1,0 +1,48 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - button "Minimizar":
+    - generic: Minimizar
+  - generic: Full body
+  - text: 0:09
+  - button "Terminar":
+    - generic: Terminar
+  - progressbar "Series confirmadas"
+- main:
+  - text: Ejercicio 01 / 05
+  - heading "Jalón unilateral en polea alta con agarre neutro — brazo izquierdo" [level=1]
+  - button "Ver cola de ejercicios":
+  - 'button "Editar tu nota: Asiento en posición 4. Rodillos ajustados al muslo. Agarre neutro; evita balancearte. Lleva el codo hacia la cadera y mantén el pecho alto. Usa la misma máquina junto a las ventanas para comparar el progreso."':
+    - generic: Tu nota
+    - strong: Asiento en posición 4. Rodillos ajustados al muslo. Agarre neutro; evita balancearte. Lleva el codo hacia la cadera y mantén el pecho alto. Usa la misma máquina junto a las ventanas para comparar el progreso.
+  - generic: Serie 1 de 2
+  - 'button "Ver propuesta: 65,5 lb · 6 reps"':
+    - generic: Puedes subir de peso
+    - strong:
+      - text: 65,5 lb · 6 reps
+  - button "Propuesta aplicada" [disabled]:
+    - generic: Aplicada
+  - 'button "Ver montaje. Pon el pin en: Placa 13. +3 lb de ajuste fino"':
+    - generic: Pon el pin en
+    - generic: Ver montaje
+    - generic: Placa 13
+    - generic: +3 lb de ajuste fino
+  - generic: Peso · lb
+  - spinbutton "Peso de la serie 1": "65.5"
+  - button "Reducir peso": −
+  - generic: lb
+  - button "Aumentar peso": +
+  - generic: Repeticiones
+  - spinbutton "Repeticiones de la serie 1": "6"
+  - button "Reducir repeticiones": −
+  - generic: Rango 6–10
+  - button "Aumentar repeticiones": +
+  - generic: Reps en reserva
+  - 'button "Repeticiones en reserva: sin anotar"':
+    - text: Opcional
+  - button "Registrar serie":
+    - generic: Registrar serie
+  - button "Ejercicio":
+    - generic: Ejercicio
+  - 'button "Cambiar de gimnasio: SmartFit · Buenavista"':
+    - generic: SmartFit · Buenavista

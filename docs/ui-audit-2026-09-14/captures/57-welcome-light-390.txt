@@ -1,0 +1,81 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - generic: lunes, 14 de septiembre
+  - heading "Un rato para ti. Un paso más fuerte." [level=1]
+  - 'button "Cambiar de gimnasio: Mi gimnasio"':
+    - generic: Mi gimnasio
+- main:
+  - generic: Empieza con lo que ya haces
+  - heading "Tu primer paso." [level=2]:
+    - text: Tu primer
+    - text: paso.
+  - paragraph: Prepara un día con tus ejercicios. La próxima carga se construye con tu registro.
+  - button "Crear mi primer día":
+    - generic: Crear mi primer día
+  - button "Tengo un plan para importar":
+    - generic: Tengo un plan para importar
+  - heading "Estás construyendo algo." [level=2]
+  - strong: "0"
+  - paragraph:
+    - text: veces que hiciste
+    - text: espacio en siete días
+  - generic: M
+  - 'generic "martes 8: sin sesión"': "8"
+  - generic: M
+  - 'generic "miércoles 9: sin sesión"': "9"
+  - generic: J
+  - 'generic "jueves 10: sin sesión"': "10"
+  - generic: V
+  - 'generic "viernes 11: sin sesión"': "11"
+  - generic: S
+  - 'generic "sábado 12: sin sesión"': "12"
+  - generic: D
+  - 'generic "domingo 13: sin sesión"': "13"
+  - generic: L
+  - 'generic "lunes 14: sin sesión"': "14"
+  - paragraph:
+    - text: 0 series registradas.
+    - text: Tu primera sesión empieza contigo.
+  - button "Ver mi evolución":
+    - generic: Ver mi evolución
+  - paragraph:
+    - text: Tu plan, a tu ritmo.
+    - text: Organiza los días que funcionan para ti.
+  - button "Organizar":
+    - generic: Organizar
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú
+- dialog "Tu esfuerzo merece memoria." [active]:
+  - text: hierro
+  - text: Bienvenido a tu espacio
+  - heading "Tu esfuerzo merece memoria." [level=2]:
+    - text: Tu esfuerzo
+    - text: merece memoria.
+  - paragraph: Entrena, registra una serie y encuentra tu siguiente paso. Incluso sin conexión.
+  - paragraph: ¿Qué buscas?
+  - button "Hipertrofia 8–12 reps":
+    - generic: Hipertrofia
+    - generic: 8–12 reps
+  - button "Fuerza 4–6 reps":
+    - generic: Fuerza
+    - generic: 4–6 reps
+  - button "Ambas 6–10 reps" [pressed]:
+    - generic: Ambas
+    - generic: 6–10 reps
+  - paragraph: Es un punto de partida. Puedes ajustarlo por ejercicio.
+  - button "Crear mi primer día":
+    - generic: Crear mi primer día
+  - button "Ya tengo un plan o un respaldo":
+    - generic: Ya tengo un plan o un respaldo
+  - button "Ya tengo una clave de sincronización":
+    - generic: Ya tengo una clave de sincronización
+  - button "Cerrar":
+    - generic: Cerrar

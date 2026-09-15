@@ -1,0 +1,42 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - generic: Tu espacio
+  - heading "Hecho a tu manera." [level=1]
+- main:
+  - complementary:
+    - text: hierro
+    - generic: Hierro Beta 3.5.1
+  - button "Tu entrenamiento Mi entrenamiento":
+    - generic: Tu entrenamiento
+    - generic: Mi entrenamiento
+  - button "Mis gimnasios SmartFit · Buenavista y 1 más":
+    - generic: Mis gimnasios
+    - generic: SmartFit · Buenavista y 1 más
+  - button "Preferencias de sesión Objetivo, descanso, unidades y pantalla":
+    - generic: Preferencias de sesión
+    - generic: Objetivo, descanso, unidades y pantalla
+  - button "Notificaciones Descanso y siguiente carga, con la pantalla bloqueada":
+    - generic: Notificaciones
+    - generic: Descanso y siguiente carga, con la pantalla bloqueada
+  - button "Apariencia Claro, oscuro y animaciones":
+    - generic: Apariencia
+    - generic: Claro, oscuro y animaciones
+  - button "Sincronización Tu espacio en el teléfono y la computadora":
+    - generic: Sincronización
+    - generic: Tu espacio en el teléfono y la computadora
+  - button "Datos y respaldos Todavía no has descargado un respaldo":
+    - generic: Datos y respaldos
+    - generic: Todavía no has descargado un respaldo
+  - button "Aprender con Hierro Progresión, carga y esfuerzo":
+    - generic: Aprender con Hierro
+    - generic: Progresión, carga y esfuerzo
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

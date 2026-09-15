@@ -1,0 +1,19 @@
+{
+  "checked": "2026-09-14",
+  "desktopViewport": [
+    1280,
+    1120
+  ],
+  "mobileViewport": [
+    390,
+    844
+  ],
+  "horizontalOverflow": false,
+  "brokenImages": 0,
+  "priorityFilter": {
+    "p1": 5
+  },
+  "desktopGalleryFilter": 5,
+  "proposalFramesOverflow": false,
+  "notes": "Comprobación manual del informe en navegador; no representa pruebas físicas de iPhone."
+}

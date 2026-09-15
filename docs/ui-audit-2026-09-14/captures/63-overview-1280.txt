@@ -1,0 +1,80 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - generic: Tu esfuerzo, en perspectiva
+  - heading "Cada sesión deja huella." [level=1]
+- main:
+  - group "Secciones":
+    - button "Panorama" [pressed]
+    - button "Ejercicios"
+    - button "Tu cuerpo"
+    - button "Diario"
+  - text: Tu recorrido
+  - heading "Tu volumen semanal." [level=2]
+  - generic: Semana pasada
+  - generic: 7 – 13 sept
+  - strong: 3 731
+  - text: kg
+  - generic: 2 sesiones
+  - paragraph: Registraste el 80% del promedio de referencia.
+  - group "Volumen de las últimas ocho semanas":
+    - generic: Promedio
+    - 'button "Hace 7 semanas, 27 jul – 2 ago: 5 030 kg, 2 sesiones"'
+    - 'button "Hace 6 semanas, 3 – 9 ago: 6 174 kg, 3 sesiones"'
+    - 'button "Hace 5 semanas, 10 – 16 ago: 4 890 kg, 2 sesiones"'
+    - 'button "Hace 4 semanas, 17 – 23 ago: 3 881 kg, 2 sesiones"'
+    - 'button "Hace 3 semanas, 24 – 30 ago: 5 522 kg, 3 sesiones"'
+    - 'button "Hace 2 semanas, 31 ago – 6 sept: 5 462 kg, 2 sesiones"'
+    - 'button "Semana pasada, 7 – 13 sept: 3 731 kg, 2 sesiones" [active] [pressed]'
+    - 'button "Esta semana, 14 – 20 sept: 0 kg, 0 sesiones, semana en curso"'
+  - generic: Hace 7 semanas
+  - generic: Esta semana
+  - text: Tu promedio semanal
+  - generic: 4 649 kg
+  - generic: Últimas 4 semanas completas
+  - generic "Cómo leer tu volumen"
+  - generic: "36"
+  - text: Sesiones
+  - generic: "288"
+  - text: Series
+  - heading "Tus referencias de fuerza" [level=2]
+  - generic: 1RM estimado
+  - button "Sentadilla con barra 11 registros 103,7 kg":
+    - generic: Sentadilla con barra
+    - generic: 11 registros
+    - strong:
+      - text: 103,7
+      - generic: kg
+  - button "Curl de bíceps con barra Z 11 registros 29,3 kg":
+    - generic: Curl de bíceps con barra Z
+    - generic: 11 registros
+    - strong:
+      - text: 29,3
+      - generic: kg
+  - button "Extensión de tríceps en polea 11 registros 24 kg":
+    - generic: Extensión de tríceps en polea
+    - generic: 11 registros
+    - strong:
+      - text: "24"
+      - generic: kg
+  - button "Elevaciones laterales 11 registros 16 kg":
+    - generic: Elevaciones laterales
+    - generic: 11 registros
+    - strong:
+      - text: "16"
+      - generic: kg
+  - button "Press de banca con barra 10 registros 75,4 kg":
+    - generic: Press de banca con barra
+    - generic: 10 registros
+    - strong:
+      - text: 75,4
+      - generic: kg
+- navigation "Navegación principal":
+  - text: hierro
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú
+  - generic: En tu dispositivo

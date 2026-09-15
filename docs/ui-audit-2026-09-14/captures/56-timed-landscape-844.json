@@ -1,0 +1,284 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 2
+      }
+    ],
+    "passes": 40,
+    "signature": "[390,844,\"light\",\"session\",\"Dead hang\",\"\"]",
+    "theme": "light",
+    "time": "2026-09-14T23:36:35.873Z",
+    "version": "4.13.0",
+    "view": "session",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span id=\"clock\">1:30</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "#clock"
+            ]
+          },
+          {
+            "html": "<span class=\"n-eyebrow\">Ejercicio 05 / 05</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-ex-heading > div > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<span class=\"n-eyebrow\">Serie 1 de 2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-current-label > .n-eyebrow"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Minimizar",
+      "tag": "BUTTON",
+      "w": 76,
+      "x": 73,
+      "y": 23
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Terminar",
+      "tag": "BUTTON",
+      "w": 48,
+      "x": 709,
+      "y": 23
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Ver cola de ejercicios",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 713,
+      "y": 130
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 46,
+      "label": "Ver propuesta: 35 s",
+      "tag": "BUTTON",
+      "w": 551,
+      "x": 87,
+      "y": 251
+    },
+    {
+      "disabled": true,
+      "font": "12px",
+      "h": 44,
+      "label": "Propuesta aplicada",
+      "tag": "BUTTON",
+      "w": 91,
+      "x": 652,
+      "y": 252
+    },
+    {
+      "disabled": false,
+      "font": "55px",
+      "h": 76,
+      "label": "Peso de la serie 1",
+      "tag": "INPUT",
+      "w": 304,
+      "x": 88,
+      "y": 350
+    },
+    {
+      "disabled": false,
+      "font": "23px",
+      "h": 44,
+      "label": "Reducir peso",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 88,
+      "y": 426
+    },
+    {
+      "disabled": false,
+      "font": "23px",
+      "h": 44,
+      "label": "Aumentar peso",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 348,
+      "y": 426
+    },
+    {
+      "disabled": false,
+      "font": "55px",
+      "h": 76,
+      "label": "Segundos de la serie 1",
+      "tag": "INPUT",
+      "w": 304,
+      "x": 438,
+      "y": 350
+    },
+    {
+      "disabled": false,
+      "font": "23px",
+      "h": 44,
+      "label": "Reducir segundos",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 438,
+      "y": 426
+    },
+    {
+      "disabled": false,
+      "font": "23px",
+      "h": 44,
+      "label": "Aumentar segundos",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 698,
+      "y": 426
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Medir esta serie",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 73,
+      "y": 485
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 58,
+      "label": "Registrar serie",
+      "tag": "BUTTON",
+      "w": 684,
+      "x": 73,
+      "y": 545
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Ejercicio",
+      "tag": "BUTTON",
+      "w": 75,
+      "x": 73,
+      "y": 640
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Cambiar de gimnasio: SmartFit · Buenavista",
+      "tag": "BUTTON",
+      "w": 179,
+      "x": 578,
+      "y": 641
+    }
+  ],
+  "documentHeight": 740,
+  "documentWidth": 829,
+  "focused": "<body data-view=\"session\" style=\"\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-session-top\"><button type=\"button\" class=\"n-",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "40px",
+      "h": 44,
+      "text": "Dead hang",
+      "w": 615,
+      "x": 73,
+      "y": 146
+    }
+  ],
+  "height": 390,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "10px",
+      "text": "1:31"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "EJERCICIO 05 / 05"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "SERIE 1 DE 2"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "11px",
+      "text": "Suma tiempo"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "LASTRE OPCIONAL · KG"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "Vacío = sin lastre"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "SEGUNDOS"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "Rango 20–45"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "20–45"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "11px",
+      "text": "Por tiempo: no se usa RIR."
+    },
+    {
+      "color": "rgb(32, 55, 47)",
+      "font": "11px",
+      "text": "SmartFit · Buenavista"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=timed",
+  "view": "session",
+  "width": 844,
+  "name": "56-timed-landscape-844",
+  "image": "56-timed-landscape-844.jpg",
+  "imageSize": [
+    180,
+    390
+  ],
+  "axeReview": "exploratory-not-a-verdict",
+  "excludedReason": "La captura no conserva la relación del viewport al cambiar de orientación; se repitió como 65-landscape-settled-844."
+}

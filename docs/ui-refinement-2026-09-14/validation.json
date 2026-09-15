@@ -1,0 +1,33 @@
+{
+  "version": "3.6.0",
+  "date": "2026-09-14",
+  "environment": "Copia local aislada con datos ficticios; navegador Chromium de Codex",
+  "checks": [
+    {"command": "node tests/run.js", "passed": 856},
+    {"command": "node tests/offline.js", "passed": 34},
+    {"command": "node tests/upgrade.js", "passed": 21},
+    {"command": "node tests/beta.js", "passed": 19},
+    {"command": "node tests/offline.js --beta", "passed": 35},
+    {"command": "node tests/upgrade.js --beta", "passed": 21},
+    {"command": "npm run test:sync", "passed": 71},
+    {"command": "npm run test:push", "passed": 74}
+  ],
+  "total": 1131,
+  "viewports": [[320,740],[390,844],[768,1024],[1440,900]],
+  "observed": {
+    "recordButtonHeight": 56,
+    "recordButtonBounds390": {"top": 776, "bottom": 832, "viewportHeight": 844},
+    "recordButtonBounds320": {"top": 672, "bottom": 728, "viewportHeight": 740},
+    "horizontalPageOverflowInInspectedLayouts": false,
+    "rirFocusAfterSelection": "n-rir-choice",
+    "timerResumesAfterReload": true,
+    "invalidRecoveryKeyErrorInsideDialog": true,
+    "chartKeyboardReadoutChanges": true,
+    "consoleErrorsAtEnd": []
+  },
+  "limits": [
+    "Sin seguimiento ocular ni medición de atención humana.",
+    "Sin verificación en iPhone físico, teclado nativo, VoiceOver ni modo instalado de Orion.",
+    "Sin enviar notificaciones reales ni modificar datos personales."
+  ]
+}

@@ -1,0 +1,48 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Mis gimnasios":
+    - text: Mis gimnasios
+  - generic: Equipo de este gimnasio
+  - heading "SmartFit · Buenavista" [level=1]
+  - 'button "Cambiar de gimnasio: SmartFit · Buenavista"':
+    - generic: SmartFit · Buenavista
+- main:
+  - group "Secciones":
+    - button "Discos"
+    - button "Barras"
+    - button "Mancuernas"
+    - button "Máquinas" [pressed]
+  - button "Jalón en polea Placas":
+    - generic: Jalón en polea
+    - generic: Placas
+  - button "Press de banca con barra Barra":
+    - generic: Press de banca con barra
+    - generic: Barra
+  - button "Sentadilla con barra Barra":
+    - generic: Sentadilla con barra
+    - generic: Barra
+  - button "Elevaciones laterales Mancuernas":
+    - generic: Elevaciones laterales
+    - generic: Mancuernas
+  - button "Remo con mancuerna Mancuernas":
+    - generic: Remo con mancuerna
+    - generic: Mancuernas
+  - button "Extensión de tríceps en polea Placas":
+    - generic: Extensión de tríceps en polea
+    - generic: Placas
+  - button "Curl de bíceps con barra Z Barra":
+    - generic: Curl de bíceps con barra Z
+    - generic: Barra
+  - button "Peso muerto rumano con barra Barra":
+    - generic: Peso muerto rumano con barra
+    - generic: Barra
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

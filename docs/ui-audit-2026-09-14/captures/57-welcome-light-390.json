@@ -1,0 +1,210 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 2
+      },
+      {
+        "id": "skip-link",
+        "nodes": 1
+      }
+    ],
+    "passes": 32,
+    "signature": "[390,844,\"light\",\"home\",\"Un rato para ti.  Un paso más fuerte.|Tu primer paso.|Estás construyendo algo.|Tu esfuerzo merece memoria.\",\"\\n       hierroBienvenido a tu espacioTu esfuerzo merece memoria.Entrena, registra una serie y encuentra tu siguiente paso. Incluso sin conexión.¿Qué buscas?Hipertrofia8–12 repsFuerza4–6 repsAmbas6–10 repsEs un punto de partida. Puedes ajustarlo por ejercicio.Crear mi primer díaYa tengo un plan o un respaldoYa tengo una clave de sincronizaciónCerrar\"]",
+    "theme": "light",
+    "time": "2026-09-14T23:36:37.193Z",
+    "version": "4.13.0",
+    "view": "home",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span>Evolución</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ed, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-nav-links > button[onclick=\"go({\\\"name\\\":\\\"history\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span>Tú</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ed, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"settings\\\"})\"] > span"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 118,
+      "x": 12,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 118,
+      "x": 136,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 118,
+      "x": 260,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 95,
+      "label": "Hipertrofia\n8–12 reps",
+      "tag": "BUTTON",
+      "w": 109,
+      "x": 24,
+      "y": 429
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 95,
+      "label": "Fuerza\n4–6 reps",
+      "tag": "BUTTON",
+      "w": 109,
+      "x": 141,
+      "y": 429
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 95,
+      "label": "Ambas\n6–10 reps",
+      "tag": "BUTTON",
+      "w": 109,
+      "x": 257,
+      "y": 429
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 54,
+      "label": "Crear mi primer día",
+      "tag": "BUTTON",
+      "w": 342,
+      "x": 24,
+      "y": 583
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 48,
+      "label": "Ya tengo un plan o un respaldo",
+      "tag": "BUTTON",
+      "w": 342,
+      "x": 24,
+      "y": 649
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 48,
+      "label": "Ya tengo una clave de sincronización",
+      "tag": "BUTTON",
+      "w": 342,
+      "x": 24,
+      "y": 709
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 48,
+      "label": "Cerrar",
+      "tag": "BUTTON",
+      "w": 342,
+      "x": 24,
+      "y": 769
+    }
+  ],
+  "documentHeight": 1328,
+  "documentWidth": 390,
+  "focused": "<div class=\"modal\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ui-dialog-title\" tabindex=\"-1\"><div class=\"n-welcome-brand\"><span class=\"n-brand\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" class=",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "39px",
+      "h": 87,
+      "text": "Tu esfuerzo\nmerece memoria.",
+      "w": 342,
+      "x": 24,
+      "y": 245
+    }
+  ],
+  "height": 844,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Entrenar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Evolución"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Tú"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "BIENVENIDO A TU ESPACIO"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "8–12 reps"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "4–6 reps"
+    },
+    {
+      "color": "rgb(224, 234, 217)",
+      "font": "11px",
+      "text": "6–10 reps"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=welcome&theme=light",
+  "view": "home",
+  "width": 390,
+  "name": "57-welcome-light-390",
+  "image": "57-welcome-light-390.jpg",
+  "imageSize": [
+    390,
+    844
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

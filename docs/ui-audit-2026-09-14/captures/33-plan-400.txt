@@ -1,0 +1,49 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Tus planes":
+    - text: Tus planes
+  - generic: Plan activo
+  - heading "Mi entrenamiento" [level=1]
+  - button "Opciones":
+    - generic: Opciones
+- main:
+  - heading "La secuencia de tus días" [level=2]
+  - generic: 4 días
+  - button "01 Full body 5 ejercicios":
+    - generic: "01"
+    - generic: Full body
+    - generic: 5 ejercicios
+  - button "02 Upper 4 ejercicios":
+    - generic: "02"
+    - generic: Upper
+    - generic: 4 ejercicios
+  - button "03 Lower 3 ejercicios":
+    - generic: "03"
+    - generic: Lower
+    - generic: 3 ejercicios
+  - button "04 Arms & delts 4 ejercicios":
+    - generic: "04"
+    - generic: Arms & delts
+    - generic: 4 ejercicios
+  - button "Añadir día":
+    - generic: Añadir día
+  - button "Ordenar y quitar días":
+    - generic: Ordenar y quitar días
+  - complementary:
+    - text: Una secuencia, sin prisa
+    - heading "Tú decides cuándo." [level=2]
+    - paragraph: El siguiente día sigue al último que completaste. No necesitas entrenar en fechas fijas.
+    - button "Elegir día para hoy":
+      - generic: Elegir día para hoy
+    - button "Reglas de este plan":
+      - generic: Reglas de este plan
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

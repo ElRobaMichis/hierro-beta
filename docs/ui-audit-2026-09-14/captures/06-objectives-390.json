@@ -1,0 +1,325 @@
+{
+  "axe": {
+    "incomplete": [],
+    "passes": 39,
+    "time": "2026-09-14T23:20:14.028Z",
+    "version": "4.13.0",
+    "view": "exercise",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span data-sync-short=\"\">En tu dispositivo</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.0pt (8px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-mobile-brand > .n-local.n-sync-badge > span[data-sync-short=\"\"]"
+            ]
+          },
+          {
+            "html": "<div class=\"n-eyebrow\">Espalda</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-eyebrow"
+            ]
+          },
+          {
+            "html": "<button aria-pressed=\"false\" class=\"\" onclick=\"uiExerciseTab(&quot;progress&quot;)\">Evolución</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiExerciseTab(\\\"progress\\\")\"]"
+            ]
+          },
+          {
+            "html": "<button aria-pressed=\"false\" class=\"\" onclick=\"uiExerciseTab(&quot;equipment&quot;)\">Equipo</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiExerciseTab(\\\"equipment\\\")\"]"
+            ]
+          },
+          {
+            "html": "<span>Evolución</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ed, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"history\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span>Tú</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ed, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"settings\\\"})\"] > span"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 44,
+      "label": "Volver al día",
+      "tag": "BUTTON",
+      "w": 92,
+      "x": 22,
+      "y": 81
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 50,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 57,
+      "x": 22,
+      "y": 242
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 50,
+      "label": "Equipo",
+      "tag": "BUTTON",
+      "w": 42,
+      "x": 103,
+      "y": 242
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 50,
+      "label": "Objetivos",
+      "tag": "BUTTON",
+      "w": 58,
+      "x": 169,
+      "y": 242
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 58,
+      "label": "Peso y reps",
+      "tag": "BUTTON",
+      "w": 161,
+      "x": 22,
+      "y": 351
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 58,
+      "label": "Con asistencia",
+      "tag": "BUTTON",
+      "w": 161,
+      "x": 193,
+      "y": 351
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 58,
+      "label": "Peso corporal",
+      "tag": "BUTTON",
+      "w": 161,
+      "x": 22,
+      "y": 419
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 58,
+      "label": "Por tiempo",
+      "tag": "BUTTON",
+      "w": 161,
+      "x": 193,
+      "y": 419
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 50,
+      "label": "Reglas generales",
+      "tag": "BUTTON",
+      "w": 93,
+      "x": 45,
+      "y": 583
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 50,
+      "label": "Solo este plan",
+      "tag": "BUTTON",
+      "w": 76,
+      "x": 158,
+      "y": 583
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "6",
+      "tag": "INPUT",
+      "w": 135,
+      "x": 45,
+      "y": 807
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "10",
+      "tag": "INPUT",
+      "w": 135,
+      "x": 196,
+      "y": 807
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "Según tus preferencias\n0:45\n1:00\n1:30\n2:00\n2:30\n3:00\n4:00\n5:00",
+      "tag": "SELECT",
+      "w": 285,
+      "x": 45,
+      "y": 905
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "Auto\n0,5 kg\n1 kg\n2 kg\n2,5 kg\n5 kg",
+      "tag": "SELECT",
+      "w": 285,
+      "x": 45,
+      "y": 991
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 48,
+      "label": "Sin asignar\nPecho\nEspalda\nHombros\nBíceps\nTríceps\nPierna\nGlúteos\nCore\nCuádriceps\nIsquiotibiales\nPantorrillas\nAntebrazos",
+      "tag": "SELECT",
+      "w": 285,
+      "x": 45,
+      "y": 1156
+    },
+    {
+      "disabled": false,
+      "font": "16px",
+      "h": 105,
+      "label": "Asiento, agarre, técnica…",
+      "tag": "TEXTAREA",
+      "w": 285,
+      "x": 45,
+      "y": 1380
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 12,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 131,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 250,
+      "y": 776
+    }
+  ],
+  "documentHeight": 1702,
+  "documentWidth": 375,
+  "focused": "<body data-view=\"exercise\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-mobile-brand\"><span class=\"n-brand\"><svg viewBox=\"0 ",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "41px",
+      "h": 44,
+      "text": "Jalón en polea",
+      "w": 246,
+      "x": 22,
+      "y": 172
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "18px",
+      "h": 21,
+      "text": "Cómo mides el esfuerzo",
+      "w": 188,
+      "x": 22,
+      "y": 316
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "25px",
+      "h": 29,
+      "text": "Tu rango y descanso",
+      "w": 285,
+      "x": 45,
+      "y": 657
+    }
+  ],
+  "height": 844,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Entrenar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Evolución"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Tú"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=home",
+  "view": "exercise",
+  "width": 390,
+  "name": "06-objectives-390",
+  "image": "06-objectives-390.jpg",
+  "imageSize": [
+    375,
+    1702
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

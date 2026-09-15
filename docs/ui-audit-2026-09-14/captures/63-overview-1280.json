@@ -1,0 +1,516 @@
+{
+  "axe": {
+    "incomplete": [],
+    "passes": 37,
+    "signature": "[1280,900,\"light\",\"history\",\"Cada sesión deja huella.|Panorama|Tu volumen semanal.|Tus referencias de fuerza\",\"\"]",
+    "theme": "light",
+    "time": "2026-09-14T23:40:55.633Z",
+    "version": "4.13.0",
+    "view": "history",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<div class=\"n-eyebrow\">Tu esfuerzo, en perspectiva</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-heading > div > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<button aria-pressed=\"false\" class=\"\" onclick=\"uiProgressTab(&quot;exercises&quot;)\">Ejercicios</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiProgressTab(\\\"exercises\\\")\"]"
+            ]
+          },
+          {
+            "html": "<button aria-pressed=\"false\" class=\"\" onclick=\"uiProgressTab(&quot;body&quot;)\">Tu cuerpo</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiProgressTab(\\\"body\\\")\"]"
+            ]
+          },
+          {
+            "html": "<button aria-pressed=\"false\" class=\"\" onclick=\"uiProgressTab(&quot;diary&quot;)\">Diario</button>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiProgressTab(\\\"diary\\\")\"]"
+            ]
+          },
+          {
+            "html": "<span class=\"n-eyebrow\">1RM estimado</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-section-head > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<small>11 registros</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiOpenProgress(\\\"sentadilla\\\")\"] > div > small"
+            ]
+          },
+          {
+            "html": "<small>kg</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiOpenProgress(\\\"sentadilla\\\")\"] > strong > small"
+            ]
+          },
+          {
+            "html": "<small>11 registros</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiOpenProgress(\\\"curl\\\")\"] > div > small"
+            ]
+          },
+          {
+            "html": "<small>kg</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiOpenProgress(\\\"curl\\\")\"] > strong > small"
+            ]
+          },
+          {
+            "html": "<small>11 registros</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiOpenProgress(\\\"triceps\\\")\"] > div > small"
+            ]
+          },
+          {
+            "html": "<small>kg</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiOpenProgress(\\\"triceps\\\")\"] > strong > small"
+            ]
+          },
+          {
+            "html": "<small>11 registros</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiOpenProgress(\\\"lateral\\\")\"] > div > small"
+            ]
+          },
+          {
+            "html": "<small>kg</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiOpenProgress(\\\"lateral\\\")\"] > strong > small"
+            ]
+          },
+          {
+            "html": "<small>10 registros</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiOpenProgress(\\\"banca\\\")\"] > div > small"
+            ]
+          },
+          {
+            "html": "<small>kg</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"uiOpenProgress(\\\"banca\\\")\"] > strong > small"
+            ]
+          },
+          {
+            "html": "<span>Entrenar</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"home\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span>Tú</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"settings\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span data-sync-short=\"\">En tu dispositivo</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-nav-inner > .n-local.n-sync-badge > span[data-sync-short=\"\"]"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Panorama",
+      "tag": "BUTTON",
+      "w": 120,
+      "x": 115,
+      "y": 60
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Ejercicios",
+      "tag": "BUTTON",
+      "w": 120,
+      "x": 248,
+      "y": 60
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Tu cuerpo",
+      "tag": "BUTTON",
+      "w": 120,
+      "x": 382,
+      "y": 60
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Diario",
+      "tag": "BUTTON",
+      "w": 120,
+      "x": 515,
+      "y": 60
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 155,
+      "label": "Hace 7 semanas, 27 jul – 2 ago: 5 030 kg, 2 sesiones",
+      "tag": "BUTTON",
+      "w": 46,
+      "x": 142,
+      "y": 427
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 155,
+      "label": "Hace 6 semanas, 3 – 9 ago: 6 174 kg, 3 sesiones",
+      "tag": "BUTTON",
+      "w": 46,
+      "x": 196,
+      "y": 427
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 155,
+      "label": "Hace 5 semanas, 10 – 16 ago: 4 890 kg, 2 sesiones",
+      "tag": "BUTTON",
+      "w": 46,
+      "x": 250,
+      "y": 427
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 155,
+      "label": "Hace 4 semanas, 17 – 23 ago: 3 881 kg, 2 sesiones",
+      "tag": "BUTTON",
+      "w": 46,
+      "x": 304,
+      "y": 427
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 155,
+      "label": "Hace 3 semanas, 24 – 30 ago: 5 522 kg, 3 sesiones",
+      "tag": "BUTTON",
+      "w": 46,
+      "x": 358,
+      "y": 427
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 155,
+      "label": "Hace 2 semanas, 31 ago – 6 sept: 5 462 kg, 2 sesiones",
+      "tag": "BUTTON",
+      "w": 46,
+      "x": 412,
+      "y": 427
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 155,
+      "label": "Semana pasada, 7 – 13 sept: 3 731 kg, 2 sesiones",
+      "tag": "BUTTON",
+      "w": 46,
+      "x": 466,
+      "y": 427
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 155,
+      "label": "Esta semana, 14 – 20 sept: 0 kg, 0 sesiones, semana en curso",
+      "tag": "BUTTON",
+      "w": 46,
+      "x": 520,
+      "y": 427
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 44,
+      "label": "Cómo leer tu volumen",
+      "tag": "SUMMARY",
+      "w": 424,
+      "x": 142,
+      "y": 724
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 100,
+      "label": "Sentadilla con barra\n11 registros\n103,7\nkg",
+      "tag": "BUTTON",
+      "w": 526,
+      "x": 625,
+      "y": 185
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 100,
+      "label": "Curl de bíceps con barra Z\n11 registros\n29,3\nkg",
+      "tag": "BUTTON",
+      "w": 526,
+      "x": 625,
+      "y": 285
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 100,
+      "label": "Extensión de tríceps en polea\n11 registros\n24\nkg",
+      "tag": "BUTTON",
+      "w": 526,
+      "x": 625,
+      "y": 385
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 100,
+      "label": "Elevaciones laterales\n11 registros\n16\nkg",
+      "tag": "BUTTON",
+      "w": 526,
+      "x": 625,
+      "y": 485
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 100,
+      "label": "Press de banca con barra\n10 registros\n75,4\nkg",
+      "tag": "BUTTON",
+      "w": 526,
+      "x": 625,
+      "y": 585
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 126,
+      "x": 448,
+      "y": 22
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 133,
+      "x": 582,
+      "y": 22
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 92,
+      "x": 723,
+      "y": 22
+    }
+  ],
+  "documentHeight": 1145,
+  "documentWidth": 1265,
+  "focused": "<button type=\"button\" aria-label=\"Semana pasada, 7 – 13 sept: 3 731 kg, 2 sesiones\" aria-pressed=\"true\" aria-controls=\"n-week-readout\" style=\"--bar-height:53.95296030681721%\" onpointerenter=\"if(event.",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "56.32px",
+      "h": 59,
+      "text": "Cada sesión deja huella.",
+      "w": 562,
+      "x": 115,
+      "y": -31
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "25px",
+      "h": 29,
+      "text": "Tu volumen semanal.",
+      "w": 424,
+      "x": 142,
+      "y": 205
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "19px",
+      "h": 22,
+      "text": "Tus referencias de fuerza",
+      "w": 205,
+      "x": 625,
+      "y": 139
+    }
+  ],
+  "height": 900,
+  "scrollY": 199,
+  "smallText": [
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "TU RECORRIDO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "2 sesiones"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "10px",
+      "text": "Promedio"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "HACE 7 SEMANAS"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "ESTA SEMANA"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "TU PROMEDIO SEMANAL"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "Últimas 4 semanas completas"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "36\nSesiones"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "288\nSeries"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "1RM ESTIMADO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "11 registros"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "kg"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "11 registros"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "kg"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "11 registros"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "kg"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "11 registros"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "kg"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "10 registros"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "11px",
+      "text": "kg"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "10px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "10px",
+      "text": "EN TU DISPOSITIVO"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=home&theme=light",
+  "view": "history",
+  "width": 1280,
+  "name": "63-overview-1280",
+  "image": "63-overview-1280.jpg",
+  "imageSize": [
+    1265,
+    889
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

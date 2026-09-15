@@ -1,0 +1,303 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 2
+      }
+    ],
+    "passes": 40,
+    "signature": "[390,844,\"light\",\"session\",\"Dead hang\",\"\"]",
+    "theme": "light",
+    "time": "2026-09-14T23:35:10.460Z",
+    "version": "4.13.0",
+    "view": "session",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span id=\"clock\">0:05</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "#clock"
+            ]
+          },
+          {
+            "html": "<span class=\"n-eyebrow\">Ejercicio 05 / 05</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-ex-heading > div > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<span class=\"n-eyebrow\">Serie 1 de 2</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-current-label > .n-eyebrow"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 46,
+      "label": "Minimizar",
+      "tag": "BUTTON",
+      "w": 68,
+      "x": 22,
+      "y": 12
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 46,
+      "label": "Terminar",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 324,
+      "y": 12
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 44,
+      "label": "Ver cola de ejercicios",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 324,
+      "y": 109
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 46,
+      "label": "Ver propuesta: 35 s",
+      "tag": "BUTTON",
+      "w": 213,
+      "x": 36,
+      "y": 227
+    },
+    {
+      "disabled": true,
+      "font": "12px",
+      "h": 44,
+      "label": "Propuesta aplicada",
+      "tag": "BUTTON",
+      "w": 91,
+      "x": 263,
+      "y": 228
+    },
+    {
+      "disabled": false,
+      "font": "48px",
+      "h": 66,
+      "label": "Peso de la serie 1",
+      "tag": "INPUT",
+      "w": 145,
+      "x": 33,
+      "y": 323
+    },
+    {
+      "disabled": false,
+      "font": "22px",
+      "h": 44,
+      "label": "Reducir peso",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 33,
+      "y": 390
+    },
+    {
+      "disabled": false,
+      "font": "22px",
+      "h": 44,
+      "label": "Aumentar peso",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 134,
+      "y": 390
+    },
+    {
+      "disabled": false,
+      "font": "48px",
+      "h": 66,
+      "label": "Segundos de la serie 1",
+      "tag": "INPUT",
+      "w": 145,
+      "x": 212,
+      "y": 323
+    },
+    {
+      "disabled": false,
+      "font": "22px",
+      "h": 44,
+      "label": "Reducir segundos",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 212,
+      "y": 390
+    },
+    {
+      "disabled": false,
+      "font": "22px",
+      "h": 44,
+      "label": "Aumentar segundos",
+      "tag": "BUTTON",
+      "w": 44,
+      "x": 313,
+      "y": 390
+    },
+    {
+      "disabled": false,
+      "font": "12px",
+      "h": 46,
+      "label": "Medir esta serie",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 22,
+      "y": 448
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 56,
+      "label": "Registrar serie",
+      "tag": "BUTTON",
+      "w": 346,
+      "x": 22,
+      "y": 504
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 46,
+      "label": "Ejercicio",
+      "tag": "BUTTON",
+      "w": 67,
+      "x": 22,
+      "y": 593
+    },
+    {
+      "disabled": false,
+      "font": "10px",
+      "h": 44,
+      "label": "Cambiar de gimnasio: SmartFit · Buenavista",
+      "tag": "BUTTON",
+      "w": 152,
+      "x": 216,
+      "y": 594
+    }
+  ],
+  "documentHeight": 844,
+  "documentWidth": 390,
+  "focused": "<body data-view=\"session\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-session-top\"><button type=\"button\" class=\"n-text\" onc",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "34px",
+      "h": 37,
+      "text": "Dead hang",
+      "w": 284,
+      "x": 22,
+      "y": 128
+    }
+  ],
+  "height": 844,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Minimizar"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "11px",
+      "text": "Full body"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "10px",
+      "text": "0:06"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Terminar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "EJERCICIO 05 / 05"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "SERIE 1 DE 2"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "11px",
+      "text": "Suma tiempo"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "LASTRE OPCIONAL · KG"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "9px",
+      "text": "Vacío = sin lastre"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "SEGUNDOS"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "9px",
+      "text": "Rango 20–45"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "9px",
+      "text": "20–45"
+    },
+    {
+      "color": "rgb(83, 98, 87)",
+      "font": "11px",
+      "text": "Por tiempo: no se usa RIR."
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Ejercicio"
+    },
+    {
+      "color": "rgb(32, 55, 47)",
+      "font": "10px",
+      "text": "SmartFit · Buenavista"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=timed",
+  "view": "session",
+  "width": 390,
+  "name": "54-timed-exercise-390",
+  "image": "54-timed-exercise-390.jpg",
+  "imageSize": [
+    390,
+    844
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

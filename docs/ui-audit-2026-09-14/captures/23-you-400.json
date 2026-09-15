@@ -1,0 +1,314 @@
+{
+  "axe": {
+    "incomplete": [],
+    "passes": 31,
+    "time": "2026-09-14T23:24:56.659Z",
+    "version": "4.13.0",
+    "view": "settings",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span data-sync-short=\"\">En tu dispositivo</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.0pt (8px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-mobile-brand > .n-local.n-sync-badge > span[data-sync-short=\"\"]"
+            ]
+          },
+          {
+            "html": "<div class=\"n-eyebrow\">Tu espacio</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-eyebrow"
+            ]
+          },
+          {
+            "html": "<small>Mi entrenamiento</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"splits\\\"})\"] > .grow > small"
+            ]
+          },
+          {
+            "html": "<small>SmartFit · Buenavista y 1 más</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-row:nth-child(2) > .grow > small"
+            ]
+          },
+          {
+            "html": "<small>Objetivo, descanso, unidades y pantalla</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-row:nth-child(3) > .grow > small"
+            ]
+          },
+          {
+            "html": "<small>Descanso y siguiente carga, con la pantalla bloqueada</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-row:nth-child(4) > .grow > small"
+            ]
+          },
+          {
+            "html": "<small>Claro, oscuro y animaciones</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-row:nth-child(5) > .grow > small"
+            ]
+          },
+          {
+            "html": "<small>Tu espacio en el teléfono y la computadora</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-row:nth-child(6) > .grow > small"
+            ]
+          },
+          {
+            "html": "<small>Todavía no has descargado un respaldo</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-row:nth-child(7) > .grow > small"
+            ]
+          },
+          {
+            "html": "<small>Progresión, carga y esfuerzo</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-row:nth-child(8) > .grow > small"
+            ]
+          },
+          {
+            "html": "<span>Entrenar</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"home\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span>Evolución</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"history\\\"})\"] > span"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 92,
+      "label": "Tu entrenamiento\nMi entrenamiento",
+      "tag": "BUTTON",
+      "w": 341,
+      "x": 22,
+      "y": 270
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 92,
+      "label": "Mis gimnasios\nSmartFit · Buenavista y 1 más",
+      "tag": "BUTTON",
+      "w": 341,
+      "x": 22,
+      "y": 362
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 92,
+      "label": "Preferencias de sesión\nObjetivo, descanso, unidades y pantalla",
+      "tag": "BUTTON",
+      "w": 341,
+      "x": 22,
+      "y": 454
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 92,
+      "label": "Notificaciones\nDescanso y siguiente carga, con la pantalla bloqueada",
+      "tag": "BUTTON",
+      "w": 341,
+      "x": 22,
+      "y": 546
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 92,
+      "label": "Apariencia\nClaro, oscuro y animaciones",
+      "tag": "BUTTON",
+      "w": 341,
+      "x": 22,
+      "y": 638
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 92,
+      "label": "Sincronización\nTu espacio en el teléfono y la computadora",
+      "tag": "BUTTON",
+      "w": 341,
+      "x": 22,
+      "y": 730
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 92,
+      "label": "Datos y respaldos\nTodavía no has descargado un respaldo",
+      "tag": "BUTTON",
+      "w": 341,
+      "x": 22,
+      "y": 822
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 92,
+      "label": "Aprender con Hierro\nProgresión, carga y esfuerzo",
+      "tag": "BUTTON",
+      "w": 341,
+      "x": 22,
+      "y": 914
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 116,
+      "x": 12,
+      "y": 839
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 116,
+      "x": 134,
+      "y": 839
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 116,
+      "x": 257,
+      "y": 839
+    }
+  ],
+  "documentHeight": 1129,
+  "documentWidth": 385,
+  "focused": "<body data-view=\"settings\" style=\"\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-mobile-brand\"><span class=\"n-brand\"><svg vi",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "41px",
+      "h": 44,
+      "text": "Hecho a tu manera.",
+      "w": 335,
+      "x": 22,
+      "y": 114
+    }
+  ],
+  "height": 907,
+  "scrollY": 0,
+  "smallText": [
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Hierro Beta 3.5.1"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Mi entrenamiento"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "SmartFit · Buenavista y 1 más"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Objetivo, descanso, unidades y pantalla"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Descanso y siguiente carga, con la pantalla bloqueada"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Claro, oscuro y animaciones"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Tu espacio en el teléfono y la computadora"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Todavía no has descargado un respaldo"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Progresión, carga y esfuerzo"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Entrenar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Evolución"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Tú"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "settings",
+  "width": 400,
+  "name": "23-you-400",
+  "image": "23-you-400.jpg",
+  "imageSize": [
+    385,
+    873
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

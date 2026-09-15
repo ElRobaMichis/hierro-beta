@@ -1,0 +1,66 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - generic: Tu esfuerzo, en perspectiva
+  - heading "Cada sesión deja huella." [level=1]
+- main:
+  - group "Secciones":
+    - button "Panorama"
+    - button "Ejercicios"
+    - button "Tu cuerpo" [pressed]
+    - button "Diario"
+  - heading "Tu semana, en el cuerpo." [level=2]
+  - generic: 15 series
+  - generic: Grupos trabajados · últimos 7 días
+  - 'img "Vista frontal: intensidad de series por grupo; consulta las cifras debajo"'
+  - generic: Frente
+  - 'img "Vista posterior: intensidad de series por grupo; consulta las cifras debajo"'
+  - generic: Espalda
+  - generic: Sin registro
+  - generic: Más series
+  - 'button "Pecho: 0 series registradas"':
+    - generic: Pecho
+    - generic: "0"
+  - 'button "Espalda: 3 series registradas"':
+    - generic: Espalda
+    - generic: "3"
+  - 'button "Hombros: 2 series registradas"':
+    - generic: Hombros
+    - generic: "2"
+  - 'button "Bíceps: 2 series registradas"':
+    - generic: Bíceps
+    - generic: "2"
+  - 'button "Tríceps: 2 series registradas"':
+    - generic: Tríceps
+    - generic: "2"
+  - 'button "Pierna: 0 series registradas"':
+    - generic: Pierna
+    - generic: "0"
+  - 'button "Glúteos: 0 series registradas"':
+    - generic: Glúteos
+    - generic: "0"
+  - 'button "Core: 2 series registradas"':
+    - generic: Core
+    - generic: "2"
+  - 'button "Cuádriceps: 2 series registradas"':
+    - generic: Cuádriceps
+    - generic: "2"
+  - 'button "Isquiotibiales: 2 series registradas"':
+    - generic: Isquiotibiales
+    - generic: "2"
+  - 'button "Pantorrillas: 0 series registradas"':
+    - generic: Pantorrillas
+    - generic: "0"
+  - 'button "Antebrazos: 0 series registradas"':
+    - generic: Antebrazos
+    - generic: "0"
+  - paragraph: Toca un grupo para ver sus ejercicios. El color compara series registradas, no recuperación.
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú

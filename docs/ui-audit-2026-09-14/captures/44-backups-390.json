@@ -1,0 +1,250 @@
+{
+  "axe": {
+    "incomplete": [],
+    "passes": 31,
+    "time": "2026-09-14T23:31:30.689Z",
+    "version": "4.13.0",
+    "view": "settings",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<span data-sync-short=\"\">En tu dispositivo</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 6.0pt (8px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-mobile-brand > .n-local.n-sync-badge > span[data-sync-short=\"\"]"
+            ]
+          },
+          {
+            "html": "<div class=\"n-eyebrow\">A tu manera</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              "div > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<small>Días y ejercicios de un archivo de Hierro</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-row:nth-child(1) > .grow > small"
+            ]
+          },
+          {
+            "html": "<small>Reemplaza los datos actuales después de confirmar</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-row:nth-child(2) > .grow > small"
+            ]
+          },
+          {
+            "html": "<small>Añade tu historial desde un CSV</small>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-row:nth-child(3) > .grow > small"
+            ]
+          },
+          {
+            "html": "<p class=\"hint\">En Hevy: Perfil → Ajustes → Export data. Una importación repetida no duplica sesiones.</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #687363, background color: #f4f3ec, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "section:nth-child(2) > .hint"
+            ]
+          },
+          {
+            "html": "<span>Entrenar</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"home\\\"})\"] > span"
+            ]
+          },
+          {
+            "html": "<span>Evolución</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1",
+            "target": [
+              "button[onclick=\"go({\\\"name\\\":\\\"history\\\"})\"] > span"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 44,
+      "label": "Tu espacio",
+      "tag": "BUTTON",
+      "w": 83,
+      "x": 22,
+      "y": -189
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 58,
+      "label": "Descargar respaldo",
+      "tag": "BUTTON",
+      "w": 285,
+      "x": 45,
+      "y": 176
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 85,
+      "label": "Importar un plan\nDías y ejercicios de un archivo de Hierro",
+      "tag": "BUTTON",
+      "w": 331,
+      "x": 22,
+      "y": 352
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 85,
+      "label": "Restaurar respaldo\nReemplaza los datos actuales después de confirmar",
+      "tag": "BUTTON",
+      "w": 331,
+      "x": 22,
+      "y": 437
+    },
+    {
+      "disabled": false,
+      "font": "15px",
+      "h": 85,
+      "label": "Importar desde Hevy\nAñade tu historial desde un CSV",
+      "tag": "BUTTON",
+      "w": 331,
+      "x": 22,
+      "y": 522
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Borrar todos mis datos",
+      "tag": "BUTTON",
+      "w": 168,
+      "x": 22,
+      "y": 665
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 12,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 131,
+      "y": 776
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 113,
+      "x": 250,
+      "y": 776
+    }
+  ],
+  "documentHeight": 1114,
+  "documentWidth": 375,
+  "focused": "<body data-view=\"settings\" style=\"\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-mobile-brand\"><span class=\"n-brand\"><svg vi",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "41px",
+      "h": 44,
+      "text": "Tus datos, contigo",
+      "w": 311,
+      "x": 22,
+      "y": -98
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "25px",
+      "h": 58,
+      "text": "Tu historia merece\nuna copia.",
+      "w": 285,
+      "x": 45,
+      "y": 34
+    }
+  ],
+  "height": 844,
+  "scrollY": 270,
+  "smallText": [
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(104, 115, 99)",
+      "font": "8px",
+      "text": "EN TU DISPOSITIVO"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "EN ESTE DISPOSITIVO"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Días y ejercicios de un archivo de Hierro"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Reemplaza los datos actuales después de confirmar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Añade tu historial desde un CSV"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Entrenar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Evolución"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Tú"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "settings",
+  "width": 390,
+  "name": "44-backups-390",
+  "image": "44-backups-390.jpg",
+  "imageSize": [
+    375,
+    812
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

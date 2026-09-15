@@ -1,6 +1,7 @@
 /* Hierro browser adapter. Training always commits locally before any network I/O. */
 const HIERRO_SYNC_URL = 'https://hierro-beta-sync.agustinmedrano01.workers.dev';
 let hierroSync=null,syncDevice='',syncForeign=null,syncApplying=false,syncTimer=null,syncReady=false,syncTabOwner=true,syncTabRelease=null;
+let syncInspectionToken=0;
 let syncInspection=null,syncLinkMode='merge',syncChoices={},syncSavedRaw=null,syncStorageIssue=null;
 let syncConnecting=false,syncRetryAt=0;
 
@@ -20,6 +21,7 @@ function syncStore(){
 }
 function syncRead(){const raw=localStorage.getItem(LS_KEY);return HierroSyncCore.project(raw?JSON.parse(raw):db,syncDevice,syncForeign);}
 function syncBusy(next,current){
+  if(db.active?.localOnly)return true;
   if(!syncTabOwner)return true;
   if(document.getElementById('modalhost')?.children.length)return true;
   const el=document.activeElement;
@@ -55,7 +57,7 @@ function syncApply(doc){
   render();
 }
 function syncBadge(){return `<span class="n-local n-sync-badge"><i></i><span data-sync-short>${esc(hierroSync?.state?.key?syncShortStatus():'En tu dispositivo')}</span></span>`;}
-function syncShortStatus(){return {synced:'Sincronizado',working:'Sincronizando',pending:'Cambios pendientes',offline:'Guardado aquí',waiting:'Cambios por recibir',conflict:'Revisar cambios',error:'Revisar sincronización'}[hierroSync?.status]||'En tu dispositivo';}
+function syncShortStatus(){if(window.__saveError)return 'Pendiente de guardar';return {synced:'Sincronizado',working:'Sincronizando',pending:'Cambios pendientes',offline:'Guardado aquí',waiting:'Cambios por recibir',conflict:'Revisar cambios',error:'Revisar sincronización'}[hierroSync?.status]||'En tu dispositivo';}
 function syncNotify(){
   if(typeof pushChanged==='function')pushChanged();
   if(['offline','error'].includes(hierroSync?.status))syncRetryAt=Date.now()+60000;
@@ -141,10 +143,10 @@ async function syncInit(){
 function uiSync(){
   const connected=!!hierroSync?.state?.key;
   if(syncStorageIssue?.message)return `<section class="n-panel"><h2>La sincronización necesita atención.</h2><p>${esc(syncStorageIssue.message)}</p><p>Tu entrenamiento sigue guardándose en este dispositivo.</p>${uiButton('Descargar respaldo','exportBackup()','download')}</section>`;
-  if(!connected)return `<div class="n-detail-grid n-sync-grid"><section class="n-panel n-sync-intro"><div class="n-sync-devices">${uiIcon('phone')}${uiIcon('arrow')}${uiIcon('computer')}</div><span class="n-eyebrow">Tu esfuerzo te acompaña</span><h2>Un mismo espacio.<br>En todos tus dispositivos.</h2><p>Crea tus días con el teclado. Entrena con tu teléfono. Tus planes, gimnasios, notas y sesiones viajan contigo.</p><div class="n-sync-actions">${uiButton('Crear mi espacio','uiSyncCreate()','plus')}${uiButton('Ya tengo una clave','uiSyncLink()','arrow','secondary')}</div>${hierroSync?.state?.checkpoints?.length?uiButton('Recuperar una copia anterior','uiSyncCheckpoints()','shield','text'):''}<p id="sync-error" class="n-sync-error" role="alert"></p></section><section class="n-sync-explain"><div><b>Funciona sin conexión</b><p>Guarda aquí y sincroniza al abrir Hierro con internet. Tu computadora puede estar apagada.</p></div><div><b>Una clave, sin contraseña</b><p>Vincula otro dispositivo con tu clave o su QR. Guárdala: quien la tenga puede abrir tu espacio.</p></div><div><b>Tu información, cifrada</b><p>Los datos se cifran en el dispositivo antes de enviarse. Sin correo, anuncios ni suscripción.</p></div></section></div>`;
-  return `<div class="n-detail-grid n-sync-grid"><section class="n-panel n-sync-intro"><span class="n-eyebrow">Tu espacio está vinculado</span><h2>Sigues justo<br>donde te quedaste.</h2><div class="n-sync-state"><i></i><strong data-sync-status role="status">${esc(hierroSync.message)}</strong></div><p data-sync-last>${esc(syncLastLabel())}</p><p>Se sincronizan planes, ejercicios, equipo, notas e historial. Puedes continuar una sesión en otro dispositivo. La apariencia y los avisos se eligen en cada uno.</p><div class="n-sync-actions">${uiButton('Vincular otro dispositivo','uiSyncRecovery()','plus')}${uiButton('Sincronizar ahora','uiSyncNow()','arrow','secondary')}</div><button type="button" class="n-primary" data-sync-review ${hierroSync.pending?'':'hidden'} onclick="uiSyncConflicts()">Revisar cambios</button><p id="sync-error" class="n-sync-error" role="alert"></p></section><section class="n-sync-explain"><div><b>Sincronización automática</b><p>Con Hierro abierta, los cambios llegan en unos segundos. Si estás escribiendo o entrenando, esperamos para actualizar la pantalla.</p></div><div><b>Tu clave está guardada aquí</b><p>Puedes consultarla para vincular otro dispositivo. Si la pierdes y ya no tienes ninguno vinculado, no podremos recuperar tu espacio.</p></div>${uiRow('Copias de seguridad locales','Antes de recibir o resolver cambios','uiSyncCheckpoints()','shield')}${uiButton('Desvincular este dispositivo','uiSyncDisconnect()','back','text')}</section></div>`;
+  if(!connected)return `<div class="n-detail-grid n-sync-grid"><section class="n-panel n-sync-intro"><div class="n-sync-devices">${uiIcon('phone')}${uiIcon('arrow')}${uiIcon('computer')}</div><span class="n-eyebrow">Tu esfuerzo te acompaña</span><h2>Un mismo espacio.<br>En todos tus dispositivos.</h2><p>Crea tus días con el teclado. Entrena con tu teléfono. Tus planes, gimnasios, notas y sesiones viajan contigo.</p><div class="n-sync-actions">${uiButton('Crear mi espacio','uiSyncCreate()','plus')}${uiButton('Ya tengo una clave','uiSyncLink()','arrow','secondary')}</div>${hierroSync?.state?.checkpoints?.length?uiButton('Recuperar una copia anterior','uiSyncCheckpoints()','shield','text'):''}<p data-sync-error class="n-sync-error" role="alert"></p></section><section class="n-sync-explain"><div><b>Funciona sin conexión</b><p>Guarda aquí y sincroniza al abrir Hierro con internet. Tu computadora puede estar apagada.</p></div><div><b>Una clave, sin contraseña</b><p>Vincula otro dispositivo con tu clave o su QR. Guárdala: quien la tenga puede abrir tu espacio.</p></div><div><b>Tu información, cifrada</b><p>Los datos se cifran en el dispositivo antes de enviarse. Sin correo, anuncios ni suscripción.</p></div></section></div>`;
+  return `<div class="n-detail-grid n-sync-grid"><section class="n-panel n-sync-intro"><span class="n-eyebrow">Tu espacio está vinculado</span><h2>Sigues justo<br>donde te quedaste.</h2><div class="n-sync-state"><i></i><strong data-sync-status role="status">${esc(hierroSync.message)}</strong></div><p data-sync-last>${esc(syncLastLabel())}</p><p>Se sincronizan planes, ejercicios, equipo, notas e historial. Puedes continuar una sesión en otro dispositivo. La apariencia y los avisos se eligen en cada uno.</p><div class="n-sync-actions">${uiButton('Vincular otro dispositivo','uiSyncRecovery()','plus')}${uiButton('Sincronizar ahora','uiSyncNow()','arrow','secondary')}</div><button type="button" class="n-primary" data-sync-review ${hierroSync.pending?'':'hidden'} onclick="uiSyncConflicts()">Revisar cambios</button><p data-sync-error class="n-sync-error" role="alert"></p></section><section class="n-sync-explain"><div><b>Sincronización automática</b><p>Con Hierro abierta, los cambios llegan en unos segundos. Si estás escribiendo o entrenando, esperamos para actualizar la pantalla.</p></div><div><b>Tu clave está guardada aquí</b><p>Puedes consultarla para vincular otro dispositivo. Si la pierdes y ya no tienes ninguno vinculado, no podremos recuperar tu espacio.</p></div>${uiRow('Copias de seguridad locales','Antes de recibir o resolver cambios','uiSyncCheckpoints()','shield')}${uiButton('Desvincular este dispositivo','uiSyncDisconnect()','back','text')}</section></div>`;
 }
-function syncUIError(e){const el=document.getElementById('sync-error');if(el)el.textContent=e.message||String(e);else infoModal('Sincronización',esc(e.message||String(e)));}
+function syncUIError(e){const el=document.querySelector?.('#modalhost [data-sync-error]')||document.querySelector?.('[data-sync-error]');if(el)el.textContent=e.message||String(e);else infoModal('Sincronización',esc(e.message||String(e)));}
 async function uiSyncCreate(){
   if(!syncReady){syncUIError(new Error('Espera un momento a que se prepare el almacenamiento.'));return;}
   if(!HIERRO_SYNC_URL){syncUIError(new Error('El servicio se está preparando. Podrás crear tu espacio cuando esté disponible.'));return;}
@@ -154,7 +156,7 @@ async function uiSyncCreate(){
 }
 function uiSyncRecovery(created=false){
   const key=hierroSync?.state?.key;if(!key)return;
-  openModal(`<span class="n-eyebrow">${created?'Tu espacio ya tiene clave':'Vincula otro dispositivo'}</span><h2>Tu llave para volver.</h2><p class="muted">Escanea el QR con la cámara del otro teléfono o abre Hierro → Tú → Sincronización y pega esta clave.</p><div id="sync-qr" class="n-sync-qr" aria-label="QR privado para vincular tu espacio"></div><label class="field"><span>Clave de recuperación · mantenla privada</span><textarea id="sync-recovery-key" class="n-sync-key" readonly rows="3" spellcheck="false">${esc(key)}</textarea></label><div class="n-sync-actions">${uiButton('Copiar clave','uiSyncCopyKey()','copy','secondary')}${uiButton('Guardar clave','uiSyncDownloadKey()','download','secondary')}</div>${!hierroSync.state.created?'<p class="n-sync-error">Tu clave está guardada aquí. Falta enviar la primera copia: mantén Hierro abierta con internet antes de vincular otro dispositivo.</p>':''}<p class="hint" id="sync-key-message" role="status">Guárdala en tu gestor de contraseñas o en un lugar seguro. No la publiques ni la envíes a desconocidos.</p>${uiButton('Listo','closeModal()','check')}`);
+  openModal(`<span class="n-eyebrow">${created?'Tu espacio ya tiene clave':'Vincula otro dispositivo'}</span><h2>Tu llave para volver.</h2><p class="muted">Escanea el QR con la cámara del otro teléfono o abre Hierro → Tú → Sincronización y pega esta clave.</p><div id="sync-qr" class="n-sync-qr" aria-label="QR privado para vincular tu espacio"></div><label class="field"><span>Clave de recuperación · mantenla privada</span><textarea id="sync-recovery-key" class="n-sync-key" readonly rows="3" spellcheck="false">${esc(key)}</textarea></label><div class="n-sync-actions">${uiButton('Copiar clave','uiSyncCopyKey()','copy','secondary')}${uiButton('Guardar clave','uiSyncDownloadKey()','download','secondary')}</div>${!hierroSync.state.created?'<p class="n-sync-error">Tu clave está guardada aquí. Falta enviar la primera copia: mantén Hierro abierta con internet antes de vincular otro dispositivo.</p>':''}<p class="hint" id="sync-key-message" role="status">Guárdala en tu gestor de contraseñas o en un lugar seguro. No la publiques ni la envíes a desconocidos.</p>${uiButton('Listo','uiSyncRecoveryDone()','check')}`);
   if(typeof qrcodegen!=='undefined'){
     const url=new URL(location.pathname,location.origin);url.hash='vincular='+key;
     const qr=qrcodegen.QrCode.encodeText(url.href,qrcodegen.QrCode.Ecc.MEDIUM);let path='';
@@ -166,17 +168,17 @@ async function uiSyncCopyKey(){try{await navigator.clipboard.writeText(hierroSyn
 function uiSyncDownloadKey(){syncDownload('hierro-clave-privada.txt','Clave privada de Hierro Beta\n\n'+hierroSync.state.key+'\n\nGuárdala en un lugar seguro. Esta clave permite abrir y modificar tu espacio.\nhttps://elrobamichis.github.io/hierro-beta/\n');}
 function uiSyncLink(prefill=''){
   if(hierroSync?.state?.key){infoModal('Este dispositivo ya está vinculado','Desvincúlalo desde Sincronización antes de usar otra clave. Tus entrenamientos se conservarán aquí.');return;}
-  syncInspection=null;syncChoices={};
-  openModal(`<h2>Vuelve a tu espacio.</h2><p class="muted">En tu otro dispositivo: Tú → Sincronización → Vincular otro dispositivo.</p><form onsubmit="uiSyncInspect(event)"><label class="field"><span>Tu clave de recuperación</span><textarea class="n-sync-key" id="sync-link-key" required rows="3" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="hr1.…">${esc(prefill)}</textarea></label><p id="sync-error" class="n-sync-error" role="alert"></p><button type="submit" class="n-primary"><span>Buscar mi espacio</span>${uiIcon('arrow')}</button></form>`);
+  syncInspectionToken++;syncInspection=null;syncChoices={};
+  openModal(`<h2>Vuelve a tu espacio.</h2><p class="muted">En tu otro dispositivo: Tú → Sincronización → Vincular otro dispositivo.</p><form onsubmit="uiSyncInspect(event)"><label class="field"><span>Tu clave de recuperación</span><textarea class="n-sync-key" id="sync-link-key" required rows="3" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="hr1.…">${esc(prefill)}</textarea></label><p data-sync-error class="n-sync-error" role="alert"></p><button type="submit" class="n-primary"><span>Buscar mi espacio</span>${uiIcon('arrow')}</button></form>`);
 }
 async function uiSyncInspect(event){
   event?.preventDefault();const button=event?.target.querySelector('button'),key=document.getElementById('sync-link-key')?.value.trim();
-  if(!syncReady||!key)return;if(button)button.disabled=true;
+  if(!syncReady){syncUIError(new Error('Se está preparando el almacenamiento. Vuelve a intentar en un momento.'));return;}if(!key)return;const token=++syncInspectionToken;if(button)button.disabled=true;
   try{
-    syncInspection=await hierroSync.inspect(key);syncChoices={};
+    const inspected=await hierroSync.inspect(key);if(token!==syncInspectionToken)return;syncInspection=inspected;syncChoices={};
     const cloud=syncInspection.remote,local=syncRead();
-    openModal(`<span class="n-eyebrow">Encontramos tu espacio</span><h2>Todo listo para volver.</h2><div class="n-sync-comparison"><section><b>En la nube</b><p>${syncCounts(cloud)}</p></section><section><b>En este dispositivo</b><p>${syncCounts(local)}</p></section></div><p class="muted">Antes de cambiar nada, guardamos una copia de lo que tienes aquí. Elige cómo quieres vincularlo.</p><div class="n-sync-actions">${uiButton('Traer mis datos de la nube',"uiSyncConfirmLink('replace')",'download')}${uiButton('Combinar con lo que tengo aquí',"uiSyncConfirmLink('merge')",'plus','secondary')}</div><p class="hint">Al combinar, se suman los registros distintos y revisas cualquier cambio que coincida.</p><p id="sync-error" class="n-sync-error" role="alert"></p>`);
-  }catch(e){syncUIError(e);if(button)button.disabled=false;}
+    openModal(`<span class="n-eyebrow">Encontramos tu espacio</span><h2>Todo listo para volver.</h2><div class="n-sync-comparison"><section><b>En la nube</b><p>${syncCounts(cloud)}</p></section><section><b>En este dispositivo</b><p>${syncCounts(local)}</p></section></div><p class="muted">Antes de cambiar nada, guardamos una copia de lo que tienes aquí. Elige cómo quieres vincularlo.</p><div class="n-sync-actions">${uiButton('Traer mis datos de la nube',"uiSyncConfirmLink('replace')",'download')}${uiButton('Combinar con lo que tengo aquí',"uiSyncConfirmLink('merge')",'plus','secondary')}</div><p class="hint">Al combinar, se suman los registros distintos y revisas cualquier cambio que coincida.</p><p data-sync-error class="n-sync-error" role="alert"></p>`);
+  }catch(e){if(token===syncInspectionToken)syncUIError(e);}finally{if(button)button.disabled=false;}
 }
 function syncCounts(doc){return `${doc.routines.length} ${doc.routines.length===1?'día':'días'} · ${doc.history.length} ${doc.history.length===1?'sesión':'sesiones'}<br>${doc.gyms.length} ${doc.gyms.length===1?'gimnasio':'gimnasios'}`;}
 async function uiSyncConfirmLink(mode){
@@ -185,13 +187,13 @@ async function uiSyncConfirmLink(mode){
     if(hierroSync.keys&&hierroSync.keys.id!==syncInspection.keys.id&&typeof pushDisconnect==='function')await pushDisconnect();
     const result=await hierroSync.link(syncInspection,mode,syncChoices);
     if(result.conflicts?.length){uiSyncConflictDialog(result.conflicts,true);return;}
-    syncInspection=null;syncChoices={};closeModal();go({name:'settings',section:'sync'});syncSchedule(100);
+    syncInspection=null;syncChoices={};closeModal();go(window.__syncReturn||{name:'settings',section:'sync'});delete window.__syncReturn;syncSchedule(100);
   }catch(e){syncUIError(e);}finally{syncConnecting=false;}
 }
 function syncConflictLabel(conflict){
   const p=conflict.path.split('/').slice(1).map(s=>s.replace(/~1/g,'/').replace(/~0/g,'~'));
   const groups={routines:'Día',history:'Sesión',gyms:'Gimnasio',splits:'Plan',exmeta:'Ejercicio',settings:'Preferencia',active:'Sesión en curso'};
-  const names={name:'Nombre',notes:'Nota al entrenar',lo:'Rango mínimo',hi:'Rango máximo',exercises:'Ejercicios',sets:'Series',active:'Plan activo',rest:'Descanso',plates:'Discos',bars:'Barras',dumbbells:'Mancuernas',machines:'Máquinas',cap:'Peso máximo',step:'Incremento',stack:'Torre',entries:'Series registradas','$order':'Orden'};
+  const names={name:'Nombre',notes:'Técnica general',gymNotes:'Ajuste de este gimnasio',lo:'Rango mínimo',hi:'Rango máximo',exercises:'Ejercicios',sets:'Series',active:'Plan activo',rest:'Descanso',plates:'Discos',bars:'Barras',dumbbells:'Mancuernas',machines:'Máquinas',cap:'Peso máximo',step:'Incremento',stack:'Torre',entries:'Series registradas','$order':'Orden'};
   const list=db[p[0]],item=Array.isArray(list)?list.find(x=>x.id===p[1]):null;
   const who=item?.name||item?.routineName||(p[0]==='exmeta'?p[1]:'');
   return [groups[p[0]]||'Cambio',who,names[p.at(-1)]||''].filter(Boolean).join(' · ');
@@ -206,10 +208,10 @@ function syncConflictValue(v){
   if(v.active&&v.gym)return `${v.active.session.routineName} · ${v.gym.name}`;
   return JSON.stringify(v).slice(0,250);
 }
-function uiSyncConflicts(){syncChoices={};if(hierroSync?.pending)uiSyncConflictDialog(hierroSync.pending.conflicts,false);}
+function uiSyncConflicts(){if(hierroSync?.pending)uiSyncConflictDialog(hierroSync.pending.conflicts,false);}
 function uiSyncConflictDialog(conflicts,linking){
   window.__syncConflicts=conflicts;
-  openModal(`<span class="n-eyebrow">Cuidemos ambas versiones</span><h2>Elige qué quieres conservar.</h2><p class="muted">Se cambió lo mismo en dos dispositivos. Los demás cambios se combinan. Guardamos copias antes de aplicar tu elección.</p><div class="n-sync-conflicts">${conflicts.map((c,i)=>`<fieldset><legend>${esc(syncConflictLabel(c))}</legend><label><input type="radio" name="sync-choice-${i}" value="local" onchange="syncChoose(${i},this.value)"><span><b>Este dispositivo</b><small>${esc(syncConflictValue(c.local))}</small></span></label><label><input type="radio" name="sync-choice-${i}" value="remote" onchange="syncChoose(${i},this.value)"><span><b>La otra copia</b><small>${esc(syncConflictValue(c.remote))}</small></span></label></fieldset>`).join('')}</div><p id="sync-error" class="n-sync-error" role="alert"></p>${uiButton('Guardar mis elecciones',`uiSyncResolve(${linking})`,'check')}`);
+  openModal(`<span class="n-eyebrow">Cuidemos ambas versiones</span><h2>Elige qué quieres conservar.</h2><p class="muted">Se cambió lo mismo en dos dispositivos. Los demás cambios se combinan. Guardamos copias antes de aplicar tu elección.</p><div class="n-sync-conflicts">${conflicts.map((c,i)=>`<fieldset><legend>${esc(syncConflictLabel(c))}</legend><label><input type="radio" name="sync-choice-${i}" value="local" ${syncChoices[c.path]==='local'?'checked':''} onchange="syncChoose(${i},this.value)"><span><b>Este dispositivo</b><small>${esc(syncConflictValue(c.local))}</small></span></label><label><input type="radio" name="sync-choice-${i}" value="remote" ${syncChoices[c.path]==='remote'?'checked':''} onchange="syncChoose(${i},this.value)"><span><b>La otra copia</b><small>${esc(syncConflictValue(c.remote))}</small></span></label></fieldset>`).join('')}</div><p data-sync-error class="n-sync-error" role="alert"></p>${uiButton('Guardar mis elecciones',`uiSyncResolve(${linking})`,'check')}`);
 }
 function syncChoose(i,value){const c=window.__syncConflicts?.[i];if(c&&['local','remote'].includes(value))syncChoices[c.path]=value;}
 async function uiSyncResolve(linking){
@@ -219,7 +221,7 @@ async function uiSyncResolve(linking){
 }
 async function uiSyncNow(){if(!hierroSync)return;await hierroSync.sync();syncNotify();}
 function syncForeignCard(){return syncForeign?`<section class="n-hero"><span class="n-eyebrow">Empezaste en otro dispositivo</span><h2>${esc(syncForeign.session.routineName)}</h2><p>Tu sesión está guardada en tu espacio. Puedes traerla aquí y continuar con tus series.</p>${uiButton('Continuar en este dispositivo','uiSyncClaim()','play')}</section>`:'';}
-function syncOfferContinue(){openModal(`<h2>Ya tienes una sesión abierta.</h2><p class="muted">${esc(syncForeign?.session.routineName||'Tu sesión')} empezó en otro dispositivo. Continúala o termínala antes de empezar otra.</p>${uiButton('Continuar en este dispositivo','closeModal();uiSyncClaim()','play')}`);}
+function syncOfferContinue(rid,deload){openModal(`<h2>Hay una sesión en otro dispositivo.</h2><p class="muted">${esc(syncForeign?.session.routineName||'Tu sesión')} sigue allí. Puedes traerla con internet o registrar otro entrenamiento aquí y compartir el historial al terminar.</p>${uiButton('Continuar la otra sesión','closeModal();uiSyncClaim()','play')}${rid?uiButton('Entrenar aquí por separado',uiAction('startSession',rid,!!deload,true),'plus','secondary'):''}`);}
 async function uiSyncClaim(){
   try{if(db.active)throw new Error('Termina la sesión de este dispositivo antes de traer otra.');if(await hierroSync.claim(syncDevice))go({name:'session'});else{render();syncSchedule(100);}}catch(e){infoModal('No se pudo traer la sesión',esc(e.message));}
 }
@@ -241,7 +243,7 @@ function uiSyncDownloadCheckpoint(i){
 }
 function syncConfirmRestore(){
   confirmModal('¿Restaurar en tu espacio vinculado?','Este respaldo reemplazará tus datos de entrenamiento aquí y los cambios se enviarán a tus otros dispositivos. Guardaremos antes una copia de seguridad local.', 'Restaurar y sincronizar',async()=>{
-    try{await hierroSync.checkpoint(syncRead(),'Antes de restaurar respaldo');syncForeign=null;syncApplying=true;db=normalize(window.__backup);window.__backup=null;syncApplying=false;save();closeModal();go({name:'home'});syncSchedule(100);}catch(e){syncApplying=false;syncUIError(e);}
+    try{if(!validBackup(window.__backup))throw new Error('El respaldo está incompleto. Tus datos se conservan.');await hierroSync.checkpoint(syncRead(),'Antes de restaurar respaldo');const foreign=syncForeign;syncForeign=null;syncApplying=true;const ok=restoreBackupData(window.__backup);syncApplying=false;if(!ok){syncForeign=foreign;return;}window.__backup=null;syncSaved();closeModal();go({name:db.active?'session':'home'});syncSchedule(100);}catch(e){syncApplying=false;syncUIError(e);}
   },true);
 }
 function syncConfirmWipe(){
@@ -249,3 +251,5 @@ function syncConfirmWipe(){
     try{if(typeof pushDisconnect==='function')await pushDisconnect();await hierroSync.disconnect();syncForeign=null;localStorage.removeItem(LS_KEY);syncSavedRaw=null;db=load();closeModal();go({name:'home'});}catch(e){syncUIError(e);}
   },true);
 }
+
+function uiSyncRecoveryDone(){closeModal();if(window.__syncReturn){const next=window.__syncReturn;delete window.__syncReturn;go(next);}}

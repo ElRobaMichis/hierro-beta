@@ -1,0 +1,402 @@
+{
+  "axe": {
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 2
+      }
+    ],
+    "passes": 31,
+    "time": "2026-09-14T23:27:15.240Z",
+    "version": "4.13.0",
+    "view": "split",
+    "violations": [
+      {
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "html": "<div class=\"n-eyebrow\">Plan activo</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-heading > div > .n-eyebrow"
+            ]
+          },
+          {
+            "html": "<span class=\"n-eyebrow\">4 días</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.3 (foreground color: #6b756c, background color: #f4f3ec, font size: 7.5pt (10px), font weight: bold). Expected contrast ratio of 4.5:1",
+            "target": [
+              ".n-section-head > .n-eyebrow"
+            ]
+          }
+        ],
+        "url": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI"
+      }
+    ]
+  },
+  "controls": [
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 44,
+      "label": "Tus planes",
+      "tag": "BUTTON",
+      "w": 82,
+      "x": 18,
+      "y": -168
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Opciones",
+      "tag": "BUTTON",
+      "w": 81,
+      "x": 206,
+      "y": 11
+    },
+    {
+      "disabled": true,
+      "font": "11px",
+      "h": 44,
+      "label": "Subir Full body",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 31,
+      "y": 238
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Bajar Full body",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 114,
+      "y": 238
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Quitar Full body",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 197,
+      "y": 238
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Subir Upper",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 31,
+      "y": 379
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Bajar Upper",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 114,
+      "y": 379
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Quitar Upper",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 197,
+      "y": 379
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Subir Lower",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 31,
+      "y": 520
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Bajar Lower",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 114,
+      "y": 520
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Quitar Lower",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 197,
+      "y": 520
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Subir Arms & delts",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 31,
+      "y": 660
+    },
+    {
+      "disabled": true,
+      "font": "11px",
+      "h": 44,
+      "label": "Bajar Arms & delts",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 114,
+      "y": 660
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 44,
+      "label": "Quitar Arms & delts",
+      "tag": "BUTTON",
+      "w": 77,
+      "x": 197,
+      "y": 660
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 50,
+      "label": "Añadir día",
+      "tag": "BUTTON",
+      "w": 133,
+      "x": 18,
+      "y": 739
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Terminar orden",
+      "tag": "BUTTON",
+      "w": 116,
+      "x": 163,
+      "y": 741
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "h": 50,
+      "label": "Elegir día para hoy",
+      "tag": "BUTTON",
+      "w": 229,
+      "x": 38,
+      "y": 1018
+    },
+    {
+      "disabled": false,
+      "font": "13px",
+      "h": 46,
+      "label": "Reglas de este plan",
+      "tag": "BUTTON",
+      "w": 229,
+      "x": 38,
+      "y": 1080
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Entrenar",
+      "tag": "BUTTON",
+      "w": 90,
+      "x": 12,
+      "y": 672
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Evolución",
+      "tag": "BUTTON",
+      "w": 90,
+      "x": 108,
+      "y": 672
+    },
+    {
+      "disabled": false,
+      "font": "11px",
+      "h": 58,
+      "label": "Tú",
+      "tag": "BUTTON",
+      "w": 90,
+      "x": 203,
+      "y": 672
+    }
+  ],
+  "documentHeight": 1518,
+  "documentWidth": 305,
+  "focused": "<body data-view=\"split\" style=\"\">\n<a class=\"ui-skip-link\" href=\"#main\">Ir al contenido</a>\n<div id=\"app\">\n  <header class=\"app\" id=\"topbar\"><div class=\"n-mobile-brand\"><span class=\"n-brand\"><svg viewB",
+  "headings": [
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "36px",
+      "h": 77,
+      "text": "Mi entrenamiento",
+      "w": 269,
+      "x": 18,
+      "y": -77
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "17px",
+      "h": 20,
+      "text": "La secuencia de tus días",
+      "w": 175,
+      "x": 18,
+      "y": 83
+    },
+    {
+      "family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "font": "25px",
+      "h": 29,
+      "text": "Tú decides cuándo.",
+      "w": 229,
+      "x": 38,
+      "y": 881
+    }
+  ],
+  "height": 740,
+  "scrollY": 249,
+  "smallText": [
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "10px",
+      "text": "4 DÍAS"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "01"
+    },
+    {
+      "color": "rgb(32, 55, 47)",
+      "font": "11px",
+      "text": "Subir"
+    },
+    {
+      "color": "rgb(32, 55, 47)",
+      "font": "11px",
+      "text": "Bajar"
+    },
+    {
+      "color": "rgb(165, 56, 43)",
+      "font": "11px",
+      "text": "Quitar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "02"
+    },
+    {
+      "color": "rgb(32, 55, 47)",
+      "font": "11px",
+      "text": "Subir"
+    },
+    {
+      "color": "rgb(32, 55, 47)",
+      "font": "11px",
+      "text": "Bajar"
+    },
+    {
+      "color": "rgb(165, 56, 43)",
+      "font": "11px",
+      "text": "Quitar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "03"
+    },
+    {
+      "color": "rgb(32, 55, 47)",
+      "font": "11px",
+      "text": "Subir"
+    },
+    {
+      "color": "rgb(32, 55, 47)",
+      "font": "11px",
+      "text": "Bajar"
+    },
+    {
+      "color": "rgb(165, 56, 43)",
+      "font": "11px",
+      "text": "Quitar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "04"
+    },
+    {
+      "color": "rgb(32, 55, 47)",
+      "font": "11px",
+      "text": "Subir"
+    },
+    {
+      "color": "rgb(32, 55, 47)",
+      "font": "11px",
+      "text": "Bajar"
+    },
+    {
+      "color": "rgb(165, 56, 43)",
+      "font": "11px",
+      "text": "Quitar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "UNA SECUENCIA, SIN PRISA"
+    },
+    {
+      "color": "rgb(40, 92, 70)",
+      "font": "11px",
+      "text": "Entrenar"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Evolución"
+    },
+    {
+      "color": "rgb(107, 117, 108)",
+      "font": "11px",
+      "text": "Tú"
+    }
+  ],
+  "theme": "light",
+  "url": "http://127.0.0.1:4183/?fixture=work",
+  "view": "split",
+  "width": 320,
+  "name": "34-order-days-320",
+  "image": "34-order-days-320.jpg",
+  "imageSize": [
+    305,
+    705
+  ],
+  "axeReview": "exploratory-not-a-verdict"
+}

@@ -1,0 +1,59 @@
+- link "Ir al contenido":
+  - /url: "#main"
+- banner:
+  - text: hierro
+  - generic: En tu dispositivo
+  - button "Volver al diario":
+    - text: Volver al diario
+  - generic: Espalda
+  - heading "Dead hang" [level=1]
+- main:
+  - group "Secciones":
+    - button "Evolución" [pressed]
+    - button "Equipo"
+    - button "Objetivos"
+  - text: Tu mejor tiempo
+  - generic: 30s
+  - paragraph: Tu mejor duración registrada en una serie.
+  - generic: Último registro
+  - text: 30 s
+  - generic: Desde el primer registro
+  - text: 0 s
+  - generic: Registro seleccionado
+  - status: 11 sept · 30 s
+  - 'img "Tu mejor tiempo: 18 registros. Usa el control inferior para consultar cada valor."'
+  - generic: 29 may
+  - generic: 11 sept
+  - generic: Toca la gráfica o desliza para explorar cada sesión
+  - slider "Explorar registros de Dead hang": "17"
+  - paragraph: Escala ajustada a tus registros · s.
+  - heading "Últimas veces" [level=2]
+  - generic: vie, 11 sept
+  - generic: 30s · 25s
+  - generic: mié, 2 sept
+  - generic: 30s · 25s
+  - generic: dom, 30 ago
+  - generic: 30s · 25s
+  - generic: vie, 21 ago
+  - generic: 30s · 25s
+  - generic: mar, 18 ago
+  - generic: 30s · 25s
+  - generic: dom, 9 ago
+  - generic: 30s · 25s
+  - generic: jue, 6 ago
+  - generic: 30s · 25s
+  - generic: mar, 28 jul
+  - generic: 30s · 25s
+  - complementary:
+    - text: Tu siguiente paso
+    - generic: Apunta a 35 s
+    - generic: Cinco segundos más que la última vez ya es progreso.
+    - button "Revisar objetivos":
+      - generic: Revisar objetivos
+- navigation "Navegación principal":
+  - button "Entrenar":
+    - generic: Entrenar
+  - button "Evolución":
+    - generic: Evolución
+  - button "Tú":
+    - generic: Tú
