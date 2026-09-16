@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.6.2">
+<link rel="stylesheet" href="ui.css?v=3.6.3">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.6.2"></script>
-<script src="sync-core.js?v=3.6.2"></script>
-<script src="sync-engine.js?v=3.6.2"></script>
-<script src="qr.js?v=3.6.2"></script>
-<script src="sync.js?v=3.6.2"></script>
-<script src="push-core.js?v=3.6.2"></script>
-<script src="push.js?v=3.6.2"></script>
+<script src="ui.js?v=3.6.3"></script>
+<script src="sync-core.js?v=3.6.3"></script>
+<script src="sync-engine.js?v=3.6.3"></script>
+<script src="qr.js?v=3.6.3"></script>
+<script src="sync.js?v=3.6.3"></script>
+<script src="push-core.js?v=3.6.3"></script>
+<script src="push.js?v=3.6.3"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.6.2';
+const APP_VERSION = '3.6.3';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -1282,7 +1282,7 @@ function equipmentCap(key){
 }
 /* peso en kg → la combinación placa + ajuste fino más cercana de esa torre.
    En empate gana la más pesada (sobrecarga), igual que en el resto del equipo. */
-function stackSnap(key, kg){
+function stackSnap(key, kg, bounds={}){
   const c = stackConf(key);
   if(!c) return null;
   const f = stackFactor(c);
@@ -1291,20 +1291,48 @@ function stackSnap(key, kg){
   let best = null;
   for(let j = 0; j <= nJ; j++){
     const add = Math.round(j * c.extra * 1000) / 1000;
-    const below = Math.floor((want - add - c.start) / c.step);
+    const targets = [want];
+    if(Number.isFinite(bounds.min))targets.push(bounds.min / f);
+    if(Number.isFinite(bounds.max))targets.push(bounds.max / f);
+    const indices = targets.flatMap(v=>{const below=Math.floor((v-add-c.start)/c.step);return [below,below+1];});
     // The labelled last plate can make a shorter final step (e.g. 247.5 → 250).
-    for(const i of new Set([below, below + 1].map(n => Math.max(0, Math.min(last, n))))){
+    for(const i of new Set(indices.map(n => Math.max(0, Math.min(last, n))))){
       const plateValue = Math.min(c.start + i * c.step, c.max ?? Infinity);
       const value = Math.round((plateValue + add) * 1000) / 1000;
+      const canonical = Math.round(value * f * 1000) / 1000;
+      if(canonical < (bounds.min ?? -Infinity)-1e-9 || canonical > (bounds.max ?? Infinity)+1e-9)continue;
       const d = Math.abs(value - want);
       if(!best || d < best.d - 1e-9 || (Math.abs(d - best.d) < 1e-9 && value > best.value))
         best = { d, unit:c.unit, step:c.step, start:c.start, index:i + 1, value, extra:add,
                  plateValue, plates:Number.isFinite(last) ? last + 1 : null,
-                 kg: Math.round(value * f * 1000) / 1000 };
+                 kg: canonical };
     }
   }
-  delete best.d;
+  if(best)delete best.d;
   return best;
+}
+/* Progress from the historical load directly onto this gym's actual grid.
+   A tower starting at 10 with steps of 15 is not a grid of multiples of 15.
+   Bounds use the same .001 kg precision as recorded sets. */
+function progressionWeight(key, w, percent, direction=1){
+  const step=effStep(key,w);
+  if(effEquip(key)==='placas' && stackConf(key)){
+    const custom=Number(exMeta(key).step),minimum=custom>0?custom:.001;
+    const edge=Math.round(w*1000)/1000+direction*minimum;
+    const desired=w*(1+direction*percent);
+    const target=direction>0?Math.max(desired,edge):Math.min(desired,edge);
+    let result=stackSnap(key,target,direction>0?{min:edge}:{max:edge});
+    if(!result && custom>0){
+      // A configured minimum can overshoot the last available plate. Reach the
+      // equipment limit without turning an increase into a repeated/lower load.
+      const next=Math.round(w*1000)/1000+direction*.001;
+      result=stackSnap(key,target,direction>0?{min:next}:{max:next});
+    }
+    return (result || stackSnap(key,w))?.kg ?? w;
+  }
+  let next=roundToStep(w*(1+direction*percent),step);
+  if((next-w)*direction<step/2)next=w+direction*step;
+  return next>0?next:w;
 }
 /* «Placa 3 + 5,5» — el sufijo solo cuando hay ajuste fino puesto */
 function fmtStackNum(value){return (Math.round(value * 1000) / 1000).toString().replace('.',',');}
@@ -1577,8 +1605,7 @@ function computeSuggestion(key){
           why:`Marcaste ${fmtWEx(key, cap)} ${uLabelEx(key)} como máximo disponible en este equipo. Sin más peso, el progreso sigue por reps y series — y cuando lo superes con holgura, considera una variante más difícil o agregar lastre.` };
       } else {
         const boost = (rir !== null && rir >= 3) ? 1.7 : 1;
-        let nw = roundToStep(w * (1 + p.inc * boost), step);
-        if(nw - w < step/2) nw = w + step;   /* progreso real de al menos un paso (evita errores de redondeo) */
+        let nw = progressionWeight(key, w, p.inc * boost);
         const capped = hasCap && nw > cap;
         if(capped) nw = cap;                 /* último salto: justo hasta el tope */
         sugg = { w:nw, reps:lo, type:'up',
@@ -1590,9 +1617,7 @@ function computeSuggestion(key){
       }
     } else if(minR < lo){
       if(p.fail >= 2){
-        let nw = roundToStep(w * 0.95, step);
-        if(w - nw < step/2) nw = w - step;   /* retroceso real de al menos un paso */
-        if(nw <= 0) nw = w;
+        let nw = progressionWeight(key, w, .05, -1);
         sugg = { w:nw, reps:lo, type:'deload',
           msg:`Baja un poco: <b>${fmtWEx(key, nw)} ${uLabelEx(key)} × ${lo}</b>`,
           why:`Van ${p.fail} sesiones sin sostener el rango con ${fmtWEx(key, w)} ${uLabelEx(key)}. Retroceder ~5 % y volver a construir es lo que mejor funciona.` };
@@ -1602,8 +1627,7 @@ function computeSuggestion(key){
           why:`La última vez alguna serie quedó bajo el rango (${lo}–${hi}). Repite el peso dejando 1–3 reps en reserva antes de subir.` };
       }
     } else if(rir !== null && rir >= 4 && !atCap){
-      let nw = roundToStep(w * (1 + p.inc), step);
-      if(nw - w < step/2) nw = w + step;   /* progreso real de al menos un paso (evita errores de redondeo) */
+      let nw = progressionWeight(key, w, p.inc);
       if(hasCap && nw > cap) nw = cap;
       sugg = { w:nw, reps:lo, type:'up',
         msg:`Sube ya el peso: <b>${fmtWEx(key, nw)} ${uLabelEx(key)} × ${lo}</b>`,
@@ -1633,8 +1657,7 @@ function computeSuggestion(key){
     const flat = (maxR - minAll) <= 1;   /* reps casi idénticas en todas → mucha reserva */
     let nwC = 0;
     if(sugg.type === 'reps' && flat && minR >= lo){
-      nwC = roundToStep(w * (1 + p.inc), step);
-      if(nwC - w < step/2) nwC = w + step;
+      nwC = progressionWeight(key, w, p.inc);
       const capC = equipmentCap(key);
       if(!isNaN(capC) && capC > 0 && nwC > capC) nwC = capC;   /* respeta el tope de la máquina */
     }
@@ -3035,7 +3058,22 @@ function refreshActiveSugg(key){
     let sg = computeSuggestion(key);
     if(db.active.deload) sg = deloadSugg(key, sg);
     ex.sugg = sg;
+    for(const st of ex.sets){
+      if(st.done || !Number.isFinite(st.autoWeightKg))continue;
+      if(!sg || Math.abs(recordedSetKg(key,st)-st.autoWeightKg)>.000501){delete st.autoWeightKg;continue;}
+      st.wkg=kgToTyped(key,sg.w);st.totalKg=sg.w;
+      st.w=inputWEx(key,st.wkg);st.autoWeightKg=sg.w;
+    }
   }});
+}
+/* An update must also correct proposals cached in an already open session.
+   Unknown legacy drafts remain manual; confirmed sets are never recalculated. */
+function refreshSessionSuggestions(){
+  if(!db.active || db.active.suggestionVersion===APP_VERSION)return false;
+  return commitChange(()=>{
+    for(const key of new Set(db.active.exercises.map(ex=>ex.key)))refreshActiveSugg(key);
+    db.active.suggestionVersion=APP_VERSION;
+  });
 }
 /* convertir lo escrito a otra unidad SIN acumular error de redondeo:
    la primera conversión fija el peso canónico en kg (st.wkg) y todas
@@ -3541,10 +3579,10 @@ function setActiveGym(id){
       if(antes[ex.key] && antes[ex.key] !== ahora){
         for(const st of ex.sets) convertTypedW(st, antes[ex.key], ahora);
       }
-      refreshActiveSugg(ex.key);
     }
   }
   restoreSessionLoads(savedLoads);
+  if(db.active)for(const ex of db.active.exercises)refreshActiveSugg(ex.key);
   save(); render();
 }
 function gymMachineCount(g){
@@ -4118,6 +4156,7 @@ function startSession(rid, deload, localOnly=false){
     id: uid(),
     routineId: r.id, routineName: r.name, splitId:r.split, open:0,
     start: Date.now(),
+    suggestionVersion:APP_VERSION,
     deload: !!deload, localOnly:!!localOnly,
     exercises: withSplitContext(r.split,()=>r.exercises.map(ex => {
       let sugg = computeSuggestion(ex.key);
@@ -4138,7 +4177,7 @@ function setVal(xi, si, field, val){
   if(field==='rir' && exMeta(db.active.exercises[xi].key).type==='tiempo')return;
   const st = db.active.exercises[xi].sets[si];
   st[field] = val;
-  if(field === 'w'){delete st.wkg;delete st.totalKg;}   /* el número nuevo es la verdad nueva */
+  if(field === 'w'){delete st.wkg;delete st.totalKg;delete st.autoWeightKg;}   /* el número nuevo es la verdad nueva */
   db.active.lastLog = Date.now();
   save();
   updateVsChip(xi);
@@ -4997,6 +5036,17 @@ function warmupContext(ex){
   return JSON.stringify([db.settings.gymId,m.type,m.muscle,effRange(ex.key),machineSnapshot(m),effBase(ex.key),
     ['barra','discos'].includes(eq)?db.gym.plates:eq==='mancuerna'?db.gym.dumbbells:null]);
 }
+/* Fine weights and notes change the setup, not the preparation already done.
+   Retain the full context elsewhere so actual gym/machine changes still reset. */
+function warmupCoreContext(context){
+  try{
+    const parts=JSON.parse(context);
+    if(!Array.isArray(parts)||parts.length!==7)return null;
+    const machine=parts[4];
+    if(machine){delete machine.gymNotes;if(machine.stack){delete machine.stack.extra;delete machine.stack.extraMax;}}
+    return JSON.stringify(parts);
+  }catch{return null;}
+}
 function validWarmupState(w){
   if(!w || typeof w.id!=='string' || !/^[a-z0-9_-]+$/i.test(w.id) || !Array.isArray(w.plan?.steps) || w.plan.steps.length>8)return false;
   const n=w.plan.steps.length;
@@ -5020,6 +5070,20 @@ function ensureWarmup(xi, force=false){
   const sameW=plan.W===old?.plan?.W || (Number.isFinite(plan.W)&&Number.isFinite(old?.plan?.W)&&Math.abs(plan.W-old.plan.W)<.001);
   const easier=exMeta(ex.key).type==='asistido'?plan.W>=old?.plan?.W:plan.W<=old?.plan?.W;
   if(!force && validWarmupState(old) && old.context===context && (sameW || (old.phase==='done'&&easier)) && (old.phase!=='skipped'||(!plan.steps.length&&old.plan.reason===plan.reason)))return old;
+  if(!force && validWarmupState(old) && old.completed>0 && (sameW||easier) && warmupCoreContext(old.context)===warmupCoreContext(context)){
+    old.context=context;
+    if(old.phase!=='done'){
+      const completed=old.plan.steps.slice(0,old.completed);
+      const assisted=exMeta(ex.key).type==='asistido';
+      const reached=assisted?Math.min(...completed.map(st=>st.w)):Math.max(...completed.map(st=>st.w));
+      const remaining=plan.steps.filter(st=>assisted?st.w<reached-.000501:st.w>reached+.000501);
+      const steps=completed.concat(remaining);
+      old.plan={...plan,steps,rows:steps.map(st=>warmupStepText(ex.key,st))};
+      old.id=uid(); // old controls cannot confirm a recalculated, unfinished step
+      if(old.phase==='set' && old.completed===steps.length){old.phase='done';old.completedAt=Date.now();ex.warmupDone=true;}
+    }
+    save();return old;
+  }
   ex.warmup={id:uid(),context,plan,completed:0,phase:plan.steps.length?'set':'skipped',forced:!!force};
   delete ex.warmupDone;
   save();return ex.warmup;
@@ -5746,6 +5810,7 @@ function retryStartup(){
   if(window.__loadError){uiLoadRecovery();return;}
   uiInitNavigation();
   migrateTypes(); migratePRs();
+  refreshSessionSuggestions();
   render();
   if(!db.settings.goal) uiWelcome();
   if(db.active) go({name:'session'});

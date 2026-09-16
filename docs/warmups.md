@@ -29,4 +29,6 @@ La evidencia apoya dar más atención a la preparación específica al trabajar 
 
 Cambiar de ejercicio o recargar conserva los pasos y descansos. Un identificador y número de paso rechazan eventos atrasados y dobles toques. Cambiar el equipo o aumentar la carga antes de la primera serie de trabajo recalcula la preparación. Bajar una carga ya preparada conserva la preparación. Las sesiones antiguas con `warmupDone` o trabajo confirmado siguen funcionando.
 
+Desde 3.6.3, corregir únicamente el ajuste fino o las notas de montaje conserva las aproximaciones realizadas si la carga prevista sigue igual o es menor. Una preparación terminada permanece terminada. En una preparación parcial se conserva el descanso original y se recalculan solo los escalones pendientes. Cambiar de gimnasio, el salto principal, la unidad o aumentar la carga mantiene la comprobación del contexto completo.
+
 Las pruebas de `tests/run.js` recorren preparación, temporizador, ampliación, recarga, cambio de ejercicio/equipo, registro bloqueado, casos corporales/asistidos y exclusión de historial. El resto de pruebas comprueba el arranque, actualización, distribución y funcionamiento sin conexión.

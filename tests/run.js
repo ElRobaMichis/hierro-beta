@@ -1715,10 +1715,12 @@ chk(Math.abs(effStep('jalon pecho', 20) - 5.5*KGxLB) < 1e-6,
     'el salto del coach pasa a ser el fino (5,5 lb), no el de la torre (10)');
 chk(stackExtraLabel(stackSnap('jalon pecho', 25.5*KGxLB)) === ' + 5,5', 'la etiqueta dice «+ 5,5»');
 
-/* el coach progresa por el salto fino */
+/* El extra puede cruzarse con la placa anterior: importa la combinación real,
+   no sumar siempre un disco de 5,5 al peso previo. */
 sess('jalon pecho', [S(Math.round(20*KGxLB*1000)/1000, 12), S(Math.round(20*KGxLB*1000)/1000, 12)]);
 s = computeSuggestion('jalon pecho');
-chk(Math.abs(s.w - 25.5*KGxLB) < 0.001, 'de 20 lb el coach salta a 25,5 (placa 2 + disco), no a 30');
+chk(Math.abs(s.w - 21*KGxLB) < 0.001 && stackSnap('jalon pecho',s.w).index===1 && stackSnap('jalon pecho',s.w).extra===11,
+    'de 20 lb puede subir a 21: placa 1 de 10 + dos discos de 5,5');
 
 /* el pin giratorio: torre de 15 en 15, el pin suma 0, 5 o 10 */
 exMeta('prensa sentada').equip = 'placas';
@@ -3038,6 +3040,139 @@ localStorage.setItem=()=>{throw new Error('quota');};applyHevyImport();
 chk(localStorage.getItem(LS_KEY)===priorImport&&db.history.length===0&&!!window.__hevyImport,'una importación rechazada conserva el estado anterior y puede reintentarse');
 localStorage.setItem=writer;applyHevyImport();
 chk(db.history.length===1&&db.routines.find(r=>r.name==='Día importado')?.split&&window.__hevyImport===null,'reintentar la importación agrega una sola copia y un día asociado a un plan');closeModal();
+}
+
+suite('Regresión — torre 10/15, ajuste 0/5/10 y preparación conservada');
+{
+ const key='tower-regression',F=.45359237,kg=lb=>Math.round(lb*F*1000)/1000;
+ function towerFixture(fine=true){
+  const machine=(step,max,extra,extraMax)=>({equip:'placas',cap:kg(max),stack:{unit:'lb',start:10,step,extra,extraMax}});
+  db=normalize({settings:{goal:'ambas',unit:'lb',gymId:'tower-b',sound:'off',vibration:'off'},
+   gyms:[{id:'tower-a',name:'Habitual',unit:'lb',machines:{[key]:machine(10,200,2.5,5)}},
+         {id:'tower-b',name:'Segunda torre',unit:'lb',machines:{[key]:machine(15,160,fine?5:null,fine?10:null)}}],
+   splits:[{id:'tower-plan',name:'Plan',active:true,exconf:{[key]:{lo:6,hi:8,sets:2}}}],
+   routines:[{id:'tower-day',name:'Torso',split:'tower-plan',exercises:[{id:'tower-ex',key,name:'Jalón en torre'}]}],
+   exmeta:{[key]:{type:'normal',muscle:'espalda',lo:6,hi:8}},history:[]});
+  applyGymMachines(db.gym);invalidatePlates();view={name:'home'};uiResetRest();
+  window.__saveError=null;window.__loadError=null;delete window.__proposalUndo;
+  const previous=sess(key,[S(kg(62.5),13,0),S(kg(62.5),10,0)],2);
+  previous.routineId='tower-day';previous.splitId='tower-plan';
+  save();return computeSuggestion(key);
+ }
+ function beginTower(fine=false){towerFixture(fine);startSession('tower-day');return db.active.exercises[0];}
+ let sg=towerFixture();
+ chk(sg.type==='up'&&sg.w===kg(65)&&sg.reps===6&&sg.sets===2,
+     '62,5 lb × 13/10, RIR 0 y rango 6–8 → 65 lb × 6 en dos series');
+ let mount=loadPlan(key,sg.w).stack;
+ chk(mount.index===4&&mount.plateValue===55&&mount.extra===10&&mount.value===65,
+     '65 lb son placa 4 (55) + ajuste 10; la placa conserva su valor base');
+ db.history[0].entries[0].sets.forEach(st=>st.w=62.5*F);
+ chk(computeSuggestion(key).w===kg(65),'el mismo historial sin redondear también propone 65 lb');
+ sg=towerFixture(false);
+ chk(sg.w===kg(70)&&loadPlan(key,sg.w).stack.index===5,
+     'sin ajuste fino el siguiente peso disponible es 70 lb, placa 5; no salta a 85');
+ setExStack(key,'extra','5');setExStack(key,'extraMax','10');
+ chk(computeSuggestion(key).w===kg(65),'habilitar el pin giratorio vuelve a calcular 65 lb desde el historial');
+ let allPhysical=true;
+ for(let i=0;i<=10;i++)for(const extra of [0,5,10]){
+  const base=10+15*i,total=base+extra,sn=stackSnap(key,kg(total));
+  allPhysical&&=sn.index===i+1&&sn.plateValue===base&&sn.extra===extra&&sn.value===total;
+ }
+ chk(allPhysical,'las 33 combinaciones mantienen índice, placa base, ajuste y total coherentes');
+ chk(stackSnap(key,kg(70)).index===5&&stackSnap(key,kg(85)).index===6,
+     '70 lb siguen siendo placa 5 y 85 lb siguen siendo placa 6');
+ chk(progressionWeight(key,kg(65),.025)===kg(70)&&progressionWeight(key,kg(65),.05,-1)===kg(60),
+     'subir y bajar eligen combinaciones en la dirección correcta');
+ chk(stackSnap(key,kg(170),{min:kg(170)+.001})===null&&progressionWeight(key,kg(170),.025)===kg(170),
+     'al agotar torre y ajuste no se inventa una placa adicional');
+ chk(stackSnap(key,kg(10),{max:kg(10)-.001})===null&&progressionWeight(key,kg(10),.05,-1)===kg(10),
+     'tampoco se inventan pesos por debajo de la primera placa');
+ exMeta(key).step=kg(10);
+ chk(progressionWeight(key,kg(62.5),.025)===kg(75),'un aumento mínimo explícito de 10 lb sí se respeta');
+ chk(progressionWeight(key,kg(165),.025)===kg(170),'si el mínimo supera la última placa alcanza el tope disponible de 170 lb');
+ exMeta(key).step=null;
+ const history=JSON.stringify(db.history);setActiveGym('tower-a');
+ chk(computeSuggestion(key).w===kg(65)&&stackConf(key).step===10&&stackConf(key).extra===2.5,
+     'la torre habitual con dos ajustes de 2,5 permite 65 lb y conserva sus saltos de 10');
+ setActiveGym('tower-b');
+ chk(computeSuggestion(key).w===kg(65)&&stackConf(key).step===15&&stackConf(key).extraMax===10&&JSON.stringify(db.history)===history,
+     'volver a la segunda torre recupera su equipo sin modificar el historial');
+
+ let ex=beginTower();prepareFixture(0);
+ let warm=ensureWarmup(0),warmId=warm.id,performed=JSON.stringify(warm.plan.steps);
+ chk(ex.sets[0].w==='70'&&ex.sets[0].autoWeightKg===kg(70)&&ex.warmupDone,
+     'al completar la preparación se identifica la carga rellenada automáticamente');
+ setExStack(key,'extra','5');setExStack(key,'extraMax','10');
+ chk(ex.sugg.w===kg(65)&&ex.sets[0].w==='65'&&recordedSetKg(key,ex.sets[0])===kg(65),
+     'editar el ajuste actualiza propuesta, borrador automático y carga canónica a 65 lb');
+ chk(!warmupRequired(0)&&ensureWarmup(0).id===warmId&&JSON.stringify(ex.warmup.plan.steps)===performed,
+     'el calentamiento completado mantiene su identidad y las aproximaciones realizadas');
+ chk(collectEntries(db.active).length===0&&ex.sets.every(st=>!st.done)&&ex.sets[0].r==='',
+     'corregir equipo no registra series ni rellena repeticiones realizadas');
+ const card=uiLoadStrip(0);
+ chk(card.includes('Placa 4')&&card.includes('55 lb de torre')&&card.includes('10 lb de ajuste fino')&&card.includes('Total: 65 lb'),
+     'el montaje muestra placa 4, base 55, ajuste 10 y total 65 juntos');
+ save();db=normalize(JSON.parse(localStorage.getItem(LS_KEY)));ex=db.active.exercises[0];
+ chk(!warmupRequired(0)&&ex.sets[0].autoWeightKg===kg(65),'recargar conserva la preparación y el origen automático del borrador');
+ setGymNotes(key,'Asiento 4');
+ chk(!warmupRequired(0)&&ensureWarmup(0).id===warmId,'editar una nota de montaje tampoco repite la preparación');
+ setExStack(key,'extraMax','0');
+ chk(ex.sets[0].w==='70'&&!warmupRequired(0),'quitar el ajuste recupera 70 lb sin repetir el calentamiento ya hecho para 70');
+
+ ex=beginTower();prepareFixture(0);setVal(0,0,'w','85');prepareFixture(0);warmId=ensureWarmup(0).id;
+ setExStack(key,'extra','5');setExStack(key,'extraMax','10');
+ chk(ex.sugg.w===kg(65)&&ex.sets[0].w==='85'&&!Number.isFinite(ex.sets[0].autoWeightKg),
+     'un peso escrito por la persona se conserva aunque la propuesta cambie a 65');
+ chk(!warmupRequired(0)&&ensureWarmup(0).id===warmId&&uiLoadStrip(0).includes('Montaje para tu carga escrita')&&uiLoadStrip(0).includes('Placa 6')&&uiLoadStrip(0).includes('Total: 85 lb'),
+     'la carga manual de 85 se identifica y su pin 6 no se confunde con la propuesta de 65');
+ uiUseSuggestion(0);
+ chk(ex.sets[0].w==='65'&&ex.sets[0].r==='6'&&ex.sets[0].autoWeightKg===kg(65),'aplicar la propuesta sustituye explícitamente el borrador manual');
+ uiUndoProposal(0);
+ chk(ex.sets[0].w==='85'&&ex.sets[0].r===''&&ex.sets[0].autoWeightKg===undefined,'deshacer recupera tanto el peso manual como su origen');
+
+ ex=beginTower();prepareFixture(0);uiUseSuggestion(0);uiLogSet(0,0);
+ const confirmed=JSON.stringify(collectEntries(db.active));setExStack(key,'extra','5');setExStack(key,'extraMax','10');
+ chk(JSON.stringify(collectEntries(db.active))===confirmed&&ex.sets[0].w==='70'&&ex.sets[0].done&&ex.sets[0].autoWeightKg===undefined&&collectEntries(db.active)[0].sets[0].w===kg(70),
+     'una serie confirmada de 70 lb permanece intacta al corregir el ajuste');
+
+ ex=beginTower();warm=ensureWarmup(0);uiWarmupRecord(0,warm.id,0);
+ const firstStep=JSON.stringify(warm.plan.steps[0]),deadline=warm.restUntil,oldToken=warm.id;
+ setExStack(key,'extra','5');setExStack(key,'extraMax','10');warm=ensureWarmup(0);
+ chk(warm.completed===1&&warm.phase==='rest'&&warm.restUntil===deadline&&JSON.stringify(warm.plan.steps[0])===firstStep,
+     'editar durante un descanso conserva la aproximación realizada y el plazo original');
+ chk(warm.id!==oldToken&&warm.plan.W===kg(65),'solo se recalculan las aproximaciones pendientes para la nueva carga');
+ uiWarmupRecord(0,oldToken,1);
+ chk(warm.completed===1&&warm.restUntil===deadline,'un botón atrasado no puede registrar una aproximación recalculada');
+ prepareFixture(0);
+ chk(ex.warmupDone&&ex.sets[0].w==='65'&&!warmupRequired(0),'continuar las aproximaciones pendientes termina con 65 lb sin empezar de cero');
+
+ ex=beginTower();prepareFixture(0);delete ex.sets[0].autoWeightKg;save();
+ db=normalize(JSON.parse(localStorage.getItem(LS_KEY)));ex=db.active.exercises[0];
+ setExStack(key,'extra','5');setExStack(key,'extraMax','10');
+ chk(!warmupRequired(0)&&ex.sets[0].w==='70'&&ex.sugg.w===kg(65),
+     'una sesión antigua sin origen del peso conserva su borrador y su calentamiento');
+ ex.sugg={...ex.sugg,w:kg(85)};delete db.active.suggestionVersion;save();
+ db=normalize(JSON.parse(localStorage.getItem(LS_KEY)));ex=db.active.exercises[0];warmId=ensureWarmup(0).id;
+ const priorSessionHistory=JSON.stringify(db.history);
+ chk(refreshSessionSuggestions()&&ex.sugg.w===kg(65)&&db.active.suggestionVersion===APP_VERSION,
+     'actualizar la app corrige también una propuesta antigua de 85 lb guardada en la sesión');
+ chk(ex.sets[0].w==='70'&&!warmupRequired(0)&&ensureWarmup(0).id===warmId&&JSON.stringify(db.history)===priorSessionHistory,
+     'la actualización mantiene el borrador antiguo, el calentamiento y el historial');
+ chk(!refreshSessionSuggestions(),'la misma versión no vuelve a recalcular una sesión ya actualizada');
+ delete db.active.suggestionVersion;ex.sugg.w=kg(85);save();const oldWriter=localStorage.setItem;
+ localStorage.setItem=()=>{throw new Error('quota');};
+ chk(!refreshSessionSuggestions()&&db.active.exercises[0].sugg.w===kg(85)&&db.active.suggestionVersion===undefined,
+     'si falla el guardado de la actualización se conserva la sesión anterior para reintentar');
+ localStorage.setItem=oldWriter;refreshSessionSuggestions();
+
+ ex=beginTower();prepareFixture(0);warmId=ensureWarmup(0).id;setActiveGym('tower-a');
+ chk(ex.sets[0].w==='65'&&warmupRequired(0)&&ensureWarmup(0).id!==warmId,
+     'cambiar realmente de gimnasio recalcula el borrador y prepara la otra máquina');
+ prepareFixture(0);warmId=ensureWarmup(0).id;setExStack(key,'step','15');
+ chk(warmupRequired(0)&&ensureWarmup(0).id!==warmId,'cambiar el salto principal de placas sí invalida una preparación distinta');
+ prepareFixture(0);warmId=ensureWarmup(0).id;ensureWarmup(0,true);
+ chk(warmupRequired(0)&&ensureWarmup(0).id!==warmId,'pedir explícitamente otro calentamiento sigue reiniciándolo');
+ uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
 }
 
 /* ---------- resultado ---------- */

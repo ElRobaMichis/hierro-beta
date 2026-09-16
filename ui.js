@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.6.2';
+const UI_VERSION = '3.6.3';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -168,7 +168,9 @@ function uiLoadStrip(xi){
  let label,number,detail='',closest;
  if(p.kind==='placas'){
   label='Pon el pin en';number=`Placa ${p.stack.index}`;
-  if(p.stack.extra>0)detail=`+${fmtStackNum(p.stack.extra)} ${p.stack.unit} de ajuste fino`;
+  if(ex.sugg&&Math.abs(target-ex.sugg.w)>.000501)label='Montaje para tu carga escrita';
+  detail=`${fmtStackNum(p.stack.plateValue)} ${p.stack.unit} de torre`;
+  if(p.stack.extra>0)detail+=` + ${fmtStackNum(p.stack.extra)} ${p.stack.unit} de ajuste fino`;
   closest=`${fmtStackNum(p.stack.value)} ${p.stack.unit}`;
  }else if(p.kind==='mancuerna'){
   label=p.points===1?'Una mancuerna':'En cada mano';number=`${fmtW(p.dumbbell)} <small>${uLabel()}</small>`;
@@ -178,8 +180,9 @@ function uiLoadStrip(xi){
   number=p.perPoint.length?pointTextHTML(p.perPoint):'Sin discos';
   closest=`${fmtWEx(key,Math.max(0,p.total-p.base))} ${uLabelEx(key)}${p.base>0?' en discos':''}`;
  }
- const differs=uiLoadDiffers(key,p),spoken=`Ver montaje. ${label}: ${number.replace(/<[^>]+>/g,'')}${detail?'. '+detail:''}${differs?'. Más cercano: '+closest:''}`;
- return `<button class="ui-load-card" aria-label="${esc(spoken)}" onclick="showLoad(${xi})"><span class="ui-load-heading"><span class="ui-load-label">${label}</span><span class="ui-load-link"><span>Ver montaje</span>${uiIcon('chevron')}</span></span><span class="ui-load-number">${number}</span>${detail?`<span class="ui-load-detail">${detail}</span>`:''}${differs?`<span class="ui-load-nearest">Más cercano: ${closest}</span>`:''}</button>`;
+ const differs=uiLoadDiffers(key,p),total=differs?`Más cercano: ${closest}`:p.kind==='placas'?`Total: ${closest}`:'';
+ const spoken=`Ver montaje. ${label}: ${number.replace(/<[^>]+>/g,'')}${detail?'. '+detail:''}${total?'. '+total:''}`;
+ return `<button class="ui-load-card" aria-label="${esc(spoken)}" onclick="showLoad(${xi})"><span class="ui-load-heading"><span class="ui-load-label">${label}</span><span class="ui-load-link"><span>Ver montaje</span>${uiIcon('chevron')}</span></span><span class="ui-load-number">${number}</span>${detail?`<span class="ui-load-detail">${detail}</span>`:''}${total?`<span class="ui-load-nearest">${total}</span>`:''}</button>`;
 }
 
 function uiRefreshLoad(xi){
@@ -327,9 +330,10 @@ function uiUseSuggestion(xi){
  const si=uiCurrentSet(ex);if(si<0)return;
  const st=ex.sets[si];
  if(uiProposalMatches(ex,st))return;
- window.__proposalUndo={ex,st,context:uiProposalContext(ex),previous:{w:st.w,r:st.r,wkg:st.wkg,totalKg:st.totalKg}};
+ window.__proposalUndo={ex,st,context:uiProposalContext(ex),previous:{w:st.w,r:st.r,wkg:st.wkg,totalKg:st.totalKg,autoWeightKg:st.autoWeightKg}};
  st.w=inputWEx(ex.key,kgToTyped(ex.key,ex.sugg.w));st.r=String(ex.sugg.reps);
  delete st.wkg;delete st.totalKg;
+ st.autoWeightKg=ex.sugg.w;
  window.__proposalUndo.applied={w:st.w,r:st.r};
  db.active.open=xi;save();render();
  const status=document.getElementById('n-draft-status');if(status)status.textContent='Propuesta preparada. Registra al terminar la serie.';
@@ -345,7 +349,7 @@ function uiProposalContext(ex){return JSON.stringify([db.settings.gymId,exUnit(e
 function uiUndoProposal(xi){
  const ex=db.active?.exercises[xi];if(!uiCanUndoProposal(ex))return;
  const {st,previous}=window.__proposalUndo;
- for(const key of ['w','r','wkg','totalKg']){if(previous[key]===undefined)delete st[key];else st[key]=previous[key];}
+ for(const key of ['w','r','wkg','totalKg','autoWeightKg']){if(previous[key]===undefined)delete st[key];else st[key]=previous[key];}
  delete window.__proposalUndo;save();render();
  const status=document.getElementById('n-draft-status');if(status)status.textContent='Borrador anterior recuperado.';
 }
@@ -764,7 +768,7 @@ function uiWarmupSetTarget(ev,xi){
  if(!ex||!input||input.value.trim()===''||!Number.isFinite(n)||n<0)return;
  const st=ex.sets.find(st=>!st.done);if(!st)return;
  const forced=!!ex.warmup?.forced;
- st.w=String(n);delete st.wkg;delete st.totalKg;delete ex.warmup;delete ex.warmupDone;
+ st.w=String(n);delete st.wkg;delete st.totalKg;delete st.autoWeightKg;delete ex.warmup;delete ex.warmupDone;
  if(forced)ensureWarmup(xi,true);
  db.active.lastLog=Date.now();save();closeModal();render();window.scrollTo(0,0);
 }
@@ -787,7 +791,10 @@ function uiWarmupNext(xi,id,completed){
  if(w.completed>=w.plan.steps.length){
   w.phase='done';w.completedAt=Date.now();ex.warmupDone=true;
   const st=ex.sets.find(st=>!st.done);
-  if(st&&String(st.w??'').trim()===''&&w.plan.W!==null)st.w=inputWEx(ex.key,kgToTyped(ex.key,w.plan.W));
+  if(st&&String(st.w??'').trim()===''&&w.plan.W!==null){
+   st.w=inputWEx(ex.key,kgToTyped(ex.key,w.plan.W));
+   if(ex.sugg&&Math.abs(w.plan.W-ex.sugg.w)<.000501)st.autoWeightKg=w.plan.W;
+  }
  }else w.phase='set';
  delete w.restUntil;delete w.restStarted;delete w.restDuration;delete w.lastCue;delete w.restNotified;
  db.active.lastLog=Date.now();save();render();window.scrollTo(0,0);
@@ -836,7 +843,7 @@ function uiLogSet(xi,si){
   if(input?.setCustomValidity){input.setCustomValidity(badW?'Escribe un peso válido, incluido 0 cuando corresponda.':'Escribe un número entero mayor que cero.');input.reportValidity();input.focus();}
   return;
  }
- if(!commitChange(()=>{db.active.open=xi;st.done=true;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastSeriesAt=db.active.lastLog=Date.now();if(db.active.setTimer?.key===ex.key)delete db.active.setTimer;startRestAuto(ex.key);db.active.restKey=ex.key;db.active.uiRest=!!restUntil;})){uiSaveState();return;}
+ if(!commitChange(()=>{db.active.open=xi;st.done=true;delete st.autoWeightKg;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastSeriesAt=db.active.lastLog=Date.now();if(db.active.setTimer?.key===ex.key)delete db.active.setTimer;startRestAuto(ex.key);db.active.restKey=ex.key;db.active.uiRest=!!restUntil;})){uiSaveState();return;}
  render();window.scrollTo(0,0);
 }
 function uiStep(xi,si,field,direction){
