@@ -379,7 +379,7 @@ startSession('r1');
 db.active.exercises[0].sets[0].w = '60';
 db.active.exercises[1].sets[0].w = '100';
 let wp = warmupPlan(0);
-chk(wp.rows.length === 2 && wp.rows[0].includes('30'), 'calentamiento hipertrofia: 2 escalones (50%, 75%)');
+chk(wp.rows.length === 2 && wp.rows[0].includes('32,5') && wp.rows[1].includes('47,5 kg × 4'), 'calentamiento hipertrofia: 2 escalones (55%, 80%)');
 wp = warmupPlan(1);
 chk(wp.rows.length === 3 && wp.rows[2].includes('80'), 'calentamiento fuerza: 3 escalones hasta 80%');
 db.active = null;
@@ -2791,7 +2791,7 @@ const warmFormEvent={preventDefault(){}};
 document.getElementById('warmup-target').value='60';uiWarmupSetTarget(warmFormEvent,0);
 let warmEx=db.active.exercises[0],warmState=ensureWarmup(0);
 chk(warmState.phase==='set'&&warmState.plan.W===60&&warmState.plan.steps.length===2,'elegir 60 kg crea dos aproximaciones');
-chk(warmState.plan.steps[0].w===30&&warmState.plan.steps[1].w===45,'la escalera usa placas existentes: 30 y 45 kg');
+chk(warmState.plan.steps[0].w===35&&warmState.plan.steps[1].w===50,'la escalera usa placas existentes: 35 y 50 kg');
 chk(uiSession().includes('Pin en la placa')&&uiSession().includes('Calentamiento 1 de 2')&&!uiSession().includes('Registrar serie'),'la preparación sustituye toda la interfaz de registro');
 warmEx.sets[0].r='8';uiLogSet(0,0);toggleSetDone(0,0);
 chk(!warmEx.sets[0].done&&collectEntries(db.active).length===0,'los dos caminos para registrar bloquean trabajo antes de preparar');
@@ -3174,6 +3174,46 @@ suite('Regresión — torre 10/15, ajuste 0/5/10 y preparación conservada');
  chk(warmupRequired(0)&&ensureWarmup(0).id!==warmId,'pedir explícitamente otro calentamiento sigue reiniciándolo');
  uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
 }
+
+/* =====================================================================
+   3.7.0 — escalera por intensidad y descanso tras el escalón pesado
+   ===================================================================== */
+suite('3.7.0 — escalera por intensidad y descanso tras el escalón pesado');
+resetDB();uiResetRest();db.gym=defaultGym('kg');db.settings.rest='off';db.settings.sound='off';db.settings.vibration='off';db.settings.unit='kg';
+db.routines=[{id:'lad-day',name:'Pierna',exercises:[{id:'l1',key:'hack',name:'Hack squat'},{id:'l2',key:'curl fem',name:'Curl femoral'},{id:'l3',key:'ext',name:'Extensión'},{id:'l4',key:'prensa',name:'Prensa'}]}];
+Object.assign(exMeta('hack'),{equip:'discos',base:47.6,muscle:'cuadriceps',lo:6,hi:8});
+Object.assign(exMeta('curl fem'),{equip:'placas',muscle:'isquios',lo:6,hi:8,stack:{unit:'lb',start:10,step:10,extra:2.5,extraMax:7.5}});
+Object.assign(exMeta('ext'),{equip:'placas',muscle:'cuadriceps',lo:8,hi:12,stack:{unit:'kg',start:5,step:5}});
+Object.assign(exMeta('prensa'),{equip:'discos',base:30,muscle:'gluteos',lo:12,hi:15});
+view={name:'home'};startSession('lad-day');
+db.active.exercises[0].sets[0].w='10';   /* 5 kg por lado + carro de 47,6 = 57,6 */
+let lad=warmupPlan(0);
+chk(lad.heavy&&Math.abs(lad.W-57.6)<1e-9,'un rango de 6 a 8 cuenta como pesado (≈80 % 1RM)');
+chk(lad.steps.length===1&&Math.abs(lad.steps[0].w-47.6)<1e-9&&lad.steps[0].reps===3,'hack squat: el carro vacío (83 %) es el único escalón y toma las reps del escalón pesado (3), no del ligero');
+const ladNow=Date.now;let ladClock=ladNow();Date.now=()=>ladClock;
+let ladState=ensureWarmup(0);
+uiWarmupRecord(0,ladState.id,0);
+chk(ladState.phase==='rest'&&ladState.restDuration===60&&ladState.restUntil===ladClock+60000&&validWarmupState(ladState),'tras el escalón pesado final el descanso base es de 1 minuto');
+uiWarmupExtend(0,ladState.id);
+chk(ladState.restDuration===90&&ladState.restUntil===ladClock+90000&&validWarmupState(ladState),'ampliar suma 30 s hasta 1:30');
+uiWarmupExtend(0,ladState.id);chk(ladState.restUntil===ladClock+90000,'una segunda ampliación no supera 1:30');
+ladClock=ladState.restUntil;uiWarmupNext(0,ladState.id,1);
+chk(db.active.exercises[0].warmupDone&&!warmupRequired(0),'el recorrido termina tras el único escalón');
+db.settings.unit='lb';db.active.exercises[1].sets[0].w='70';
+lad=warmupPlan(1);
+const ladLb=lad.steps.map(st=>Math.round(st.w/0.45359237*100)/100);
+chk(lad.first&&ladLb.length===2&&ladLb[0]===35&&ladLb[1]===55&&lad.steps[0].reps===5&&lad.steps[1].reps===3,'curl femoral en torre de lb con manija: 35 × 5 y 55 × 3 (50 % y 80 % de 70)');
+ladState=ensureWarmup(1);uiWarmupRecord(1,ladState.id,0);
+chk(ladState.restDuration===30&&ladState.restUntil===ladClock+30000,'el escalón ligero mantiene 30 s');
+ladClock=ladState.restUntil;uiWarmupNext(1,ladState.id,1);uiWarmupRecord(1,ladState.id,1);
+chk(ladState.restDuration===60,'el segundo escalón, al 80 %, descansa 1 minuto antes del trabajo');
+db.settings.unit='kg';db.active.exercises[2].sets[0].w='40';
+lad=warmupPlan(2);
+chk(!lad.first&&lad.reason==='prepared'&&lad.steps.length===0&&!warmupRequired(2),'rango de 8 a 12 con el grupo ya preparado: sin escalones, acceso directo');
+db.active.exercises[3].sets[0].w='20';   /* 10 por lado + carro de 30 = 50 */
+lad=warmupPlan(3);
+chk(lad.first&&lad.steps.length===1&&lad.steps[0].w===35&&lad.steps[0].reps===6,'rango de 12 a 15 como primer trabajo del grupo: un escalón al 70 % × 6');
+Date.now=ladNow;uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));

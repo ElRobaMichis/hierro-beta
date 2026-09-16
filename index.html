@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.6.3">
+<link rel="stylesheet" href="ui.css?v=3.7.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.6.3"></script>
-<script src="sync-core.js?v=3.6.3"></script>
-<script src="sync-engine.js?v=3.6.3"></script>
-<script src="qr.js?v=3.6.3"></script>
-<script src="sync.js?v=3.6.3"></script>
-<script src="push-core.js?v=3.6.3"></script>
-<script src="push.js?v=3.6.3"></script>
+<script src="ui.js?v=3.7.0"></script>
+<script src="sync-core.js?v=3.7.0"></script>
+<script src="sync-engine.js?v=3.7.0"></script>
+<script src="qr.js?v=3.7.0"></script>
+<script src="sync.js?v=3.7.0"></script>
+<script src="push-core.js?v=3.7.0"></script>
+<script src="push.js?v=3.7.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.6.3';
+const APP_VERSION = '3.7.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -4965,7 +4965,7 @@ function warmupPlan(xi, force=false){
   const s = db.active, ex = s?.exercises[xi];
   if(!ex) return null;
   const meta = exMeta(ex.key);
-  const { lo, hi } = effRange(ex.key), heavy = hi <= 7;
+  const { lo, hi } = effRange(ex.key), heavy = hi <= 8;   /* ≥ ~80 % 1RM: la preparación específica sí cambia el rendimiento */
   let W = targetWeight(ex);
   const draft = ex.sets.find(st=>!st.done);
   if(draft && String(draft.w ?? '').trim() !== '' && Number(draft.w) === 0) W = discosOffset(ex.key);
@@ -5009,15 +5009,24 @@ function warmupPlan(xi, force=false){
   const reference = recent ? Math.max(0,...last.entry.sets.filter(st=>st.r>0).map(st=>Number(st.w)||0)) : 0;
   if(!force && !heavy && !['placas','discos'].includes(eq) && W>0 && reference>0 && W<=reference*.6)
     return finish([], 'La carga de hoy es mucho menor que tu trabajo reciente en este ejercicio. Puedes empezar directamente.', 'light');
-  const scheme = heavy
-    ? (first ? [[0.4,5],[0.6,3],[0.8,2]] : [[0.55,3],[0.8,2]])
-    : (first ? [[0.5,6],[0.75,3]]        : [[0.7,4]]);
-  const steps = [], seen = new Set();
+  /* La escalera depende de la intensidad relativa de la serie de trabajo, no del
+     ejercicio: cuanto más pesado el rango, más escalones. El escalón que importa
+     es el de ~80 % con pocas reps; los ligeros solo preparan la técnica. Con
+     rangos de 9+ reps y el grupo ya preparado, la evidencia no muestra beneficio. */
+  const scheme = hi <= 6 ? (first ? [[0.4,5],[0.6,3],[0.8,2]] : [[0.6,3],[0.8,2]])
+    : heavy              ? (first ? [[0.5,5],[0.8,3]]         : [[0.8,3]])
+    : hi <= 12           ? (first ? [[0.55,5],[0.8,4]]        : [])
+    :                      (first ? [[0.7,6]]                 : []);
+  if(!force && !scheme.length)
+    return finish([], 'Ya preparaste este grupo y la carga de hoy es moderada. Puedes pasar a tus series.', 'prepared');
+  const steps = [];
   for(const [pct, reps] of scheme){
     const wk = fitWeight(ex.key,roundToStep(W*pct));
-    if(wk <= 0 || wk >= W-1e-6 || seen.has(wk)) continue;
-    seen.add(wk);
-    steps.push({ w:wk, reps });
+    if(wk <= 0 || wk >= W-1e-6) continue;
+    /* si el equipo no baja más (carro, barra, primera placa), varios escalones
+       caen en la misma carga: valen las reps del más pesado, no del más ligero */
+    const dup = steps.find(st=>Math.abs(st.w-wk)<1e-6);
+    if(dup) dup.reps = Math.min(dup.reps, reps); else steps.push({ w:wk, reps });
   }
   if(!steps.length) return finish([{w:0,reps:Math.min(3,Math.max(1,Math.floor(target*.3))),easy:true}],
     'Este equipo no ofrece una carga menor. Practica el mismo movimiento sin carga o con apoyo, con esfuerzo suave.');
@@ -5053,7 +5062,7 @@ function validWarmupState(w){
   if(!Number.isInteger(w.completed)||w.completed<0||w.completed>n)return false;
   if(!w.plan.steps.every(st=>Number.isFinite(st.w)&&st.w>=0 &&
     (Number.isInteger(st.reps)&&st.reps>0&&st.reps<=20 || Number.isInteger(st.seconds)&&st.seconds>0&&st.seconds<=10)))return false;
-  if(w.phase==='rest')return w.completed>0 && [30,60].includes(w.restDuration) && Number.isFinite(w.restStarted) && w.restUntil===w.restStarted+w.restDuration*1000;
+  if(w.phase==='rest')return w.completed>0 && [30,60,90].includes(w.restDuration) && Number.isFinite(w.restStarted) && w.restUntil===w.restStarted+w.restDuration*1000;
   if(w.phase==='set')return w.completed<n && (!w.holdUntil || Number.isFinite(w.holdStarted)&&w.holdUntil===w.holdStarted+w.plan.steps[w.completed].seconds*1000);
   return w.phase==='done'?n>0&&w.completed===n:w.phase==='skipped'&&n===0;
 }
@@ -5087,6 +5096,11 @@ function ensureWarmup(xi, force=false){
   ex.warmup={id:uid(),context,plan,completed:0,phase:plan.steps.length?'set':'skipped',forced:!!force};
   delete ex.warmupDone;
   save();return ex.warmup;
+}
+/* Tras el último escalón (~80 %) de un rango pesado conviene un minuto antes
+   de la serie de trabajo; los escalones ligeros siguen con 30 s. */
+function warmupRestBase(w, step){
+  return w.plan.heavy && step === w.plan.steps.length-1 && !w.plan.steps[step].seconds ? 60 : 30;
 }
 function warmupRequired(xi){
   const w=ensureWarmup(xi);return !!w && !['done','skipped'].includes(w.phase);

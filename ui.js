@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.6.3';
+const UI_VERSION = '3.7.0';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -730,7 +730,8 @@ function uiWarmup(xi){
  let body='';
  if(resting){
   const rem=Math.max(0,Math.ceil((w.restUntil-Date.now())/1000)),action=last?'Empezar series de trabajo':'Siguiente calentamiento';
-  body=`<div class="n-warmup-rest"><span class="n-warmup-status">${uiIcon('check')}Calentamiento ${w.completed} completado</span><h2 id="warmup-rest-title">${rem?'Dale un respiro.':'Preparación lista.'}</h2><div class="n-warmup-clock" role="timer" aria-label="Descanso de calentamiento"><svg viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="70" class="n-warmup-ring-track"/><circle id="warmup-ring" cx="80" cy="80" r="70" style="stroke-dashoffset:${440*(1-rem/w.restDuration)}"/></svg><strong id="warmup-time">${fmtClock(rem)}</strong><small id="warmup-clock-label" role="status">${rem?'Descanso':'A tu ritmo'}</small></div><div class="n-warmup-rest-tools"><button id="warmup-extend" class="n-text" ${w.restDuration>=60||!rem?'hidden':''} onclick="uiWarmupExtend(${xi},'${w.id}')">${uiIcon('plus')}Añadir 30 s</button><span id="warmup-rest-limit">${w.restDuration>=60?'1 minuto en total':'30 s · ampliable a 1 min'}</span></div><div class="n-warmup-next"><small>Después del descanso</small><b>${last?'Tus series de trabajo':warmupStepText(key,step)}</b></div><button id="warmup-next" type="button" class="n-primary" ${rem?'disabled':''} onclick="uiWarmupNext(${xi},'${w.id}',${w.completed})"><span>${action}</span>${uiIcon('arrow')}</button><p class="n-warmup-foot">${last?'El calentamiento está hecho. Empieza cuando te sientas listo.':'El siguiente paso se habilita al terminar el descanso.'}</p></div>`;
+  const restMax=warmupRestBase(w,w.completed-1)+30;
+  body=`<div class="n-warmup-rest"><span class="n-warmup-status">${uiIcon('check')}Calentamiento ${w.completed} completado</span><h2 id="warmup-rest-title">${rem?'Dale un respiro.':'Preparación lista.'}</h2><div class="n-warmup-clock" role="timer" aria-label="Descanso de calentamiento"><svg viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="70" class="n-warmup-ring-track"/><circle id="warmup-ring" cx="80" cy="80" r="70" style="stroke-dashoffset:${440*(1-rem/w.restDuration)}"/></svg><strong id="warmup-time">${fmtClock(rem)}</strong><small id="warmup-clock-label" role="status">${rem?'Descanso':'A tu ritmo'}</small></div><div class="n-warmup-rest-tools"><button id="warmup-extend" class="n-text" ${w.restDuration>=restMax||!rem?'hidden':''} onclick="uiWarmupExtend(${xi},'${w.id}')">${uiIcon('plus')}Añadir 30 s</button><span id="warmup-rest-limit">${w.restDuration>=restMax?(restMax>=90?'1 min 30 s en total':'1 minuto en total'):(restMax>=90?'1 min · ampliable a 1:30':'30 s · ampliable a 1 min')}</span></div><div class="n-warmup-next"><small>Después del descanso</small><b>${last?'Tus series de trabajo':warmupStepText(key,step)}</b></div><button id="warmup-next" type="button" class="n-primary" ${rem?'disabled':''} onclick="uiWarmupNext(${xi},'${w.id}',${w.completed})"><span>${action}</span>${uiIcon('arrow')}</button><p class="n-warmup-foot">${last?'El calentamiento está hecho. Empieza cuando te sientas listo.':'El siguiente paso se habilita al terminar el descanso.'}</p></div>`;
  }else{
   const timed=!!step.seconds,corp=exMeta(key).type==='corporal'||step.easy,load=uiWarmupLoad(key,step);
   body=`<div class="n-warmup-active"><span class="n-eyebrow">Calentamiento ${w.completed+1} de ${p.steps.length}</span><h2>${w.completed?'Un paso más cerca.':'Entra en movimiento.'}</h2><div class="n-warmup-dose"><div><strong>${timed?step.seconds:step.reps}</strong><span>${timed?'segundos':'repeticiones'}</span></div>${!timed&&!corp?`<div><strong>${fmtWEx(key,step.w)}</strong><span>${uLabelEx(key)} ${step.assisted?'de ayuda':'en total'}</span></div>`:`<div class="n-warmup-easy">${uiIcon('spark')}<span>Suave<br>Sin lastre</span></div>`}</div>${load}<p class="n-warmup-guidance">${esc(p.note)}</p>${timed?`<div class="n-warmup-hold" ${w.holdUntil?'':'hidden'} id="warmup-hold"><strong id="warmup-hold-time">${step.seconds}</strong><span id="warmup-hold-label" role="status">Prepárate</span></div><button id="warmup-timed-start" class="n-secondary" ${w.holdUntil?'hidden':''} onclick="uiWarmupTimedStart(${xi},'${w.id}',${w.completed})">${uiIcon('clock')}Iniciar ${step.seconds} segundos</button>`:''}<button id="warmup-record" type="button" class="n-primary" ${timed&&!(w.holdUntil&&Date.now()>=w.holdUntil)?'disabled':''} onclick="uiWarmupRecord(${xi},'${w.id}',${w.completed})"><span>Completé este calentamiento</span>${uiIcon('check')}</button><p class="n-warmup-foot">Después, 30 segundos para respirar.</p></div>`;
@@ -777,13 +778,14 @@ function uiWarmupRecord(xi,id,step){
  const ex=db.active?.exercises[xi],w=ensureWarmup(xi);
  if(!ex||!w||w.id!==id||w.phase!=='set'||w.completed!==step)return;
  if(w.plan.steps[step].seconds&&!(w.holdUntil&&Date.now()>=w.holdUntil))return;
- unlockAudio();w.completed++;w.phase='rest';w.restStarted=Date.now();w.restDuration=30;w.restUntil=w.restStarted+30000;
+ unlockAudio();const base=warmupRestBase(w,step);w.completed++;w.phase='rest';w.restStarted=Date.now();w.restDuration=base;w.restUntil=w.restStarted+base*1000;
  delete w.lastCue;delete w.restNotified;delete w.holdUntil;delete w.holdStarted;delete w.holdNotified;
  db.active.lastSeriesAt=db.active.lastLog=Date.now();save();render();window.scrollTo(0,0);
 }
 function uiWarmupExtend(xi,id){
- const w=ensureWarmup(xi);if(!w||w.id!==id||w.phase!=='rest'||w.restDuration>=60||Date.now()>=w.restUntil)return;
- w.restDuration=60;w.restUntil=w.restStarted+60000;delete w.lastCue;save();tickWarmup();
+ const w=ensureWarmup(xi);if(!w||w.id!==id||w.phase!=='rest'||Date.now()>=w.restUntil)return;
+ const max=warmupRestBase(w,w.completed-1)+30;if(w.restDuration>=max)return;
+ w.restDuration=max;w.restUntil=w.restStarted+max*1000;delete w.lastCue;save();tickWarmup();
 }
 function uiWarmupNext(xi,id,completed){
  const ex=db.active?.exercises[xi],w=ensureWarmup(xi);
@@ -820,12 +822,13 @@ function tickWarmup(){
   if(!rem&&!w.restNotified){w.restNotified=true;save();beep();notify('Calentamiento · descanso listo',exBaseName(db.active.exercises[xi].name),'hierro-warmup');}
   const time=el('warmup-time'),next=el('warmup-next'),extend=el('warmup-extend'),ring=el('warmup-ring');
   if(time)time.textContent=fmtClock(rem);if(next)next.disabled=!!rem;
-  if(extend)extend.hidden=w.restDuration>=60||!rem;
+  const restMax=warmupRestBase(w,w.completed-1)+30;
+  if(extend)extend.hidden=w.restDuration>=restMax||!rem;
   if(ring)ring.style.strokeDashoffset=440*(1-rem/w.restDuration);
   const title=el('warmup-rest-title'),label=el('warmup-clock-label'),limit=el('warmup-rest-limit');
   if(title)title.textContent=rem?'Dale un respiro.':'Preparación lista.';
   if(label&&label.textContent!==(rem?'Descanso':'A tu ritmo'))label.textContent=rem?'Descanso':'A tu ritmo';
-  if(limit)limit.textContent=w.restDuration>=60?'1 minuto en total':'30 s · ampliable a 1 min';
+  if(limit)limit.textContent=w.restDuration>=restMax?(restMax>=90?'1 min 30 s en total':'1 minuto en total'):(restMax>=90?'1 min · ampliable a 1:30':'30 s · ampliable a 1 min');
  }else if(w.phase==='set'&&w.holdUntil){
   const prep=Date.now()<w.holdStarted,end=prep?w.holdStarted:w.holdUntil,rem=Math.max(0,Math.ceil((end-Date.now())/1000));cue(end,rem);
   if(!rem&&!w.holdNotified){w.holdNotified=true;save();beep();}
