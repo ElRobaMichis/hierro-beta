@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.7.0';
+const UI_VERSION = '3.8.0';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',

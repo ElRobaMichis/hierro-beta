@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.7.0">
+<link rel="stylesheet" href="ui.css?v=3.8.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.7.0"></script>
-<script src="sync-core.js?v=3.7.0"></script>
-<script src="sync-engine.js?v=3.7.0"></script>
-<script src="qr.js?v=3.7.0"></script>
-<script src="sync.js?v=3.7.0"></script>
-<script src="push-core.js?v=3.7.0"></script>
-<script src="push.js?v=3.7.0"></script>
+<script src="ui.js?v=3.8.0"></script>
+<script src="sync-core.js?v=3.8.0"></script>
+<script src="sync-engine.js?v=3.8.0"></script>
+<script src="qr.js?v=3.8.0"></script>
+<script src="sync.js?v=3.8.0"></script>
+<script src="push-core.js?v=3.8.0"></script>
+<script src="push.js?v=3.8.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.7.0';
+const APP_VERSION = '3.8.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -4650,107 +4650,195 @@ function receiptHTML(entries, prKeys){
   }).join('');
 }
 
-/* la pantalla completa que sustituye al modal de cierre */
+/* cuánto subió una marca, para el chip de «También hoy» */
+function prDeltaHTML(pr){
+  const d = pr.assist ? pr.prev - pr.now : pr.now - pr.prev;
+  if(pr.assist) return `−${fmtWEx(pr.key, d)}`;
+  if(pr.unit === 's' || pr.unit === 'reps') return `+${fmtNum(Math.round(d*10)/10)}`;
+  return `+${fmtE1RM(pr.key, d)}`;
+}
+/* los grupos que trabajaste hoy: series por músculo, para el mapa del cierre */
+function sessionMuscleStats(entries){
+  const counts = {}; let total = 0, untagged = 0;
+  for(const e of entries){
+    const m = exMeta(e.key).muscle, n = e.sets.length;
+    if(!MUSCLES.some(x => x[0] === m)){ untagged += n; continue; }
+    counts[m] = (counts[m] || 0) + n; total += n;
+  }
+  return { counts, total, untagged, max: Math.max(1, ...Object.values(counts)) };
+}
+/* la constancia hasta esa sesión: cuántas llevas, cuántas esta semana y
+   cuántas semanas seguidas con al menos una (la semana empieza en lunes) */
+function sessionStreak(rec){
+  const upTo = db.history.filter(h => h.id === rec.id || h.date <= rec.date);
+  const wk = weekStart(new Date(rec.date)).getTime();
+  const weeks = new Set(upTo.map(h => weekStart(new Date(h.date)).getTime()));
+  let run = 0; const d = new Date(wk);
+  while(weeks.has(weekStart(d).getTime())){ run++; d.setDate(d.getDate() - 7); }
+  return { total: upTo.length, week: upTo.filter(h => weekStart(new Date(h.date)).getTime() === wk).length, run };
+}
+
+/* equivalencias del peso movido, para darle escala al número (aproximadas, redondeadas) */
+const VOL_LIKE = [[120,'una nevera','neveras'],[250,'una moto','motos'],[500,'un caballo','caballos'],
+  [1300,'un coche','coches'],[2500,'una camioneta','camionetas'],[5000,'un elefante','elefantes'],
+  [12000,'un autobús','autobuses'],[40000,'un camión cargado','camiones cargados'],[150000,'una ballena azul','ballenas azules']];
+function volumeLike(kg){
+  let pick = null; for(const o of VOL_LIKE) if(kg >= o[0]) pick = o;
+  if(!pick) return '';
+  const n = Math.floor(kg / pick[0]), words = ['','','dos','tres','cuatro','cinco'];
+  if(n >= 2) return `Como ${words[n] || n} ${pick[2]}.`;
+  return kg / pick[0] >= 1.05 ? `Más que ${pick[1]}.` : `Como ${pick[1]}.`;
+}
+/* el peso movido como titular: toneladas con un decimal a partir de 1 000 kg */
+function tonnageParts(kg){
+  if(db.settings.unit === 'lb') return { num: fmtInt(fromKg(kg)), word: 'lb movidas' };
+  if(kg >= 1000) return { num: fmtNum(Math.round(kg / 100) / 10), word: 'toneladas movidas' };
+  return { num: fmtInt(kg), word: 'kg movidos' };
+}
+/* las siluetas del póster: los grupos con series llevan brillo */
+function posterBodySVG(back, stats){
+  return uiBodySVG(back, stats).replace(/class="ui-muscle" fill="var\(--muscle-(low|medium|high)\)"/g,
+    'class="ui-muscle lit" fill="var(--muscle-$1)"');
+}
+/* la mejora de una marca, en negrita y con su unidad */
+function prDeltaLong(pr){
+  const d = pr.assist ? pr.prev - pr.now : pr.now - pr.prev;
+  if(pr.assist) return `<b>−${fmtWEx(pr.key, d)} ${uLabelEx(pr.key)}</b> de ayuda`;
+  if(pr.unit === 's' || pr.unit === 'reps') return `<b>+${fmtNum(Math.round(d*10)/10)} ${pr.unit}</b>`;
+  return `<b>+${fmtE1RM(pr.key, d)} ${uLabelEx(pr.key)}</b>`;
+}
+
+/* la pantalla completa que sustituye al modal de cierre: un póster del día */
 function finishScreenHTML(rec, prs, failNote){
+  /* el titular es la mejora mayor, también al reabrir desde el diario (ahí las
+     marcas vienen sin «gain» y en el orden del plan) */
+  const prGain = pr => pr.assist ? (pr.prev - pr.now) / (pr.prev || 1) : (pr.now - pr.prev) / (pr.prev || 1);
+  prs = [...(prs || [])].sort((a, b) => prGain(b) - prGain(a));
   const isDeload = !!rec.deload;
   const vol = sessionVolume(rec.entries);
   const nSets = rec.entries.reduce((a, e) => a + e.sets.length, 0);
-  const partial=!!rec.plannedSets&&nSets<rec.plannedSets;
+  const partial = !!rec.plannedSets && nSets < rec.plannedSets;
   const fallback = uiSessionMeasure(rec.entries);
   const best = prs.length ? prs[0] : null;
+  const routine = esc(rec.routineName);
+  const series = n => `${n} serie${n === 1 ? '' : 's'}`;
+  /* las sesiones completas del mismo día del plan, para comparar el peso movido */
+  const prevSessions = routineSessions(rec).filter(h => h.id !== rec.id&&!h.deload&&(!h.plannedSets||h.entries.reduce((n,e)=>n+e.sets.length,0)>=h.plannedSets));
+  const lastSession = prevSessions.length ? prevSessions[prevSessions.length - 1] : null;
+  const lastVol = lastSession ? sessionVolume(lastSession.entries) : 0;
+  const minutes = Math.max(1, Math.round(rec.duration / 60));
+  const st = sessionStreak(rec);
+  const ms = sessionMuscleStats(rec.entries);
+  const like = (vol > 0 && !isDeload) ? volumeLike(vol) : '';
 
-  /* ---- el titular ---- */
-  let glow, eyebrow, num, unit, sub, spark, axis = ['', 'Hoy'];
-  if(best){
-    const delta = best.assist ? best.prev - best.now : best.now - best.prev;
-    const dTxt = best.assist
-      ? `<b>−${fmtWEx(best.key, delta)} ${uLabelEx(best.key)}</b> de ayuda`
-      : (best.unit === 's' || best.unit === 'reps')
-        ? `<b>+${fmtNum(Math.round(delta*10)/10)} ${best.unit}</b>`
-        : `<b>+${fmtE1RM(best.key, delta)} ${uLabelEx(best.key)}</b>`;
-    glow = '';
+  /* ---- el titular: qué número manda hoy ---- */
+  let tone = 'pr', eyebrow, num, word, caption, tagline = '';
+  if(prs.length > 1){
+    eyebrow = 'Nuevos récords';
+    num = String(prs.length); word = 'récords hoy';
+    const what = best.assist ? '' : (best.unit === 's' || best.unit === 'reps') ? '' : ' de 1RM estimado';
+    caption = `${esc(exBaseName(best.name))}: ${prDeltaLong(best)}${what} sobre tu marca${agoLong(best.date)}.`;
+  } else if(best){
     eyebrow = `Nuevo récord · ${esc(exBaseName(best.name))}`;
-    if(best.assist){ num = fmtWEx(best.key, best.now); unit = `${uLabelEx(best.key)} de ayuda`; }
-    else if(best.unit === 's' || best.unit === 'reps'){
-      num = fmtNum(Math.round(best.now*10)/10); unit = best.unit;
-    } else { num = fmtE1RM(best.key, best.now); unit = uLabelEx(best.key); }
-    sub = best.assist
+    if(best.assist){ num = fmtWEx(best.key, best.now); word = `${uLabelEx(best.key)} de ayuda`; }
+    else if(best.unit === 's' || best.unit === 'reps'){ num = fmtNum(Math.round(best.now*10)/10); word = best.unit; }
+    else { num = fmtE1RM(best.key, best.now); word = uLabelEx(best.key); }
+    caption = best.assist
       ? (best.now === 0
           ? `Ya lo haces <b>sin asistencia</b>: cero ayuda de la máquina.`
-          : `La menor ayuda con la que has sostenido el rango. ${dTxt} sobre tu marca${agoLong(best.date)}.`)
-      : `${(best.unit === 's' || best.unit === 'reps') ? 'Tu mejor marca.' : '1RM estimado.'}
-         ${dTxt} sobre tu marca${agoLong(best.date)}.`;
-    const serie = prMetricSeries(best.key, 6);
-    spark = sparkSVG(serie.map(v => best.assist ? -v : v), '#D7A44B');
-    axis = [serie.length>1?`Hace ${serie.length-1} ${serie.length===2?'sesión':'sesiones'}`:'Primera referencia', 'Hoy'];
+          : `La menor ayuda con la que has sostenido el rango. ${prDeltaLong(best)} sobre tu marca${agoLong(best.date)}.`)
+      : `${(best.unit === 's' || best.unit === 'reps') ? 'Tu mejor marca.' : '1RM estimado.'} ${prDeltaLong(best)} sobre tu marca${agoLong(best.date)}.`;
+  } else if(isDeload){
+    tone = 'calm'; eyebrow = 'Descarga guardada';
+    if(st.run > 1){ num = String(st.run); word = 'semanas seguidas'; }
+    else { num = String(st.total); word = st.total === 1 ? 'sesión' : 'sesiones'; }
+    caption = `Series suaves, a propósito. Tu progresión y tus récords no se tocan:
+               la próxima sesión normal retoma exactamente donde ibas.`;
   } else {
-    const prev = routineSessions(rec).filter(h => h.id !== rec.id&&!h.deload&&(!h.plannedSets||h.entries.reduce((n,e)=>n+e.sets.length,0)>=h.plannedSets));
-    const last = prev.length ? prev[prev.length - 1] : null;
-    const lastVol = last ? sessionVolume(last.entries) : 0;
-    glow = ' up';
-    if(isDeload){
-      eyebrow = 'Descarga guardada';
-      sub = `Series suaves, a propósito. Tu progresión y tus récords no se tocan:
-             la próxima sesión normal retoma exactamente donde ibas.`;
-    } else if(partial){
-      eyebrow=`Tu sesión · ${esc(rec.routineName)}`;
-      sub=`Guardaste <b>${nSets} de ${rec.plannedSets} series previstas</b>. Cada una cuenta. Esta sesión parcial se conserva sin compararla con una completa.`;
-    } else if(last && lastVol > 0 && vol > 0){
+    tone = 'vol';
+    const t = vol > 0 ? tonnageParts(vol) : { num: fmtInt(fallback.value), word: fallback.unit === 's' ? 'segundos' : 'reps' };
+    num = t.num; word = t.word;
+    if(partial){
+      eyebrow = `Tu sesión · ${routine}`;
+      caption = `Guardaste <b>${nSets} de ${rec.plannedSets} series previstas</b>. Cada una cuenta. Esta sesión parcial se conserva sin compararla con una completa.`;
+    } else if(vol > 0 && lastSession && lastVol > 0){
       const d = vol - lastVol, up = d >= 0;
-      eyebrow = `Peso movido · ${esc(rec.routineName)}`;
-      sub = `Levantados en ${nSets} serie${nSets===1?'':'s'}. ${d===0?'El mismo volumen que en':`<b>${fmtInt(Math.abs(fromKg(d)))} ${uLabel()} ${up?'más':'menos'}</b> que en`} tu ${esc(rec.routineName)} anterior.`;
+      eyebrow = `Peso movido · ${routine}`;
+      caption = `Levantados en ${series(nSets)}. ${d===0?'El mismo volumen que en':`<b>${fmtInt(Math.abs(fromKg(d)))} ${uLabel()} ${up?'más':'menos'}</b> que en`} tu ${routine} anterior.`;
+    } else if(vol > 0){
+      eyebrow = `Peso movido · ${routine}`;
+      caption = `Levantados en ${series(nSets)}. ${lastSession ? 'Sigue registrando y aquí verás la comparación.' : 'Tu primera vez de este día: desde aquí se mide todo lo demás.'}`;
+    } else if(fallback.unit === 's'){
+      eyebrow = `Tiempo registrado · ${routine}`;
+      caption = `Tu esfuerzo en ${series(nSets)} por tiempo. Cada segundo cuenta.`;
     } else {
-      eyebrow = `Peso movido · ${esc(rec.routineName)}`;
-      sub = `Levantados en ${nSets} serie${nSets===1?'':'s'}.
-             ${last ? 'Sigue registrando y aquí verás la comparación.' : 'Tu primera vez de este día: desde aquí se mide todo lo demás.'}`;
+      eyebrow = `Repeticiones · ${routine}`;
+      caption = `Sin peso que sumar: hoy cuentan las repeticiones, en ${series(nSets)}.`;
     }
-    if(vol > 0){ num = fmtInt(fromKg(vol)); unit = uLabel(); }
-    else { num = fmtInt(fallback.value); unit = fallback.unit; }
-    if(!isDeload && !partial && vol <= 0 && fallback.unit === 's'){ eyebrow = `Tiempo registrado · ${esc(rec.routineName)}`; sub = `Tu esfuerzo en ${nSets} serie${nSets===1?'':'s'} por tiempo. Cada segundo cuenta.`; }
-    const serie = [...prev,rec].slice(-5).map(h => sessionVolume(h.entries)).filter(v => v > 0);
-    spark = (vol > 0 && !isDeload && !partial) ? sparkSVG(serie, '#7FD3A8') : '';
-    axis = [serie.length>1?`${serie.length-1} ${serie.length===2?'sesión comparable':'sesiones comparables'}`:'Primera referencia', 'Hoy'];
+    tagline = partial ? '' : like;
   }
 
-  /* ---- los demás récords, o lo más pesado del día ---- */
-  let more = '';
-  if(prs.length > 1){
-    more = `<div class="fin-more"><div class="fin-lbl">También hoy</div>
-      ${prs.slice(1).map(pr => `<div class="fin-pr">
-        <span class="nm">${esc(exBaseName(pr.name))}</span>
-        <span class="vl">${prValueHTML(pr)} <s>${prPrevHTML(pr)}</s></span>
-      </div>`).join('')}</div>`;
-  } else if(!best && !isDeload){
+  /* ---- las cifras que acompañan al titular ---- */
+  const stats = [];
+  if(tone === 'pr' && vol > 0){
+    const t = tonnageParts(vol);
+    stats.push(`<div><b>${t.num}</b> ${t.word}${like ? ` · ${like.replace(/\.$/, '').toLowerCase()}` : ''}</div>`);
+  }
+  stats.push(`<div><b>${nSets}</b> ${nSets === 1 ? 'serie' : 'series'} · <b>${rec.entries.length}</b> ${rec.entries.length === 1 ? 'ejercicio' : 'ejercicios'} · <b>${minutes}</b> min</div>`);
+
+  /* ---- las filas: todas las marcas del día, o lo más pesado ---- */
+  let rows = '';
+  if(prs.length){
+    rows = prs.slice(0, 5).map(pr => {
+      const serie = prMetricSeries(pr.key, 6).map(v => pr.assist ? -v : v);
+      const sp = serie.length > 1 ? sparkSVG(serie, '#f4cb9a', { w:64, h:20, p:3, r:2.5 }) : '';
+      return `<div class="fin-poster-row"><span class="nm">${esc(exBaseName(pr.name))}</span><span class="sp">${sp}</span><span class="vl">${prValueHTML(pr)}</span><span class="dl">${prDeltaHTML(pr)}</span></div>`;
+    }).join('') + (prs.length > 5 ? `<div class="fin-poster-more">y ${prs.length - 5} ${prs.length - 5 === 1 ? 'récord más' : 'récords más'}, marcados en el detalle</div>` : '');
+  } else if(!isDeload){
     let top = null;
     for(const e of rec.entries){
       if(['asistido','tiempo'].includes(exMeta(e.key).type)) continue;
       for(const st of e.sets) if(st.w > 0 && (!top || st.w > top.w)) top = { w:st.w, r:st.r, e };
     }
-    if(top) more = `<div class="fin-more"><div class="fin-lbl">Lo más pesado del día</div>
-      <div class="fin-pr"><span class="nm">${esc(exBaseName(top.e.name))}</span>
-        <span class="vl" style="color:var(--bone)">${fmtWEx(top.e.key, top.w)} ${uLabelEx(top.e.key)} × ${top.r}</span></div></div>`;
+    if(top) rows = `<div class="fin-poster-row"><span class="nm">Lo más pesado del día</span><span class="vl">${esc(exBaseName(top.e.name))} · ${fmtWEx(top.e.key, top.w)} ${uLabelEx(top.e.key)} × ${top.r}</span></div>`;
   }
+
+  /* ---- el cuerpo y la constancia ---- */
+  const bodies = ms.total ? `<div class="fin-poster-bodies">${posterBodySVG(false, ms)}${posterBodySVG(true, ms)}</div>` : '';
+  const chips = [st.total === 1 ? 'Tu primera sesión' : `Sesión ${st.total}`];
+  if(st.week > 1) chips.push(`${st.week}.ª esta semana`);
+  if(st.run > 1) chips.push(`${st.run} semanas seguidas`);
+  const groups = MUSCLES.filter(([k]) => ms.counts[k]).sort((a, b) => ms.counts[b[0]] - ms.counts[a[0]]);
+  const groupsRow = ms.total ? `<div class="fin-more"><div class="fin-lbl">Hoy trabajaste</div>
+      <div class="fin-groups-row">${groups.map(([k, l]) => `<span><i style="background:${uiMuscleColor(ms.counts[k], ms.max)}"></i>${l} <b>${ms.counts[k]}</b></span>`).join('')}${ms.untagged ? `<span class="is-muted"><i></i>Sin grupo <b>${ms.untagged}</b></span>` : ''}</div></div>` : '';
 
   /* ---- el recibo ---- */
   const filas = receiptHTML(rec.entries, new Set(prs.map(p => p.key)));
   const totalTxt = vol > 0
     ? `${fmtInt(fromKg(vol))}<i> ${uLabel()}</i>`
     : `${fmtInt(fallback.value)}<i> ${fallback.unit}</i>`;
+  const len = Math.min(5, Math.max(1, String(num).replace(/\s/g, '').length));
 
   return `
     <div class="ui-finish-brand">${uiBrand()}<span>${fmtDate(rec.date)}</span></div>
     <h1 class="ui-finish-title">${isDeload ? 'Recargar también<br>es avanzar.' : 'Hoy te lo ganaste.'}</h1>
-    <div class="ui-finish-intro">${esc(rec.routineName)} · sesión guardada en tu dispositivo</div>
-    <div class="fin-hero">
-      <div class="fin-glow${glow}"></div>
-      <div class="fin-eyebrow${glow}">${eyebrow}</div>
-      <div class="fin-n"><b>${num}</b><i>${unit}</i></div>
-      <div class="fin-sub${glow}">${sub}</div>
-      ${ spark ? `<div class="fin-spark">${spark}
-        <div class="fin-ax"><span>${axis[0]}</span><span>${axis[1]}</span></div></div>` : '' }
+    <div class="ui-finish-intro">${routine} · sesión guardada en tu dispositivo</div>
+    <div class="fin-poster">
+      <div class="fin-poster-head"><span>${routine}</span><span>${fmtDate(rec.date)}</span></div>
+      <div class="fin-poster-main${bodies ? '' : ' no-body'}">
+        <div class="fin-poster-lead">
+          <div class="fin-poster-eyebrow ${tone}">${eyebrow}</div>
+          <div class="fin-poster-n ${tone} len-${len}"><b>${num}</b><i>${word}</i></div>
+          ${tagline ? `<div class="fin-poster-like">${tagline}</div>` : ''}
+          <div class="fin-poster-caption">${caption}</div>
+        </div>
+        ${bodies}
+      </div>
+      <div class="fin-poster-stats">${stats.join('')}</div>
+      ${rows ? `<div class="fin-poster-rows">${rows}</div>` : ''}
+      <div class="fin-poster-foot"><span>${chips.join(' · ')}</span><b>hierro</b></div>
     </div>
-    ${more}
-    <div class="fin-foot">${fmtDurShort(rec.duration).toUpperCase()} · ${nSets} SERIE${nSets===1?'':'S'} · ${rec.entries.length} EJERCICIO${rec.entries.length===1?'':'S'}</div>
+    ${groupsRow}
     ${failNote ? `<div style="margin-top:18px">${failNote}</div>` : ''}
     <div class="fin-more"><div class="fin-lbl">El detalle</div>
       ${filas}

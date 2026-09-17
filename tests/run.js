@@ -1861,8 +1861,8 @@ db.active.exercises[0].sets[0] = { w:'21', r:'10', rir:'' };   /* +5 %  */
 db.active.exercises[1].sets[0] = { w:'60', r:'10', rir:'' };   /* +20 % */
 confirmFixtureSets();finishSession();
 let fin = els['modalhost'].innerHTML;
-chk(fin.includes('Nuevo récord · Press'), 'el titular es el récord con mayor mejora (Press, +20 %)');
-chk(fin.includes('También hoy') && fin.includes('Curl'), 'el otro récord baja a «También hoy»');
+chk(fin.includes('Nuevos récords') && /fin-poster-row"><span class="nm">Press/.test(fin), 'con dos récords el titular los cuenta y Press, la mejora mayor, encabeza la lista');
+chk(/<b>2<\/b><i>récords hoy/.test(fin) && fin.includes('Curl'), 'el otro récord va en la misma lista del póster');
 chk(fin.includes('1RM estimado') && fin.includes('sobre tu marca'), 'la cifra viene explicada');
 chk(fin.includes('<svg') && fin.includes('polyline'), 'y con su curva de progresión');
 chk(fin.includes('El detalle') && fin.includes('Total movido'), 'debajo, el recibo con su total');
@@ -3214,6 +3214,45 @@ db.active.exercises[3].sets[0].w='20';   /* 10 por lado + carro de 30 = 50 */
 lad=warmupPlan(3);
 chk(lad.first&&lad.steps.length===1&&lad.steps[0].w===35&&lad.steps[0].reps===6,'rango de 12 a 15 como primer trabajo del grupo: un escalón al 70 % × 6');
 Date.now=ladNow;uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
+
+/* =====================================================================
+   3.8.0 — el póster del día: número con significado, cuerpo y constancia
+   ===================================================================== */
+suite('3.8.0 — el póster del día');
+resetDB();db.settings.health='off';db.gym=defaultGym('kg');db.settings.unit='kg';
+Object.assign(exMeta('cap-hack'),{muscle:'cuadriceps'});Object.assign(exMeta('cap-press'),{muscle:'pecho'});Object.assign(exMeta('cap-curl'),{muscle:'biceps'});
+db.routines.push({id:'cap',name:'Full body',split:(db.splits[0]||{}).id,exercises:[{id:'c1',name:'Hack squat',key:'cap-hack'},{id:'c2',name:'Press',key:'cap-press'},{id:'c3',name:'Curl',key:'cap-curl'}]});
+/* tres semanas seguidas antes de hoy, con sesiones completas del mismo plan */
+for(const days of [21,14,7])db.history.push({id:uid(),routineId:'cap',routineName:'Full body',date:new Date(Date.now()-days*864e5).toISOString(),duration:3600,plannedSets:4,
+  entries:[{key:'cap-hack',name:'Hack squat',sets:[S(50,10),S(50,10)]},{key:'cap-press',name:'Press',sets:[S(40,10)]},{key:'cap-curl',name:'Curl',sets:[S(10,10)]}]});
+db.history.sort((a,b)=>a.date<b.date?-1:1);
+startSession('cap');
+for(const [x,n] of [[0,2],[1,1],[2,1]]){while(db.active.exercises[x].sets.length<n)addSet(x);db.active.exercises[x].sets=db.active.exercises[x].sets.slice(0,n);}
+db.active.exercises[0].sets[0]={w:'55',r:'10',rir:'1'};db.active.exercises[0].sets[1]={w:'55',r:'9',rir:'1'};
+db.active.exercises[1].sets[0]={w:'42.5',r:'10',rir:'1'};
+db.active.exercises[2].sets[0]={w:'10',r:'10',rir:'1'};
+confirmFixtureSets();finishSession();
+fin=els['modalhost'].innerHTML;
+chk(fin.includes('Nuevos récords')&&/<b>2<\/b><i>récords hoy/.test(fin)&&/fin-poster-row"><span class="nm">Hack squat/.test(fin),'con varios récords el número gigante es cuántos, y la mejora mayor encabeza la lista');
+chk(fin.includes('<b>1,6</b> toneladas movidas · más que un coche')&&fin.includes('<b>4</b> series · <b>3</b> ejercicios'),'el peso movido acompaña al titular en toneladas, con una equivalencia y las cifras del día');
+chk(fin.includes('fin-poster-bodies')&&fin.includes('ui-muscle lit')&&fin.includes('Cuádriceps <b>2</b>')&&fin.includes('Pecho <b>1</b>'),'las siluetas encienden los grupos de hoy y la lista da sus series');
+chk(fin.includes('Sesión 4 · 4 semanas seguidas')&&!fin.includes('esta semana'),'la constancia va al pie del póster y calla lo que no es noticia');
+chk((fin.match(/fin-poster-row"/g)||[]).length===2&&fin.includes('class="dl">+3,3')&&fin.includes('polyline'),'cada marca lleva su curva corta y cuánto subió');
+chk(!fin.includes('fin-foot')&&!fin.includes('fin-hero')&&!fin.includes('También hoy'),'desaparecen la tarjeta antigua, el pie suelto y la lista aparte');
+const capRec=db.history[db.history.length-1];
+closeModal();uiReturnToFinish(capRec.id);
+chk(/fin-poster-row"><span class="nm">Hack squat/.test(els['modalhost'].innerHTML),'reabrir desde el diario conserva el mismo orden de marcas');
+closeModal();
+/* sin marcas: manda el peso movido con su escala; sin grupos no hay siluetas */
+resetDB();db.settings.health='off';
+db.routines.push({id:'cap2',name:'Suelto',split:(db.splits[0]||{}).id,exercises:[{id:'d1',name:'Remo',key:'cap-remo'}]});
+startSession('cap2');db.active.exercises[0].sets=db.active.exercises[0].sets.slice(0,1);db.active.exercises[0].sets[0]={w:'40',r:'10',rir:'1'};
+confirmFixtureSets();finishSession();
+fin=els['modalhost'].innerHTML;
+chk(fin.includes('Peso movido · Suelto')&&/<b>400<\/b><i>kg movidos/.test(fin)&&fin.includes('Más que una moto.'),'sin marcas el número gigante es el peso movido, con su equivalencia');
+chk(!fin.includes('fin-poster-bodies')&&fin.includes('Tu primera sesión')&&!fin.includes('récord')&&fin.includes('Lo más pesado del día'),'sin grupo asignado no hay siluetas; la primera sesión se celebra sin comparar');
+chk(volumeLike(5598)==='Más que un elefante.'&&volumeLike(11000)==='Como dos elefantes.'&&volumeLike(80)===''&&tonnageParts(5598.55).num==='5,6','las equivalencias y las toneladas se calculan sobre kilos reales');
+closeModal();
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));
