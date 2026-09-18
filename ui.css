@@ -1013,7 +1013,7 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 
 /* One palette for surfaces, forms, charts and the anatomical map. */
-:root{--ui-version:"3.8.1";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
+:root{--ui-version:"3.9.0";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
 :root[data-theme=dark]{color-scheme:dark;--paper:#111b17;--white:#1b2a23;--ink:#ecf2e7;--muted:#acb8a8;--line:#35473b;--green:#c1dfa0;--lime:#d8ef96;--soft:#27382c;--surface-2:#24372b;--well:#2c4031;--line-2:#52664e;--ash:#bcc8b4;--dim:#a4b49e;--hold:#f0c08b;--danger:#ffb2a0;--muscle-zero:#1a2a21;--muscle-low:#405c3d;--muscle-medium:#77945d;--muscle-high:#c1dfa0}
 [data-theme=dark] nav.tabs{background:var(--paper)}
 [data-theme=dark] .n-primary{color:var(--paper)}
@@ -1472,3 +1472,9 @@ body:has(.modal) .n-record-dock,body:has(.modal) .n-work-action{visibility:hidde
  .fin-poster-n.len-3 b{font-size:70px}
  .fin-poster-row .sp{display:none}
 }
+/* 3.9.0 · la carga de la última vez, como referencia bajo la propuesta */
+.n-last-load{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 14px;padding:0 4px}
+.n-last-load>span{min-width:0;display:flex;flex-direction:column;gap:2px}
+.n-last-load small{font-size:11px;color:var(--ash)}
+.n-last-load b{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.n-last-load .n-text{flex:none;margin:0}

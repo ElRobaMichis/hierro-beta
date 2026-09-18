@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.8.1">
+<link rel="stylesheet" href="ui.css?v=3.9.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.8.1"></script>
-<script src="sync-core.js?v=3.8.1"></script>
-<script src="sync-engine.js?v=3.8.1"></script>
-<script src="qr.js?v=3.8.1"></script>
-<script src="sync.js?v=3.8.1"></script>
-<script src="push-core.js?v=3.8.1"></script>
-<script src="push.js?v=3.8.1"></script>
+<script src="ui.js?v=3.9.0"></script>
+<script src="sync-core.js?v=3.9.0"></script>
+<script src="sync-engine.js?v=3.9.0"></script>
+<script src="qr.js?v=3.9.0"></script>
+<script src="sync.js?v=3.9.0"></script>
+<script src="push-core.js?v=3.9.0"></script>
+<script src="push.js?v=3.9.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.8.1';
+const APP_VERSION = '3.9.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -3834,7 +3834,10 @@ function toggleGym(kind, i){
 function setPairs(i, delta){
   const p = db.gym.plates[i];
   if(!p) return;
-  p.pairs = Math.max(1, Math.min(20, (p.pairs || 1) + delta));
+  const next = (p.pairs || 1) + delta;
+  /* bajar de un par significa que ese disco no está en el gimnasio */
+  if(next < 1){ p.on = false; p.pairs = 1; }
+  else { p.pairs = Math.min(20, next); p.on = true; }
   invalidatePlates(); save(); render();
 }
 function setDefaultBar(i){
@@ -4730,6 +4733,8 @@ function finishScreenHTML(rec, prs, failNote){
   const st = sessionStreak(rec);
   const ms = sessionMuscleStats(rec.entries);
   const like = (vol > 0 && !isDeload) ? volumeLike(vol) : '';
+  const cmp = (!isDeload && !partial && vol > 0 && lastVol > 0) ? Math.round((vol - lastVol) / lastVol * 100) : null;
+  const cmpTxt = cmp === null ? '' : `${cmp >= 0 ? '+' : '−'}${Math.abs(cmp)} %`;
 
   /* ---- el titular: qué número manda hoy ---- */
   let tone = 'pr', eyebrow, num, word, caption, tagline = '';
@@ -4764,7 +4769,7 @@ function finishScreenHTML(rec, prs, failNote){
     } else if(vol > 0 && lastSession && lastVol > 0){
       const d = vol - lastVol, up = d >= 0;
       eyebrow = `Peso movido · ${routine}`;
-      caption = `Levantados en ${series(nSets)}. ${d===0?'El mismo volumen que en':`<b>${fmtInt(Math.abs(fromKg(d)))} ${uLabel()} ${up?'más':'menos'}</b> que en`} tu ${routine} anterior.`;
+      caption = `Levantados en ${series(nSets)}. ${d===0?'El mismo volumen que en':`<b>${fmtInt(Math.abs(fromKg(d)))} ${uLabel()} ${up?'más':'menos'} (${cmpTxt})</b> que en`} tu ${routine} anterior.`;
     } else if(vol > 0){
       eyebrow = `Peso movido · ${routine}`;
       caption = `Levantados en ${series(nSets)}. ${lastSession ? 'Sigue registrando y aquí verás la comparación.' : 'Tu primera vez de este día: desde aquí se mide todo lo demás.'}`;
@@ -4784,6 +4789,7 @@ function finishScreenHTML(rec, prs, failNote){
     const t = tonnageParts(vol);
     stats.push(`<div><b>${t.num}</b> ${t.word}${like ? ` · ${like.replace(/\.$/, '').toLowerCase()}` : ''}</div>`);
   }
+  if(tone === 'pr' && cmp !== null) stats.push(`<div><b>${cmpTxt}</b> de peso movido frente a tu ${routine} anterior</div>`);
   stats.push(`<div><b>${nSets}</b> ${nSets === 1 ? 'serie' : 'series'} · <b>${rec.entries.length}</b> ${rec.entries.length === 1 ? 'ejercicio' : 'ejercicios'} · <b>${minutes}</b> min</div>`);
 
   /* ---- las filas: todas las marcas del día, o lo más pesado ---- */
@@ -5141,6 +5147,7 @@ function warmupCoreContext(context){
     if(!Array.isArray(parts)||parts.length!==7)return null;
     const machine=parts[4];
     if(machine){delete machine.gymNotes;if(machine.stack){delete machine.stack.extra;delete machine.stack.extraMax;}}
+    parts[6]=null;   /* discos y mancuernas cambian el montaje de lo pendiente, no lo ya hecho */
     return JSON.stringify(parts);
   }catch{return null;}
 }
@@ -5165,9 +5172,14 @@ function ensureWarmup(xi, force=false){
     return ex.warmup?.phase==='setup'?ex.warmup:{phase:'setup'};
   }
   const sameW=plan.W===old?.plan?.W || (Number.isFinite(plan.W)&&Number.isFinite(old?.plan?.W)&&Math.abs(plan.W-old.plan.W)<.001);
-  const easier=exMeta(ex.key).type==='asistido'?plan.W>=old?.plan?.W:plan.W<=old?.plan?.W;
-  if(!force && validWarmupState(old) && old.context===context && (sameW || (old.phase==='done'&&easier)) && (old.phase!=='skipped'||(!plan.steps.length&&old.plan.reason===plan.reason)))return old;
-  if(!force && validWarmupState(old) && old.completed>0 && (sameW||easier) && warmupCoreContext(old.context)===warmupCoreContext(context)){
+  const assisted=exMeta(ex.key).type==='asistido';
+  const easier=assisted?plan.W>=old?.plan?.W:plan.W<=old?.plan?.W;
+  /* una subida modesta (hasta un 15 %) no invalida lo ya calentado: el escalón
+     cercano al 80 % sigue siendo una aproximación válida para la nueva carga */
+  const ratio=(Number.isFinite(plan.W)&&Number.isFinite(old?.plan?.W)&&old.plan.W>0)?plan.W/old.plan.W:NaN;
+  const close=Number.isFinite(ratio)&&(assisted?ratio>=1/1.15-1e-9:ratio<=1.15+1e-9);
+  if(!force && validWarmupState(old) && old.context===context && (sameW || (old.phase==='done'&&(easier||close))) && (old.phase!=='skipped'||(!plan.steps.length&&old.plan.reason===plan.reason)))return old;
+  if(!force && validWarmupState(old) && old.completed>0 && (sameW||easier||close) && warmupCoreContext(old.context)===warmupCoreContext(context)){
     old.context=context;
     if(old.phase!=='done'){
       const completed=old.plan.steps.slice(0,old.completed);

@@ -1897,6 +1897,7 @@ confirmFixtureSets();finishSession();
 fin = els['modalhost'].innerHTML;
 chk(fin.includes(fmtInt(600) + ' kg más') && fin.includes('anterior'),
     'compara contra tu Pierna anterior (1 200 → 1 800 kg)');
+chk(fin.includes('(+50 %)'), 'y dice cuánto en porcentaje');
 chk(!fin.includes('récord'), 'más volumen sin más peso no es récord, y no se inventa uno');
 closeModal();
 
@@ -2822,7 +2823,8 @@ chk(warmEx.warmupDone&&!warmupRequired(0)&&uiSession().includes('Registrar serie
 chk(collectEntries(db.active).length===0&&db.history.length===0,'los calentamientos no generan volumen, historial ni récords');
 chk(warmEx.sets[0].w==='60'&&warmEx.sets[0].r==='','la carga de trabajo permanece, sin inventar repeticiones realizadas');
 const completedWarmToken=warmState.id;
-setVal(0,0,'w','70');chk(warmupRequired(0)&&ensureWarmup(0).id!==completedWarmToken,'subir la carga antes de empezar trabajo recalcula la preparación');
+setVal(0,0,'w','65');chk(!warmupRequired(0)&&ensureWarmup(0).id===completedWarmToken,'subir la carga menos de un 15 % conserva la preparación ya hecha');
+setVal(0,0,'w','70');chk(warmupRequired(0)&&ensureWarmup(0).id!==completedWarmToken,'subir la carga más de un 15 % antes de empezar trabajo recalcula la preparación');
 setVal(0,0,'w','60');prepareFixture(0);warmState=ensureWarmup(0);setVal(0,0,'w','55');
 chk(!warmupRequired(0)&&ensureWarmup(0).id===warmState.id,'bajar la carga ya preparada no obliga a repetir el recorrido');
 setVal(0,0,'r','8');db.settings.rest='auto';uiLogSet(0,0);
@@ -3235,6 +3237,7 @@ confirmFixtureSets();finishSession();
 fin=els['modalhost'].innerHTML;
 chk(fin.includes('Nuevos récords')&&/<b>2<\/b><i>récords hoy/.test(fin)&&/fin-poster-row"><span class="nm">Hack squat/.test(fin),'con varios récords el número gigante es cuántos, y la mejora mayor encabeza la lista');
 chk(fin.includes('<b>1,6</b> toneladas movidas · más que un coche')&&fin.includes('<b>4</b> series · <b>3</b> ejercicios'),'el peso movido acompaña al titular en toneladas, con una equivalencia y las cifras del día');
+chk(fin.includes('<b>+5 %</b> de peso movido frente a tu Full body anterior'),'y con el porcentaje frente a la última sesión completa del mismo plan');
 chk(fin.includes('fin-poster-bodies')&&fin.includes('ui-muscle lit')&&fin.includes('Cuádriceps <b>2</b>')&&fin.includes('Pecho <b>1</b>'),'las siluetas encienden los grupos de hoy y la lista da sus series');
 chk(fin.includes('Sesión 4 · 4 semanas seguidas')&&!fin.includes('esta semana'),'la constancia va al pie del póster y calla lo que no es noticia');
 chk((fin.match(/fin-poster-row"/g)||[]).length===2&&fin.includes('class="dl">+3,3')&&fin.includes('polyline'),'cada marca lleva su curva corta y cuánto subió');
@@ -3253,6 +3256,36 @@ chk(fin.includes('Peso movido · Suelto')&&/<b>400<\/b><i>kg movidos/.test(fin)&
 chk(!fin.includes('fin-poster-bodies')&&fin.includes('Tu primera sesión')&&!fin.includes('récord')&&fin.includes('Lo más pesado del día'),'sin grupo asignado no hay siluetas; la primera sesión se celebra sin comparar');
 chk(volumeLike(5598)==='Más que un elefante.'&&volumeLike(11000)==='Como dos elefantes.'&&volumeLike(80)===''&&tonnageParts(5598.55).num==='5,6','las equivalencias y las toneladas se calculan sobre kilos reales');
 closeModal();
+
+/* =====================================================================
+   3.9.0 — inventario sin mínimos, calentamiento que no se reinicia y la última carga
+   ===================================================================== */
+suite('3.9.0 — discos, calentamiento estable y última carga');
+resetDB();uiResetRest();db.gym=defaultGym('kg');db.settings.unit='kg';db.settings.rest='off';db.settings.sound='off';db.settings.vibration='off';
+const p15=db.gym.plates.findIndex(p=>p.kg===15);
+setPairs(p15,-1);chk(db.gym.plates[p15].pairs===1&&db.gym.plates[p15].on,'con dos pares, «menos» deja uno');
+setPairs(p15,-1);chk(db.gym.plates[p15].on===false,'con un par, «menos» saca el disco del gimnasio');
+toggleGym('plates',p15);chk(db.gym.plates[p15].on&&db.gym.plates[p15].pairs===1,'tocar el disco lo devuelve con un par');
+chk(uiGym().split('Quitar peso').length===db.gym.plates.length+1,'todos los discos se pueden quitar, no solo los añadidos');
+Object.assign(exMeta('lst-banca'),{equip:'barra',muscle:'pecho',lo:6,hi:8});
+db.routines=[{id:'lst-day',name:'Torso',split:(db.splits[0]||{}).id,exercises:[{id:'l1',key:'lst-banca',name:'Press banca'}]}];
+sess('lst-banca',[S(60,8),S(60,8)]);
+view={name:'home'};startSession('lst-day');
+let lstEx=db.active.exercises[0];lstEx.sets=lstEx.sets.slice(0,1);lstEx.sets[0].w='40';   /* 40 de discos + barra de 20 = 60 */
+prepareFixture(0);let lstId=ensureWarmup(0).id;
+chk(!warmupRequired(0)&&uiSession().includes('Última vez')&&uiSession().includes('60 × 8 · 8')&&uiSession().includes('Usar 40 de discos'),'bajo la propuesta se ve lo que cargaste la última vez, con acceso directo en la convención del campo');
+setPairs(db.gym.plates.findIndex(p=>p.kg===10),-1);
+chk(!warmupRequired(0)&&ensureWarmup(0).id===lstId,'cambiar el inventario de discos no reinicia una preparación terminada');
+setVal(0,0,'w','45');chk(!warmupRequired(0)&&ensureWarmup(0).id===lstId,'subir de 60 a 65 kg totales tampoco');
+uiUseLastLoad(0);chk(lstEx.sets[0].w==='40'&&lstEx.sets[0].totalKg===60&&!warmupRequired(0),'«Usar» pone la carga de la última vez en discos y conserva la preparación');
+setVal(0,0,'w','55');chk(warmupRequired(0)&&ensureWarmup(0).id!==lstId,'una subida del 25 % sí vuelve a preparar');
+/* preparación a medias: el inventario recalcula solo lo pendiente */
+setVal(0,0,'w','40');ensureWarmup(0,true);let lstW=ensureWarmup(0);
+const lstNow=Date.now;let lstClock=lstNow();Date.now=()=>lstClock;
+uiWarmupRecord(0,lstW.id,0);lstClock=lstW.restUntil;uiWarmupNext(0,lstW.id,1);
+const lstDone=lstW.plan.steps[0].w;setPairs(db.gym.plates.findIndex(p=>p.kg===5),-1);lstW=ensureWarmup(0);
+chk(lstW.completed===1&&Math.abs(lstW.plan.steps[0].w-lstDone)<1e-9&&lstW.phase==='set','con un escalón hecho, cambiar discos conserva ese escalón y recalcula los demás');
+Date.now=lstNow;uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));
