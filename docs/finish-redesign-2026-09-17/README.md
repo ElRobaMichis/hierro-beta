@@ -12,6 +12,7 @@ La pantalla que aparece al terminar una sesión conservaba una tarjeta con un n�
 6. **Siempre oscuro.** El póster tiene su propia paleta, verde profundo con lima y ámbar, en ambos temas: la captura es la misma y el brillo de las siluetas funciona. El resto de la pantalla sigue el tema activo.
 7. **El titular es siempre la mejora mayor.** Al reabrir desde el diario las marcas llegan sin porcentaje y en el orden del plan; la pantalla las ordena por mejora relativa.
 8. **Por debajo de 360 px** las siluetas pasan bajo el número y las curvas cortas se ocultan para que las filas quepan.
+9. **3.8.1: la barra de acciones queda por encima del póster.** El póster aísla su propio contexto de apilamiento y la barra fija declara prioridad, así que las siluetas, las curvas y los textos ya no se dibujan sobre los botones al desplazar. Las capturas de 390 y 320 px se tomaron de nuevo con esta corrección.
 
 ## Verificación
 
