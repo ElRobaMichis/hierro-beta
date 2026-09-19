@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.9.0">
+<link rel="stylesheet" href="ui.css?v=3.10.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.9.0"></script>
-<script src="sync-core.js?v=3.9.0"></script>
-<script src="sync-engine.js?v=3.9.0"></script>
-<script src="qr.js?v=3.9.0"></script>
-<script src="sync.js?v=3.9.0"></script>
-<script src="push-core.js?v=3.9.0"></script>
-<script src="push.js?v=3.9.0"></script>
+<script src="ui.js?v=3.10.0"></script>
+<script src="sync-core.js?v=3.10.0"></script>
+<script src="sync-engine.js?v=3.10.0"></script>
+<script src="qr.js?v=3.10.0"></script>
+<script src="sync.js?v=3.10.0"></script>
+<script src="push-core.js?v=3.10.0"></script>
+<script src="push.js?v=3.10.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.9.0';
+const APP_VERSION = '3.10.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -4725,10 +4725,14 @@ function finishScreenHTML(rec, prs, failNote){
   const best = prs.length ? prs[0] : null;
   const routine = esc(rec.routineName);
   const series = n => `${n} serie${n === 1 ? '' : 's'}`;
-  /* las sesiones completas del mismo día del plan, para comparar el peso movido */
-  const prevSessions = routineSessions(rec).filter(h => h.id !== rec.id&&!h.deload&&(!h.plannedSets||h.entries.reduce((n,e)=>n+e.sets.length,0)>=h.plannedSets));
+  /* las sesiones completas del mismo día del plan comparan el peso movido; la
+     referencia de «tu sesión anterior» se muestra siempre, aunque sea parcial */
+  const sameDay = routineSessions(rec).filter(h => h.id !== rec.id && !h.deload);
+  const completeSession = h => !h.plannedSets || h.entries.reduce((n,e)=>n+e.sets.length,0) >= h.plannedSets;
+  const prevSessions = sameDay.filter(completeSession);
   const lastSession = prevSessions.length ? prevSessions[prevSessions.length - 1] : null;
   const lastVol = lastSession ? sessionVolume(lastSession.entries) : 0;
+  const ref = lastSession || (sameDay.length ? sameDay[sameDay.length - 1] : null);
   const minutes = Math.max(1, Math.round(rec.duration / 60));
   const st = sessionStreak(rec);
   const ms = sessionMuscleStats(rec.entries);
@@ -4790,6 +4794,10 @@ function finishScreenHTML(rec, prs, failNote){
     stats.push(`<div><b>${t.num}</b> ${t.word}${like ? ` · ${like.replace(/\.$/, '').toLowerCase()}` : ''}</div>`);
   }
   if(tone === 'pr' && cmp !== null) stats.push(`<div><b>${cmpTxt}</b> de peso movido frente a tu ${routine} anterior</div>`);
+  if(ref){
+    const rv = sessionVolume(ref.entries), rs = ref.entries.reduce((n, e) => n + e.sets.length, 0), rm = uiSessionMeasure(ref.entries);
+    stats.push(`<div>Tu ${routine} anterior${ref === lastSession ? '' : ' (parcial)'}${agoLong(ref.date) ? ',' + agoLong(ref.date) : ''}: <b>${rv > 0 ? `${fmtInt(fromKg(rv))} ${uLabel()}` : `${fmtInt(rm.value)} ${rm.unit}`}</b> en ${series(rs)}</div>`);
+  }
   stats.push(`<div><b>${nSets}</b> ${nSets === 1 ? 'serie' : 'series'} · <b>${rec.entries.length}</b> ${rec.entries.length === 1 ? 'ejercicio' : 'ejercicios'} · <b>${minutes}</b> min</div>`);
 
   /* ---- las filas: todas las marcas del día, o lo más pesado ---- */

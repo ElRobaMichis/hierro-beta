@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.9.0';
+const UI_VERSION = '3.10.0';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -698,18 +698,7 @@ function uiLastEntry(key){
 }
 function uiLastLoad(xi){
  const ex=db.active.exercises[xi],last=uiLastEntry(ex.key);if(!last)return '';
- const m=exMeta(ex.key),w=m.type==='tiempo'?0:workWeight(last.entry.sets);
- /* el botón habla como el campo: discos totales cuando el aparato pesa, carga total si no */
- const use=m.type!=='tiempo'&&w>0?uiButton(`Usar ${fmtWEx(ex.key,kgToTyped(ex.key,w))}${discosOffset(ex.key)>0?' de discos':''}`,uiAction('uiUseLastLoad',xi),'back','text'):'';
- return `<div class="n-last-load"><span><small>Última vez · ${esc(fmtDateShort(last.session.date))}</small><b>${esc(setsLine(ex.key,last.entry.sets))}</b></span>${use}</div>`;
-}
-function uiUseLastLoad(xi){
- const ex=db.active?.exercises[xi];if(!ex)return;const si=uiCurrentSet(ex);if(si<0)return;
- const last=uiLastEntry(ex.key);if(!last)return;const w=workWeight(last.entry.sets);if(!(w>0))return;
- const st=ex.sets[si];
- st.wkg=kgToTyped(ex.key,w);st.totalKg=w;st.w=inputWEx(ex.key,st.wkg);delete st.autoWeightKg;
- db.active.open=xi;db.active.lastLog=Date.now();save();render();
- const status=document.getElementById('n-draft-status');if(status)status.textContent='Carga de la última vez preparada. Ajusta si prefieres un punto medio.';
+ return `<div class="n-last-load"><span><small>Última vez · ${esc(fmtDateShort(last.session.date))}</small><b>${esc(setsLine(ex.key,last.entry.sets))}</b></span></div>`;
 }
 function uiSetDisplay(key,st){return `${st.w!==''?fmtWEx(key,recordedSetKg(key,st))+' '+uLabelEx(key)+' total':'—'} × ${st.r!==''?esc(st.r):'—'}${exMeta(key).type==='tiempo'?' s':''}`;}
 function uiSetProposal(xi,hasPrevious){
@@ -738,7 +727,7 @@ function uiSession(){
   const weightLabel=effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Total de las dos':discosOffset(ex.key)>0?'Discos totales':m.type==='asistido'?'Ayuda':corp?'Lastre opcional':'Peso';
   const offset=discosOffset(ex.key),hint=offset>0?'Sin '+(effEquip(ex.key)==='barra'?'la barra':'el aparato'):effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Suma ambas manos':m.type==='asistido'?'Menos ayuda = más esfuerzo':corp?'Vacío = sin lastre':uLabelEx(ex.key);
   const prev=ex.sets.slice(0,si).reverse().find(x=>x.done);
-  work=`<div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):''}</div>${ex.sugg?uiSetProposal(xi,!!prev):`<p class="n-first-hint">${corp?'Registra lo que completes.':'Elige una carga para tu rango.'}</p>`}${uiLastLoad(xi)}<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="${weightLabel} · ${uLabelEx(ex.key)} · serie ${si+1}" aria-describedby="n-weight-help" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small id="n-weight-help">${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Rango <span>${r.lo}–${r.hi}</span></small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?`<div class="n-time-tools">${uiButton(s.setTimer?.key===ex.key&&s.setTimer.si===si?'Retomar cronómetro':'Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text')}<span class="n-time-help">Por tiempo: no se usa RIR.</span></div>`:`<div class="n-rir"><span>Reps en reserva</span><button id="n-rir-choice" aria-label="Repeticiones en reserva: ${st.rir!==''&&st.rir!==undefined?esc(st.rir):'sin anotar'}" onclick="uiRIR(${xi},${si})">${st.rir!==''&&st.rir!==undefined?`${Number(st.rir)>=5?'5+':esc(st.rir)}`:'Opcional'}${uiIcon('chevron')}</button></div>`}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status"></span></div>`;
+  work=`<div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):''}</div>${ex.sugg?uiSetProposal(xi,!!prev):`<p class="n-first-hint">${corp?'Registra lo que completes.':'Elige una carga para tu rango.'}</p>`}${uiLastLoad(xi)}<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="${weightLabel} · ${uLabelEx(ex.key)} · serie ${si+1}" aria-describedby="n-weight-help" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small id="n-weight-help">${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Rango <span>${r.lo}–${r.hi}</span></small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?`<div class="n-time-tools">${uiButton(s.setTimer?.key===ex.key&&s.setTimer.si===si?'Retomar cronómetro':'Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text')}<span class="n-time-help">Por tiempo: no se usa RIR.</span></div>`:`<div class="n-rir"><span>Reps en reserva</span><button id="n-rir-choice" aria-label="Repeticiones en reserva: ${st.rir!==''&&st.rir!==undefined?esc(st.rir):'por anotar'}" aria-required="true" onclick="uiRIR(${xi},${si})">${st.rir!==''&&st.rir!==undefined?`${Number(st.rir)>=5?'5+':esc(st.rir)}`:'Elegir'}${uiIcon('chevron')}</button></div>`}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status"></span></div>`;
  }
  const logged=ex.sets.map((st,i)=>st.done?`<button class="n-set-chip" onclick="uiEditSet(${xi},${i})" aria-label="Editar serie ${i+1}: ${uiSetDisplay(ex.key,st)}"><span>${i+1}</span>${uiSetDisplay(ex.key,st)}${uiIcon('check')}</button>`:'').join('');
  return `<div class="n-focus">${title}${exerciseNotes(ex.key)&&!resting&&!complete?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(exerciseNotes(ex.key))}">${uiIcon('pin')}<span><small>${m.gymNotes?esc(db.gym.name):'Tu nota'}</small><strong>${esc(exerciseNotes(ex.key))}</strong></span>${uiIcon('edit')}</button>`:''}${work}${typeof pushActive==='function'&&pushActive()&&(resting||preparing)?`<p class="n-push-session" data-push-status role="status">${esc(pushMessage)}</p>`:''}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
@@ -867,6 +856,8 @@ function uiLogSet(xi,si){
   if(input?.setCustomValidity){input.setCustomValidity(badW?'Escribe un peso válido, incluido 0 cuando corresponda.':'Escribe un número entero mayor que cero.');input.reportValidity();input.focus();}
   return;
  }
+ /* el esfuerzo forma parte del registro: sin RIR se pide antes de confirmar */
+ if(exMeta(ex.key).type!=='tiempo'&&(st.rir===''||st.rir===undefined||st.rir===null)){uiRIR(xi,si,true);return;}
  if(!commitChange(()=>{db.active.open=xi;st.done=true;delete st.autoWeightKg;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastSeriesAt=db.active.lastLog=Date.now();if(db.active.setTimer?.key===ex.key)delete db.active.setTimer;startRestAuto(ex.key);db.active.restKey=ex.key;db.active.uiRest=!!restUntil;})){uiSaveState();return;}
  render();window.scrollTo(0,0);
 }
@@ -900,12 +891,12 @@ function uiSessionQueue(){
  const s=db.active;
  openModal(`<h2>Tu sesión</h2><p class="muted">Cambia de ejercicio cuando lo necesites. Las series que llevas siguen guardadas.</p>${s.exercises.map((ex,i)=>uiRow(esc(exBaseName(ex.name)),`${ex.sets.filter(s=>s.done).length} de ${ex.sets.length} series confirmadas`,uiAction('uiSelectExercise',i),exDone(ex)?'check':'chevron',`<span class="n-number">${i+1}</span>`)).join('')}${uiButton('Añadir ejercicio','uiLibrary()','plus','secondary')}${uiButton('Volver a mi serie','closeModal()','back','text')}`);
 }
-function uiRIR(xi,si){
+function uiRIR(xi,si,andLog=false){
  if(exMeta(db.active.exercises[xi].key).type==='tiempo'){infoModal('Segundos, sin RIR','RIR cuenta repeticiones que podrías haber hecho. Para este ejercicio registra el tiempo completado; la propuesta se basa en esa duración.');return;}
  const st=db.active.exercises[xi].sets[si];
- openModal(`<h2>Repeticiones en reserva</h2><p class="muted">Al terminar, ¿cuántas más habrías podido hacer con buena técnica?</p><div class="n-rir-grid">${[0,1,2,3,4,5].map(n=>`<button class="${String(st.rir)===String(n)?'on':''}" onclick="uiSetRIR(${xi},${si},'${n}')"><b>${n===5?'5+':n}</b><small>${n===0?'Al fallo':n===5?'Con margen':'en reserva'}</small></button>`).join('')}</div>${uiButton('Dejar sin anotar',`uiSetRIR(${xi},${si},'')`,'back','text')}`);
+ openModal(`<h2>Repeticiones en reserva</h2><p class="muted">${andLog?'Para registrar la serie, anota el esfuerzo. ':''}Al terminar, ¿cuántas más habrías podido hacer con buena técnica?</p><div class="n-rir-grid">${[0,1,2,3,4,5].map(n=>`<button class="${String(st.rir)===String(n)?'on':''}" onclick="uiSetRIR(${xi},${si},'${n}',${andLog?'true':'false'})"><b>${n===5?'5+':n}</b><small>${n===0?'Al fallo':n===5?'Con margen':'en reserva'}</small></button>`).join('')}</div>`);
 }
-function uiSetRIR(xi,si,val){setVal(xi,si,'rir',val);closeModal();render();uiFocus('n-rir-choice');}
+function uiSetRIR(xi,si,val,andLog=false){setVal(xi,si,'rir',val);closeModal();if(andLog){uiLogSet(xi,si);return;}render();uiFocus('n-rir-choice');}
 function uiAddSet(xi){db.active.exercises[xi].sets.push({w:'',r:'',rir:''});uiResetRest();save();closeModal();render();}
 function uiEditSet(xi,si){
  const ex=db.active?.exercises[xi],st=ex?.sets[si];if(!st)return;

@@ -85,6 +85,13 @@ function confirmFixtureSets(){
   for(const ex of db.active?.exercises||[])for(const st of ex.sets)if(uiValidSet(ex.key,st))st.done=true;
 }
 function fixtureEntries(){confirmFixtureSets();return collectEntries(db.active);}
+/* Los recorridos de registro representan series con su esfuerzo anotado, como
+   exige la app desde 3.10.0. Las pruebas del propio requisito llaman a uiLogSet. */
+function logSetFixture(xi,si){
+ const ex=db.active.exercises[xi],st=ex.sets[si];
+ if(exMeta(ex.key).type!=='tiempo'&&(st.rir===''||st.rir===undefined||st.rir===null))st.rir='1';
+ uiLogSet(xi,si);
+}
 /* Existing working-set scenarios begin after the real guided preparation.
    Advance a fake wall clock through its rests; never mark work as confirmed. */
 function prepareFixture(xi){
@@ -2288,7 +2295,7 @@ view={name:'routine',id:'newr'};startSession('newr');
 db.active.exercises[0].sets=[{w:'',r:'',rir:''},{w:'',r:'',rir:''}];
 setVal(0,0,'w','40');setVal(0,0,'r','10');
 chk(restUntil===null,'escribir peso y reps no inicia el descanso');
-prepareFixture(0);uiLogSet(0,0);
+prepareFixture(0);logSetFixture(0,0);
 chk(db.active.exercises[0].sets[0].done&&db.active.uiRest&&restUntil>Date.now(), 'confirmar guarda la serie y abre el descanso');
 chk(uiSession().includes('n-rest-phase')&&!uiSession().includes('id="n-weight"'), 'el descanso sustituye el formulario de la serie');
 uiContinue();
@@ -2351,17 +2358,17 @@ askFinish();
 chk(els.modalhost.innerHTML.includes('No hay series confirmadas')&&db.active!==null,'terminar explica que no se han confirmado series');
 closeModal();finishSession();
 chk(db.history.length===historyBeforeProposal&&db.active!==null,'ni siquiera el cierre directo crea una sesión con propuestas sin confirmar');
-closeModal();prepareFixture(0);uiLogSet(0,0);
+closeModal();prepareFixture(0);logSetFixture(0,0);
 const firstRest=restUntil;
 chk(exDone(db.active.exercises[0])&&collectEntries(db.active).length===1,'registrar sí confirma el ejercicio de una serie');
 chk(sessionOpenIdx()===0&&db.active.uiRest&&uiSession().includes('Ejercicio completo'),'el descanso de la última serie permanece en el ejercicio correcto');
-prepareFixture(0);uiLogSet(0,0);
+prepareFixture(0);logSetFixture(0,0);
 chk(restUntil===firstRest,'una confirmación repetida no reinicia el descanso');
 db=normalize(JSON.parse(localStorage.getItem(LS_KEY)));
 chk(db.active.uiRest&&db.active.restUntil===firstRest&&sessionOpenIdx()===0,'la recarga conserva confirmación, ejercicio y descanso');
 uiContinue();
 chk(sessionOpenIdx()===1&&!db.active.uiRest,'continuar tras el último descanso lleva al siguiente ejercicio sin otro paso');
-uiSelectExercise(1);uiUseSuggestion(1);prepareFixture(1);uiLogSet(1,0);uiContinue();uiSelectExercise(2);uiUseSuggestion(2);
+uiSelectExercise(1);uiUseSuggestion(1);prepareFixture(1);logSetFixture(1,0);uiContinue();uiSelectExercise(2);uiUseSuggestion(2);
 chk(collectEntries(db.active).length===2,'el cierre incluye solo las dos series confirmadas, no la tercera propuesta');
 askFinish();
 chk(els.modalhost.innerHTML.includes('sin confirmar'),'el cierre advierte de campos rellenados pendientes de confirmar');closeModal();
@@ -2398,7 +2405,7 @@ prepareFixture(0);const timeUI=uiSession();
 chk(timeUI.includes('no se usa RIR')&&!timeUI.includes('onclick="uiRIR('),'la sesión por tiempo explica la unidad y no muestra selector de RIR');
 setVal(0,0,'r','35');setVal(0,0,'rir','1');
 chk(db.active.exercises[0].sets[0].rir==='','no se acepta 1 RIR como si significara segundos');
-prepareFixture(0);uiLogSet(0,0);
+prepareFixture(0);logSetFixture(0,0);
 chk(collectEntries(db.active)[0].sets[0].r===35&&collectEntries(db.active)[0].sets[0].rir===undefined,'se guarda la duración sin RIR, con lastre vacío permitido');
 uiEditSet(0,0);chk(!els.modalhost.innerHTML.includes('id="n-edit-rir"'),'el editor de una serie por tiempo tampoco pide RIR');closeModal();
 db.history=[];sess(onlyTime,[S(0,30,0),S(0,30,0),S(0,30,0)]);sess(onlyTime,[S(0,35,0),S(0,35,0),S(0,35,0)]);
@@ -2638,7 +2645,7 @@ openExFromSession(0,'equipment');
 chk(view.exTab==='equipment'&&view.from==='session'&&view.rid==='mobile-day'&&uiExercise().includes('Primera placa'),'ajustar la torre abre Equipo en el contexto de la sesión');
 chk(db.active.exercises[0]===mobileEx&&!mobileEx.sets[0].done,'abrir Equipo mantiene el borrador de la sesión');
 view={name:'session'};showLoad(0);chk(els.modalhost.innerHTML.includes("openExFromSession(0,'equipment')"),'el botón de la torre enlaza al ajuste directo');closeModal();
-prepareFixture(0);uiLogSet(0,0);const afterProposalRest=restUntil;
+prepareFixture(0);logSetFixture(0,0);const afterProposalRest=restUntil;
 chk(mobileEx.sets[0].done&&afterProposalRest>Date.now()&&db.active.uiRest,'solo Registrar confirma e inicia el descanso');
 uiUndoProposal(0);chk(mobileEx.sets[0].done&&restUntil===afterProposalRest,'deshacer no modifica una serie ya registrada ni su descanso');
 chk(!warmupPlan(1).first,'una serie confirmada del mismo músculo sí cuenta como trabajo previo');
@@ -2794,7 +2801,7 @@ let warmEx=db.active.exercises[0],warmState=ensureWarmup(0);
 chk(warmState.phase==='set'&&warmState.plan.W===60&&warmState.plan.steps.length===2,'elegir 60 kg crea dos aproximaciones');
 chk(warmState.plan.steps[0].w===35&&warmState.plan.steps[1].w===50,'la escalera usa placas existentes: 35 y 50 kg');
 chk(uiSession().includes('Pin en la placa')&&uiSession().includes('Calentamiento 1 de 2')&&!uiSession().includes('Registrar serie'),'la preparación sustituye toda la interfaz de registro');
-warmEx.sets[0].r='8';uiLogSet(0,0);toggleSetDone(0,0);
+warmEx.sets[0].r='8';logSetFixture(0,0);toggleSetDone(0,0);
 chk(!warmEx.sets[0].done&&collectEntries(db.active).length===0,'los dos caminos para registrar bloquean trabajo antes de preparar');
 uiContinue();chk(warmupRequired(0),'Continuar el descanso normal tampoco salta la preparación');
 const warmStepToken=warmState.id;uiWarmupRecord(0,warmStepToken,0);
@@ -2827,7 +2834,7 @@ setVal(0,0,'w','65');chk(!warmupRequired(0)&&ensureWarmup(0).id===completedWarmT
 setVal(0,0,'w','70');chk(warmupRequired(0)&&ensureWarmup(0).id!==completedWarmToken,'subir la carga más de un 15 % antes de empezar trabajo recalcula la preparación');
 setVal(0,0,'w','60');prepareFixture(0);warmState=ensureWarmup(0);setVal(0,0,'w','55');
 chk(!warmupRequired(0)&&ensureWarmup(0).id===warmState.id,'bajar la carga ya preparada no obliga a repetir el recorrido');
-setVal(0,0,'r','8');db.settings.rest='auto';uiLogSet(0,0);
+setVal(0,0,'r','8');db.settings.rest='auto';logSetFixture(0,0);
 chk(warmEx.sets[0].done&&db.active.uiRest&&restUntil>warmClock,'registrar trabajo mantiene su descanso habitual');
 chk(collectEntries(db.active)[0].loadContext===warmupLoadContext(warmEx.key),'el historial confirmado conserva el contexto para comparar cargas equivalentes');
 uiSelectExercise(1);db.active.exercises[1].sets[0].w='40';
@@ -2981,7 +2988,7 @@ chk(historySplitId(db.history[0])==='sa'&&db.active.splitId==='sa'&&restSecs('re
 
 refineDB();startSession('ra');db.active.exercises[0].sets[0]={w:'20',r:'8',rir:''};prepareFixture(0);save();
 const beforeRejected=localStorage.getItem(LS_KEY),writer=localStorage.setItem;
-localStorage.setItem=()=>{throw new Error('quota');};uiLogSet(0,0);
+localStorage.setItem=()=>{throw new Error('quota');};logSetFixture(0,0);
 chk(!db.active.exercises[0].sets[0].done&&!restUntil,'un registro rechazado sigue editable y no inicia descanso');
 chk(localStorage.getItem(LS_KEY)===beforeRejected,'un registro rechazado conserva la copia anterior');
 localStorage.setItem=writer;db.active.exercises[0].sets[0].done=true;save();const beforeFinishReject=localStorage.getItem(LS_KEY);
@@ -3132,7 +3139,7 @@ suite('Regresión — torre 10/15, ajuste 0/5/10 y preparación conservada');
  uiUndoProposal(0);
  chk(ex.sets[0].w==='85'&&ex.sets[0].r===''&&ex.sets[0].autoWeightKg===undefined,'deshacer recupera tanto el peso manual como su origen');
 
- ex=beginTower();prepareFixture(0);uiUseSuggestion(0);uiLogSet(0,0);
+ ex=beginTower();prepareFixture(0);uiUseSuggestion(0);logSetFixture(0,0);
  const confirmed=JSON.stringify(collectEntries(db.active));setExStack(key,'extra','5');setExStack(key,'extraMax','10');
  chk(JSON.stringify(collectEntries(db.active))===confirmed&&ex.sets[0].w==='70'&&ex.sets[0].done&&ex.sets[0].autoWeightKg===undefined&&collectEntries(db.active)[0].sets[0].w===kg(70),
      'una serie confirmada de 70 lb permanece intacta al corregir el ajuste');
@@ -3237,7 +3244,7 @@ confirmFixtureSets();finishSession();
 fin=els['modalhost'].innerHTML;
 chk(fin.includes('Nuevos récords')&&/<b>2<\/b><i>récords hoy/.test(fin)&&/fin-poster-row"><span class="nm">Hack squat/.test(fin),'con varios récords el número gigante es cuántos, y la mejora mayor encabeza la lista');
 chk(fin.includes('<b>1,6</b> toneladas movidas · más que un coche')&&fin.includes('<b>4</b> series · <b>3</b> ejercicios'),'el peso movido acompaña al titular en toneladas, con una equivalencia y las cifras del día');
-chk(fin.includes('<b>+5 %</b> de peso movido frente a tu Full body anterior'),'y con el porcentaje frente a la última sesión completa del mismo plan');
+chk(fin.includes('<b>+5 %</b> de peso movido frente a tu Full body anterior')&&fin.includes('Tu Full body anterior, de hace 7 días: <b>'+fmtInt(1500)+' kg</b> en 4 series'),'y con el porcentaje y los kilos de la última sesión completa del mismo plan');
 chk(fin.includes('fin-poster-bodies')&&fin.includes('ui-muscle lit')&&fin.includes('Cuádriceps <b>2</b>')&&fin.includes('Pecho <b>1</b>'),'las siluetas encienden los grupos de hoy y la lista da sus series');
 chk(fin.includes('Sesión 4 · 4 semanas seguidas')&&!fin.includes('esta semana'),'la constancia va al pie del póster y calla lo que no es noticia');
 chk((fin.match(/fin-poster-row"/g)||[]).length===2&&fin.includes('class="dl">+3,3')&&fin.includes('polyline'),'cada marca lleva su curva corta y cuánto subió');
@@ -3273,11 +3280,10 @@ sess('lst-banca',[S(60,8),S(60,8)]);
 view={name:'home'};startSession('lst-day');
 let lstEx=db.active.exercises[0];lstEx.sets=lstEx.sets.slice(0,1);lstEx.sets[0].w='40';   /* 40 de discos + barra de 20 = 60 */
 prepareFixture(0);let lstId=ensureWarmup(0).id;
-chk(!warmupRequired(0)&&uiSession().includes('Última vez')&&uiSession().includes('60 × 8 · 8')&&uiSession().includes('Usar 40 de discos'),'bajo la propuesta se ve lo que cargaste la última vez, con acceso directo en la convención del campo');
+chk(!warmupRequired(0)&&uiSession().includes('Última vez')&&uiSession().includes('60 × 8 · 8')&&!uiSession().includes('Usar '),'bajo la propuesta se ve lo que cargaste la última vez, solo como referencia');
 setPairs(db.gym.plates.findIndex(p=>p.kg===10),-1);
 chk(!warmupRequired(0)&&ensureWarmup(0).id===lstId,'cambiar el inventario de discos no reinicia una preparación terminada');
 setVal(0,0,'w','45');chk(!warmupRequired(0)&&ensureWarmup(0).id===lstId,'subir de 60 a 65 kg totales tampoco');
-uiUseLastLoad(0);chk(lstEx.sets[0].w==='40'&&lstEx.sets[0].totalKg===60&&!warmupRequired(0),'«Usar» pone la carga de la última vez en discos y conserva la preparación');
 setVal(0,0,'w','55');chk(warmupRequired(0)&&ensureWarmup(0).id!==lstId,'una subida del 25 % sí vuelve a preparar');
 /* preparación a medias: el inventario recalcula solo lo pendiente */
 setVal(0,0,'w','40');ensureWarmup(0,true);let lstW=ensureWarmup(0);
@@ -3286,6 +3292,34 @@ uiWarmupRecord(0,lstW.id,0);lstClock=lstW.restUntil;uiWarmupNext(0,lstW.id,1);
 const lstDone=lstW.plan.steps[0].w;setPairs(db.gym.plates.findIndex(p=>p.kg===5),-1);lstW=ensureWarmup(0);
 chk(lstW.completed===1&&Math.abs(lstW.plan.steps[0].w-lstDone)<1e-9&&lstW.phase==='set','con un escalón hecho, cambiar discos conserva ese escalón y recalcula los demás');
 Date.now=lstNow;uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
+
+suite('3.10.0 — el esfuerzo es parte del registro y el cierre siempre muestra la sesión anterior');
+resetDB();uiResetRest();db.gym=defaultGym('kg');db.settings.unit='kg';db.settings.rest='off';db.settings.health='off';
+Object.assign(exMeta('rir-banca'),{equip:'barra',muscle:'pecho',lo:6,hi:8});exMeta('rir-plancha').type='tiempo';
+db.routines=[{id:'rir-day',name:'Torso',split:(db.splits[0]||{}).id,exercises:[{id:'r1',key:'rir-banca',name:'Press banca'},{id:'r2',key:'rir-plancha',name:'Plancha'}]}];
+view={name:'home'};startSession('rir-day');
+let rirEx=db.active.exercises[0];rirEx.sets=rirEx.sets.slice(0,1);rirEx.sets[0].w='40';prepareFixture(0);
+chk(uiSession().includes('aria-required="true"')&&uiSession().includes('Elegir')&&!uiSession().includes('Opcional'),'el RIR se presenta como necesario, no opcional');
+setVal(0,0,'r','8');uiLogSet(0,0);
+chk(!rirEx.sets[0].done&&els['modalhost'].innerHTML.includes('n-rir-grid')&&els['modalhost'].innerHTML.includes('Para registrar la serie')&&!els['modalhost'].innerHTML.includes('Dejar sin anotar'),'registrar sin RIR abre el selector, sin opción de dejarlo en blanco');
+uiSetRIR(0,0,'2',true);
+chk(rirEx.sets[0].done&&rirEx.sets[0].rir==='2'&&db.active.restKey==='rir-banca','elegir el esfuerzo confirma la serie en el mismo gesto');
+uiResetRest();uiSelectExercise(1);let rirT=db.active.exercises[1];rirT.sets=rirT.sets.slice(0,1);prepareFixture(1);rirT.sets[0]={w:'',r:'30',rir:''};uiLogSet(1,0);
+chk(rirT.sets[0].done===true,'los ejercicios por tiempo se registran sin RIR');
+uiResetRest();db.active=null;
+/* el cierre: la referencia de la sesión anterior aparece aunque hoy sea parcial */
+resetDB();db.settings.health='off';
+db.routines.push({id:'ref',name:'Lower',split:(db.splits[0]||{}).id,exercises:[{id:'f1',name:'Leg Extension',key:'ref-ext'}]});
+db.history.push({id:uid(),routineId:'ref',routineName:'Lower',date:new Date(Date.now()-5*864e5).toISOString(),duration:3000,plannedSets:3,
+  entries:[{key:'ref-ext',name:'Leg Extension',sets:[S(40,10),S(40,10),S(40,10)]}]});
+startSession('ref');while(db.active.exercises[0].sets.length<3)addSet(0);
+db.active.exercises[0].sets[0]={w:'40',r:'9',rir:'0'};
+db.active.exercises[0].sets=db.active.exercises[0].sets.filter((st,i)=>i===0||st.w!=='');
+db.active.plannedSets=3;confirmFixtureSets();
+db.active.exercises[0].sets.push({w:'',r:'',rir:''},{w:'',r:'',rir:''});finishSession();
+fin=els['modalhost'].innerHTML;
+chk(fin.includes('series previstas')&&fin.includes('Tu Lower anterior, de hace 5 días: <b>'+fmtInt(1200)+' kg</b> en 3 series')&&!fin.includes(' %'),'una sesión parcial no se compara, pero sí muestra cuánto moviste en la anterior');
+closeModal();
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));

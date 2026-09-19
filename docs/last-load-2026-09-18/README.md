@@ -23,3 +23,11 @@ Cuatro problemas reportados desde el gimnasio, en una sola sesión de entrenamie
 
 ![Sesión con la referencia de la última vez](session-dark-390.png)
 ![Cierre con el porcentaje frente a la sesión anterior](finish-dark-390.png)
+
+## 3.10.0 · ajustes tras probarlo en el gimnasio
+
+- **La referencia va sin botón.** «Última vez» muestra fecha y series; la carga se escribe a mano, con la propuesta o con «Repetir anterior». Se retiró «Usar».
+- **El esfuerzo es parte del registro.** Registrar una serie sin RIR abre el selector y, al elegir, confirma la serie en el mismo gesto. Desaparece «Dejar sin anotar»; el campo se presenta como necesario. Los ejercicios por tiempo siguen sin RIR. Las pruebas de recorrido anotan el esfuerzo en sus series, como haría la persona.
+- **El cierre siempre muestra la sesión anterior.** Junto a las cifras del día aparece «Tu Lower anterior, de hace 5 días: 4 380 kg en 9 series». El porcentaje solo se calcula cuando las dos sesiones son completas; si la anterior es parcial se indica.
+
+![Registrar sin RIR abre el selector](rir-dark-390.png)
