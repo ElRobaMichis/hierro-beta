@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.10.1';
+const UI_VERSION = '3.11.0';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -513,7 +513,7 @@ function uiHome(){
   hero=syncForeignCard();
  }else if(nx?.routine.exercises.length){
   const r=nx.routine;
-  hero=`<section class="n-hero">${uiIcon('barbell')}<span class="n-eyebrow">Tu siguiente entrenamiento</span><h2>${esc(r.name)}</h2><p>${r.exercises.length} ejercicio${r.exercises.length===1?'':'s'} · ${esc(sp.name)}</p><span class="n-tag">Día ${nx.idx+1} de ${nx.total}</span>${uiButton('Empezar',uiAction('startSession',r.id))}</section>`;
+  hero=`<section class="n-hero">${uiIcon('barbell')}<span class="n-eyebrow">Tu siguiente entrenamiento</span><h2>${esc(r.name)}</h2><p>${r.exercises.length} ejercicio${r.exercises.length===1?'':'s'} · ${esc(sp.name)}</p><span class="n-tag">Día ${nx.idx+1} de ${nx.total}</span>${uiButton('Empezar',uiAction('uiBeginSession',r.id))}</section>`;
  }else{
   hero=`<section class="n-hero">${uiIcon('barbell')}<span class="n-eyebrow">Empieza con lo que ya haces</span><h2>Tu primer <br>paso.</h2><p>Prepara un día con tus ejercicios. La próxima carga se construye con tu registro.</p>${uiButton(nx?'Añadir ejercicios':'Crear mi primer día',nx?uiGo({name:'routine',id:nx.routine.id,edit:true}):'promptNewRoutine()','plus')}${uiButton('Tengo un plan para importar',uiGo({name:'splits'}),'download','text')}</section>`;
  }
@@ -639,11 +639,11 @@ function uiRoutineCards(r){
 function uiRoutine(){
  const r=db.routines.find(x=>x.id===view.id);if(!r)return uiHome();
  const p=uiDayForecast(r),headline=p.ready?'Tu esfuerzo abre <br>el siguiente paso.':p.near?'El siguiente paso <br>está muy cerca.':p.fresh===p.items.length?'Aquí empieza <br>lo que viene.':'Cada serie cuenta. <br>La próxima, también.';
- const hero=r.exercises.length?`<section class="n-day-hero"><div class="n-day-hero-copy"><span class="n-eyebrow">La próxima vez</span><h2>${headline}</h2><p>${uiDaySummary(p)}.</p><div class="n-day-highlights">${p.complete?`<span>${uiIcon('check')} ${p.complete} ${p.complete===1?'rango completo':'rangos completos'}</span>`:''}${p.near?`<span>${uiIcon('spark')} ${p.near} ${p.near===1?'ejercicio a un paso':'ejercicios a un paso'}</span>`:''}<span>${p.items.length} ${p.items.length===1?'ejercicio':'ejercicios'} · ${p.sets} ${p.sets===1?'serie propuesta':'series propuestas'}</span></div></div><div class="n-day-start">${uiGymButton()}${uiButton(db.active?'Continuar sesión':'Empezar este día',uiAction('startSession',r.id),'play')}<p>La propuesta se actualiza con tu registro y el equipo de este gimnasio.</p></div></section>`:'';
+ const hero=r.exercises.length?`<section class="n-day-hero"><div class="n-day-hero-copy"><span class="n-eyebrow">La próxima vez</span><h2>${headline}</h2><p>${uiDaySummary(p)}.</p><div class="n-day-highlights">${p.complete?`<span>${uiIcon('check')} ${p.complete} ${p.complete===1?'rango completo':'rangos completos'}</span>`:''}${p.near?`<span>${uiIcon('spark')} ${p.near} ${p.near===1?'ejercicio a un paso':'ejercicios a un paso'}</span>`:''}<span>${p.items.length} ${p.items.length===1?'ejercicio':'ejercicios'} · ${p.sets} ${p.sets===1?'serie propuesta':'series propuestas'}</span></div></div><div class="n-day-start">${uiGymButton()}${uiButton(db.active?'Continuar sesión':'Empezar este día',uiAction('uiBeginSession',r.id),'play')}<p>La propuesta se actualiza con tu registro y el equipo de este gimnasio.</p></div></section>`:'';
  return `${uiDayNavigator(r)}${hero}<section class="n-day-exercises"><div class="n-section-head"><h2>${view.sort?'Ordena tu día':'Tu próxima sesión'}</h2>${r.exercises.length?uiButton(view.sort?'Terminar orden':'Ordenar y quitar','view.sort=!view.sort;render()',view.sort?'check':'list','text'):''}</div>${view.sort?'<p class="n-edit-hint">Usa las flechas para cambiar el orden. Quitar un ejercicio conserva su historial.</p>':''}${view.sort?uiRoutineCards(r):p.items.length?`<div class="n-forecast-grid">${p.items.map((x,i)=>uiForecastCard(x,r,i)).join('')}</div>`:'<div class="n-empty"><h2>Dale forma a este día.</h2><p>Busca un ejercicio que ya usas o crea uno nuevo.</p></div>'}<div class="n-toolbar">${uiButton('Añadir ejercicios',uiAction('uiLibrary',r.id),'plus','secondary')}${r.exercises.length?uiButton('Hacer una descarga',uiAction('uiDeload',r.id),'moon','text'):''}</div></section>`;
 }
 
-function uiDeload(rid){confirmModal('Una sesión para recuperar','Se propondrá cerca de un 10 % menos de carga y la mitad de series. Esta sesión no modifica tu progresión normal ni compite por récords.','Empezar descarga',()=>startSession(rid,true),true);}
+function uiDeload(rid){confirmModal('Una sesión para recuperar','Se propondrá cerca de un 10 % menos de carga y la mitad de series. Esta sesión no modifica tu progresión normal ni compite por récords.','Empezar descarga',()=>uiBeginSession(rid,true),true);}
 function uiDayOptions(id){openModal(`<h2>Opciones del día</h2>${uiRow('Cambiar nombre','',`closeModal();${uiAction('promptRenameRoutine',id)}`,'edit')}${uiRow('Copiar o mover a otro plan','',`closeModal();${uiAction('promptMoveRoutine',id)}`,'plan')}${uiRow('Eliminar día','Su historial se conserva',`closeModal();${uiAction('deleteRoutine',id)}`,'trash')}${uiButton('Volver','closeModal()','back','secondary')}`);}
 function uiLibrary(rid=null){
  window.__libraryRid=rid;
@@ -705,6 +705,29 @@ function uiProposalValue(ex){
  if(type==='tiempo')return `${sg.reps} s${sg.w>0?` · ${w} ${uLabelEx(ex.key)} de lastre`:''}`;
  if(type==='corporal'&&!sg.w)return `${sg.reps} reps`;
  return `${w} ${uLabelEx(ex.key)}${type==='asistido'?' de ayuda':''} · ${sg.reps} reps`;
+}
+/* Antes de empezar: ¿el gimnasio activo es donde estás? Con ubicaciones guardadas se
+   pregunta al teléfono, como mucho 4 s y con salida inmediata; sin ellas decide el historial. */
+function uiBeginSession(rid,deload=false){
+ if(db.active||db.gyms.length<2||(typeof syncForeign!=='undefined'&&syncForeign)){startSession(rid,deload);return;}
+ const token=window.__gymCheck=uid();
+ if(!db.gyms.some(g=>validGeo(g.geo))){uiGymCheckResolve(token,rid,deload,null,false);return;}
+ openModal(`<h2 id="gym-check">Comprobando tu gimnasio…</h2><p class="muted">Vemos si sigues en «${esc(db.gym.name)}». Tarda unos segundos como mucho.</p>${uiButton(`Empezar en ${esc(db.gym.name)}`,uiAction('uiGymCheckAnswer',token,rid,!!deload,''),'play')}`);
+ locateOnce(4000,false).then(pos=>uiGymCheckResolve(token,rid,deload,pos,true));
+}
+function uiGymCheckResolve(token,rid,deload,pos,waited){
+ if(window.__gymCheck!==token)return;
+ /* si la persona cerró la comprobación, una lectura tardía no abre ni empieza nada */
+ if(waited&&!String(document.getElementById('modalhost')?.innerHTML||'').includes('id="gym-check"')){window.__gymCheck=null;return;}
+ const d=gymCheckDecision(pos);
+ if(!d){window.__gymCheck=null;closeModal();startSession(rid,deload);return;}
+ const here=esc(db.gym.name),there=esc(d.gym.name);
+ openModal(`<h2>${d.kind==='geo'?`Parece que estás en «${there}».`:`¿Entrenas hoy en «${here}»?`}</h2><p class="muted">${d.kind==='geo'?`Tu ubicación queda a unos ${d.meters} m de ese gimnasio, pero el activo es «${here}».`:`El gimnasio activo es «${here}», pero tus últimas sesiones fueron en «${there}».`} Las cargas propuestas y el montaje dependen del gimnasio.</p>${uiButton(`Cambiar a ${there} y empezar`,uiAction('uiGymCheckAnswer',token,rid,!!deload,d.gym.id),'play')}${uiButton(`Seguir en ${here}`,uiAction('uiGymCheckAnswer',token,rid,!!deload,''),'arrow','secondary')}`);
+}
+function uiGymCheckAnswer(token,rid,deload,gymId){
+ if(window.__gymCheck!==token)return;window.__gymCheck=null;closeModal();
+ if(gymId&&gymId!==db.settings.gymId)setActiveGym(gymId);
+ startSession(rid,deload);
 }
 function uiCurrentSet(ex){return ex.sets.findIndex(st=>!st.done);}
 /* lo que cargaste la última vez en este ejercicio, para elegir con referencia */

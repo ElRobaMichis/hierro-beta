@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.10.1">
+<link rel="stylesheet" href="ui.css?v=3.11.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.10.1"></script>
-<script src="sync-core.js?v=3.10.1"></script>
-<script src="sync-engine.js?v=3.10.1"></script>
-<script src="qr.js?v=3.10.1"></script>
-<script src="sync.js?v=3.10.1"></script>
-<script src="push-core.js?v=3.10.1"></script>
-<script src="push.js?v=3.10.1"></script>
+<script src="ui.js?v=3.11.0"></script>
+<script src="sync-core.js?v=3.11.0"></script>
+<script src="sync-engine.js?v=3.11.0"></script>
+<script src="qr.js?v=3.11.0"></script>
+<script src="sync.js?v=3.11.0"></script>
+<script src="push-core.js?v=3.11.0"></script>
+<script src="push.js?v=3.11.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.10.1';
+const APP_VERSION = '3.11.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -888,7 +888,98 @@ function normGym(g, unitFallback){
   for(const k of ['plates','bars','dumbbells'])
     if(!Array.isArray(g[k]) || !g[k].length) g[k] = def[k];
   if(!g.machines || typeof g.machines !== 'object') g.machines = {};
+  if(g.geo !== undefined && !validGeo(g.geo)) delete g.geo;   /* una ubicación ilegible no decide nada */
   return g;
+}
+
+/* =====================================================================
+   ¿EN QUÉ GIMNASIO ESTÁS?
+   Cada gimnasio puede guardar su ubicación. Al empezar un día, si estás
+   dentro del radio de otro gimnasio guardado, la app pregunta antes de
+   seguir: el gimnasio decide cargas y montaje, así que nunca cambia sola.
+   Sin ubicación, el respaldo es el historial: dónde entrenas casi siempre.
+   ===================================================================== */
+const GYM_RADIUS_M = 600;     /* una plaza entera: que detecte desde la entrada */
+function validGeo(g){
+  return !!g && Number.isFinite(g.lat) && Number.isFinite(g.lon) && Math.abs(g.lat) <= 90 && Math.abs(g.lon) <= 180;
+}
+/* metros entre dos puntos (haversine) */
+function geoDistance(a, b){
+  const R = 6371000, rad = x => x * Math.PI / 180;
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat/2)**2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+/* el gimnasio guardado más cercano dentro del radio; una lectura muy imprecisa no decide */
+function gymNear(pos){
+  if(!validGeo(pos) || (Number.isFinite(pos.acc) && pos.acc > 1500)) return null;
+  let best = null;
+  for(const g of db.gyms){
+    if(!validGeo(g.geo)) continue;
+    const d = geoDistance(pos, g.geo);
+    if(d <= GYM_RADIUS_M && (!best || d < best.d)) best = { gym:g, d };
+  }
+  return best;
+}
+/* en qué gimnasio se hizo una sesión: lo guarda el cierre; las antiguas lo llevan en el contexto de carga */
+function sessionGymId(h){
+  if(h.gymId) return h.gymId;
+  for(const e of h.entries || []){
+    for(const c of [e.loadContext, ...(e.sets || []).map(st => st.loadContext)]){
+      try{ const v = JSON.parse(c); if(Array.isArray(v) && typeof v[0] === 'string') return v[0]; }catch{}
+    }
+  }
+  return null;
+}
+/* dónde entrenas casi siempre: mayoría clara entre las últimas cinco sesiones con gimnasio conocido */
+function usualGymId(){
+  const ids = db.history.map(sessionGymId).filter(id => id && db.gyms.some(g => g.id === id)).slice(-5);
+  if(ids.length < 3) return null;
+  const count = {}; let best = null;
+  for(const id of ids){ count[id] = (count[id] || 0) + 1; if(!best || count[id] > count[best]) best = id; }
+  return count[best] * 2 > ids.length ? best : null;
+}
+/* null = el gimnasio activo vale; si no, a cuál cambiar y por qué */
+function gymCheckDecision(pos){
+  if(db.gyms.length < 2) return null;
+  const near = gymNear(pos);
+  if(near) return near.gym.id === db.settings.gymId ? null : { kind:'geo', gym:near.gym, meters:Math.round(near.d) };
+  const usual = usualGymId();
+  if(usual && usual !== db.settings.gymId) return { kind:'usual', gym:db.gyms.find(g => g.id === usual) };
+  return null;
+}
+/* una sola lectura de ubicación, con límite: nunca deja la pantalla esperando */
+function locateOnce(ms, precise){
+  return new Promise(resolve => {
+    const geo = typeof navigator !== 'undefined' && navigator.geolocation;
+    if(!geo){ resolve(null); return; }
+    let done = false; const end = v => { if(!done){ done = true; resolve(v); } };
+    setTimeout(() => end(null), ms + 200);
+    try{
+      geo.getCurrentPosition(p => end({ lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy }),
+        () => end(null), { enableHighAccuracy:!!precise, maximumAge:precise ? 0 : 120000, timeout:ms });
+    }catch{ end(null); }
+  });
+}
+function saveGymGeo(id){
+  const g = db.gyms.find(x => x.id === id);
+  if(!g) return;
+  const status = document.getElementById('gymgeo-status');
+  if(status) status.textContent = 'Buscando tu ubicación…';
+  locateOnce(12000, true).then(pos => {
+    if(!validGeo(pos)){
+      infoModal('No pudimos leer tu ubicación', 'Revisa que la ubicación esté permitida para esta app. En iPhone: Ajustes → Privacidad y seguridad → Localización → Sitios web de Safari → «Al usar la app». Después inténtalo de nuevo estando en el gimnasio.');
+      return;
+    }
+    g.geo = { lat:Math.round(pos.lat*1e5)/1e5, lon:Math.round(pos.lon*1e5)/1e5, acc:Math.round(pos.acc || 0), at:new Date().toISOString() };
+    if(save()) gymEditModal(id);
+  });
+}
+function clearGymGeo(id){
+  const g = db.gyms.find(x => x.id === id);
+  if(!g) return;
+  delete g.geo;
+  if(save()) gymEditModal(id);
 }
 function load(){
   try{
@@ -3666,6 +3757,12 @@ function gymEditModal(id){
         <input type="text" id="gymrename" value="${esc(g.name)}" autocomplete="off"></div>
       <button class="btn sm" type="submit">Guardar nombre</button>
     </form>
+    <div class="sect">Ubicación</div>
+    <p class="muted" id="gymgeo-status">${validGeo(g.geo)
+      ? `Guardada${Date.now()-Date.parse(g.geo.at)<864e5?' hoy':agoLong(g.geo.at).replace(' de ', ' ')}. Al empezar un día a menos de ${GYM_RADIUS_M} m, te propondremos este gimnasio si no es el activo.`
+      : `Guárdala estando aquí. Al empezar un día a menos de ${GYM_RADIUS_M} m, la app te preguntará si quieres cambiar a este gimnasio. La ubicación forma parte de tus datos de Hierro y no se envía a ningún otro sitio.`}</p>
+    <button class="btn quiet sm" onclick="saveGymGeo('${id}')">${validGeo(g.geo) ? 'Actualizar con mi ubicación actual' : 'Guardar mi ubicación actual'}</button>
+    ${validGeo(g.geo) ? `<button class="btn ghost sm" style="margin-top:9px" onclick="clearGymGeo('${id}')">Quitar ubicación</button>` : ''}
     <button class="btn quiet sm" style="margin-top:9px" onclick="exportGym('${id}')">Compartir este gimnasio (.json)</button>
     ${db.gyms.length > 1 ? `
     <button class="btn danger sm" style="margin-top:9px" onclick="askDeleteGym('${id}')">Eliminar gimnasio</button>` : ''}
@@ -4905,6 +5002,7 @@ function finishSession(){
 
   const rec = {
     id: s.id, routineId: s.routineId, routineName: s.routineName, splitId:s.splitId||ctxSplitId(),
+    gymId: db.settings.gymId,
     plannedSets:s.exercises.reduce((n,e)=>n+e.sets.length,0),
     date: new Date().toISOString(),
     duration: Math.floor((Date.now() - s.start)/1000),

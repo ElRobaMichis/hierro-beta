@@ -3339,6 +3339,55 @@ suite('3.10.1 — la barra fija no se queda flotando tras cerrar el teclado');
  if(kbActive)Object.defineProperty(document,'activeElement',kbActive);else delete document.activeElement;
 }
 
+suite('3.11.0 — la app comprueba en qué gimnasio estás antes de empezar');
+resetDB();uiResetRest();db.settings.health='off';db.settings.rest='off';
+{
+ const home=db.gyms[0];home.name='Mi gimnasio';
+ chk(Math.abs(geoDistance({lat:19.4,lon:-99.1},{lat:19.401,lon:-99.1})-111.2)<1,'la distancia entre dos puntos sale en metros (0,001° de latitud ≈ 111 m)');
+ chk(normGym({name:'X',unit:'kg',geo:{lat:'a',lon:3}}).geo===undefined&&validGeo(normGym({name:'Y',unit:'kg',geo:{lat:19.4,lon:-99.1}}).geo),'una ubicación ilegible se descarta y una válida se conserva');
+ db.routines.push({id:'geo-day',name:'Torso',split:(db.splits[0]||{}).id,exercises:[{id:'g1',name:'Remo',key:'geo-remo'}]});
+ view={name:'home'};uiBeginSession('geo-day');
+ chk(db.active&&db.active.routineId==='geo-day','con un solo gimnasio se empieza sin preguntar');
+ db.active.exercises[0].sets[0]={w:'40',r:'10',rir:'1'};confirmFixtureSets();finishSession();closeModal();
+ chk(db.history[db.history.length-1].gymId===home.id&&sessionGymId({entries:[{loadContext:JSON.stringify(['viejo','normal'])}]})==='viejo','el cierre guarda el gimnasio y las sesiones antiguas lo recuperan de su contexto de carga');
+ const other=normGym({name:'Gym de mi pareja',unit:'kg'},'kg');db.gyms.push(other);
+ home.geo={lat:19.4000,lon:-99.1000};other.geo={lat:19.4500,lon:-99.1500};
+ chk(gymNear({lat:19.4040,lon:-99.1000,acc:30}).gym===home&&gymNear({lat:19.4070,lon:-99.1000,acc:30})===null,'dentro de 600 m detecta el gimnasio; a 780 m ya no');
+ chk(gymNear({lat:19.4001,lon:-99.1000,acc:5000})===null,'una lectura con 5 km de margen no decide nada');
+ const twin=normGym({name:'Vecino',unit:'kg',geo:{lat:19.4020,lon:-99.1000}},'kg');db.gyms.push(twin);
+ chk(gymNear({lat:19.4018,lon:-99.1000,acc:20}).gym===twin,'si dos gimnasios quedan dentro del radio gana el más cercano');
+ db.gyms=db.gyms.filter(g=>g!==twin);
+ chk(gymCheckDecision({lat:19.4001,lon:-99.1,acc:20})===null,'si estás en el gimnasio activo no se pregunta nada');
+ let gd=gymCheckDecision({lat:19.4502,lon:-99.1500,acc:20});
+ chk(gd&&gd.kind==='geo'&&gd.gym===other&&gd.meters<60,'cerca del otro gimnasio se propone cambiar, con la distancia');
+ /* sin ubicación: decide dónde entrenas casi siempre */
+ delete home.geo;delete other.geo;
+ for(let i=0;i<3;i++)db.history.push({id:uid(),routineId:'geo-day',routineName:'Torso',gymId:home.id,date:new Date(Date.now()-(i+2)*864e5).toISOString(),duration:3000,entries:[{key:'geo-remo',name:'Remo',sets:[S(40,10)]}]});
+ db.history.sort((a,b)=>a.date<b.date?-1:1);
+ chk(usualGymId()===home.id&&gymCheckDecision(null)===null,'en tu gimnasio habitual, sin ubicación, tampoco se pregunta');
+ setActiveGym(other.id);
+ gd=gymCheckDecision(null);chk(gd&&gd.kind==='usual'&&gd.gym===home,'con el gimnasio de ayer aún activo, el historial propone volver al habitual');
+ view={name:'home'};uiBeginSession('geo-day');
+ chk(!db.active&&els['modalhost'].innerHTML.includes('¿Entrenas hoy en «Gym de mi pareja»?')&&els['modalhost'].innerHTML.includes('Cambiar a Mi gimnasio y empezar'),'al empezar pregunta, sin iniciar la sesión todavía');
+ const gymToken=window.__gymCheck;uiGymCheckAnswer(gymToken,'geo-day',false,home.id);
+ chk(db.active&&db.settings.gymId===home.id,'un toque cambia de gimnasio y empieza');
+ uiGymCheckAnswer(gymToken,'geo-day',false,other.id);chk(db.settings.gymId===home.id,'una respuesta repetida o tardía no vuelve a cambiar nada');
+ db.active=null;setActiveGym(other.id);home.geo={lat:19.4,lon:-99.1};
+ view={name:'home'};uiBeginSession('geo-day');
+ chk(!db.active&&els['modalhost'].innerHTML.includes('id="gym-check"')&&els['modalhost'].innerHTML.includes('Empezar en Gym de mi pareja'),'con ubicaciones guardadas aparece la comprobación, con salida inmediata');
+ let geoToken=window.__gymCheck;uiGymCheckResolve(geoToken,'geo-day',false,{lat:19.4003,lon:-99.1,acc:25},true);
+ chk(!db.active&&els['modalhost'].innerHTML.includes('Parece que estás en «Mi gimnasio».'),'la lectura del teléfono propone el gimnasio donde estás');
+ uiGymCheckAnswer(geoToken,'geo-day',false,'');chk(db.active&&db.settings.gymId===other.id,'«Seguir» respeta tu elección y empieza');
+ db.active=null;view={name:'home'};uiBeginSession('geo-day');geoToken=window.__gymCheck;closeModal();
+ uiGymCheckResolve(geoToken,'geo-day',false,{lat:19.4003,lon:-99.1,acc:25},true);
+ chk(!db.active&&!els['modalhost'].innerHTML.includes('Parece que'),'si cierras la comprobación, una lectura tardía no abre ni empieza nada');
+ db.routines.push({id:'geo-home',name:'Inicio',split:(db.splits[0]||{}).id,exercises:[{id:'g2',name:'Remo',key:'geo-remo'}]});
+ view={name:'routine',id:'geo-day'};chk(viewRoutine().includes('uiBeginSession(')&&!viewRoutine().includes('startSession('),'el botón de empezar pasa por la comprobación');
+ gymEditModal(home.id);chk(els['modalhost'].innerHTML.includes('Ubicación')&&els['modalhost'].innerHTML.includes('Actualizar con mi ubicación actual')&&els['modalhost'].innerHTML.includes('Quitar ubicación'),'la ficha del gimnasio permite guardar, actualizar y quitar su ubicación');
+ clearGymGeo(home.id);chk(home.geo===undefined&&els['modalhost'].innerHTML.includes('Guardar mi ubicación actual'),'quitarla la borra de tus datos');
+ closeModal();window.__gymCheck=null;db.active=null;
+}
+
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));
 console.log(fail === 0 ? `TODOS LOS TESTS OK (${pass})` : `${fail} FALLOS de ${pass + fail}`);
