@@ -3321,6 +3321,24 @@ fin=els['modalhost'].innerHTML;
 chk(fin.includes('series previstas')&&fin.includes('Tu Lower anterior, de hace 5 días: <b>'+fmtInt(1200)+' kg</b> en 3 series')&&!fin.includes(' %'),'una sesión parcial no se compara, pero sí muestra cuánto moviste en la anterior');
 closeModal();
 
+suite('3.10.1 — la barra fija no se queda flotando tras cerrar el teclado');
+{
+ const kbViewport=window.visualViewport,kbHeight=window.innerHeight,kbActive=Object.getOwnPropertyDescriptor(document,'activeElement');
+ window.visualViewport={height:500,offsetTop:0,addEventListener(){}};window.innerHeight=844;
+ Object.defineProperty(document,'activeElement',{configurable:true,writable:true,value:{tagName:'INPUT',type:'number'}});
+ chk(uiKeyboardInset()===344,'con un campo numérico enfocado la barra sube lo que ocupa el teclado');
+ document.activeElement={tagName:'BODY'};
+ chk(uiKeyboardInset()===0,'sin campo enfocado el hueco es cero aunque iOS conserve una medida vieja del teclado');
+ document.activeElement={tagName:'INPUT',type:'number',isConnected:false};
+ chk(uiKeyboardInset()===0,'un campo que ya no está en pantalla tampoco sostiene la barra');
+ document.activeElement={tagName:'INPUT',type:'checkbox'};
+ chk(uiKeyboardInset()===0,'los controles sin teclado no mueven la barra');
+ document.activeElement={tagName:'TEXTAREA'};window.visualViewport.height=800;
+ chk(uiKeyboardInset()===0,'una diferencia pequeña, como la barra del navegador, no cuenta como teclado');
+ window.visualViewport=kbViewport;window.innerHeight=kbHeight;
+ if(kbActive)Object.defineProperty(document,'activeElement',kbActive);else delete document.activeElement;
+}
+
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));
 console.log(fail === 0 ? `TODOS LOS TESTS OK (${pass})` : `${fail} FALLOS de ${pass + fail}`);

@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.10.0';
+const UI_VERSION = '3.10.1';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -62,8 +62,25 @@ function uiInitNavigation(){
  try{window.history?.replaceState({hierroView:view},'');}catch{}
  window.addEventListener?.('popstate',event=>{if(!event.state?.hierroView)return;window.__historyPop=true;closeModal();go(event.state.hierroView);window.__historyPop=false;});
  const viewport=window.visualViewport;
- const keyboard=()=>{const inset=viewport?Math.max(0,window.innerHeight-viewport.height-viewport.offsetTop):0;document.documentElement?.style?.setProperty('--keyboard-inset',inset>120?inset+'px':'0px');};
- viewport?.addEventListener('resize',keyboard);viewport?.addEventListener('scroll',keyboard);keyboard();
+ /* iOS no siempre avisa cuando el teclado se cierra: al perder el foco, al volver
+    a la app o al girar se vuelve a medir, también tras la animación del teclado. */
+ const recheck=()=>{uiKeyboardInset();for(const ms of [60,300,700])setTimeout(uiKeyboardInset,ms);};
+ viewport?.addEventListener('resize',uiKeyboardInset);viewport?.addEventListener('scroll',uiKeyboardInset);
+ for(const ev of ['focusin','focusout','visibilitychange'])document.addEventListener?.(ev,recheck);
+ for(const ev of ['pageshow','orientationchange','resize'])window.addEventListener?.(ev,recheck);
+ uiKeyboardInset();
+}
+/* La barra fija sube solo mientras el teclado está de verdad abierto. Sin un campo
+   de texto enfocado no puede haber teclado, así que el hueco es cero aunque el
+   navegador conserve una medida vieja (pasa en iOS cuando el campo desaparece al
+   redibujar la pantalla, y la barra se quedaba flotando hasta reiniciar la app). */
+function uiKeyboardInset(){
+ const viewport=window.visualViewport,el=document.activeElement;
+ const typing=!!el&&el.isConnected!==false&&(el.isContentEditable===true||el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&!/^(button|checkbox|radio|range|file|submit|reset|color|image|hidden)$/i.test(el.type||'')));
+ const raw=viewport&&typing?Math.max(0,window.innerHeight-viewport.height-viewport.offsetTop):0;
+ const inset=raw>120?Math.round(raw):0;
+ document.documentElement?.style?.setProperty('--keyboard-inset',inset+'px');
+ return inset;
 }
 
 const UI_LEG_GROUPS=['cuadriceps','isquios','pantorrillas'];
@@ -1156,6 +1173,7 @@ function uiFormSemantics(root){
 }
 function uiAfterRender(){
  uiSyncModalState();
+ uiKeyboardInset();
  if(!document.querySelectorAll)return;
  uiApplyAppearance();
  uiArrangeActions(document.getElementById('main'));
