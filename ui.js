@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.11.0';
+const UI_VERSION = '3.11.1';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -712,13 +712,14 @@ function uiBeginSession(rid,deload=false){
  if(db.active||db.gyms.length<2||(typeof syncForeign!=='undefined'&&syncForeign)){startSession(rid,deload);return;}
  const token=window.__gymCheck=uid();
  if(!db.gyms.some(g=>validGeo(g.geo))){uiGymCheckResolve(token,rid,deload,null,false);return;}
- openModal(`<h2 id="gym-check">Comprobando tu gimnasio…</h2><p class="muted">Vemos si sigues en «${esc(db.gym.name)}». Tarda unos segundos como mucho.</p>${uiButton(`Empezar en ${esc(db.gym.name)}`,uiAction('uiGymCheckAnswer',token,rid,!!deload,''),'play')}`);
+ /* la marca va en el párrafo: el título lo renombra la accesibilidad del diálogo */
+ openModal(`<h2>Comprobando tu gimnasio…</h2><p class="muted" data-gym-check="${token}">Vemos si sigues en «${esc(db.gym.name)}». Tarda unos segundos como mucho.</p>${uiButton(`Empezar en ${esc(db.gym.name)}`,uiAction('uiGymCheckAnswer',token,rid,!!deload,''),'play')}`);
  locateOnce(4000,false).then(pos=>uiGymCheckResolve(token,rid,deload,pos,true));
 }
 function uiGymCheckResolve(token,rid,deload,pos,waited){
  if(window.__gymCheck!==token)return;
  /* si la persona cerró la comprobación, una lectura tardía no abre ni empieza nada */
- if(waited&&!String(document.getElementById('modalhost')?.innerHTML||'').includes('id="gym-check"')){window.__gymCheck=null;return;}
+ if(waited&&!String(document.getElementById('modalhost')?.innerHTML||'').includes(`data-gym-check="${token}"`)){window.__gymCheck=null;return;}
  const d=gymCheckDecision(pos);
  if(!d){window.__gymCheck=null;closeModal();startSession(rid,deload);return;}
  const here=esc(db.gym.name),there=esc(d.gym.name);
