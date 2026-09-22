@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.11.1';
+const UI_VERSION = '3.11.2';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -67,19 +67,39 @@ function uiInitNavigation(){
  const recheck=()=>{uiKeyboardInset();for(const ms of [60,300,700])setTimeout(uiKeyboardInset,ms);};
  viewport?.addEventListener('resize',uiKeyboardInset);viewport?.addEventListener('scroll',uiKeyboardInset);
  for(const ev of ['focusin','focusout','visibilitychange'])document.addEventListener?.(ev,recheck);
- for(const ev of ['pageshow','orientationchange','resize'])window.addEventListener?.(ev,recheck);
+ for(const ev of ['pageshow','orientationchange','resize','focus'])window.addEventListener?.(ev,recheck);
  uiKeyboardInset();
 }
 /* La barra fija sube solo mientras el teclado está de verdad abierto. Sin un campo
    de texto enfocado no puede haber teclado, así que el hueco es cero aunque el
    navegador conserve una medida vieja (pasa en iOS cuando el campo desaparece al
    redibujar la pantalla, y la barra se quedaba flotando hasta reiniciar la app). */
+function uiTypingNow(){
+ const el=document.activeElement;
+ return !!el&&el.isConnected!==false&&(el.isContentEditable===true||el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&!/^(button|checkbox|radio|range|file|submit|reset|color|image|hidden)$/i.test(el.type||'')));
+}
+/* Sin teclado, la vista visible puede quedar desplazada respecto a la página: iOS lo
+   hace al volver de otra app o de una notificación. La barra fija se ancla a la
+   página, así que aparecía a media pantalla con contenido debajo. El desplazamiento
+   se compensa moviendo la barra al borde visible y se pide a la página realinearse. */
+function uiViewportShift(){
+ const viewport=window.visualViewport;
+ return viewport&&!uiTypingNow()?Math.max(0,Math.round(viewport.offsetTop||0)):0;
+}
+function uiRealignViewport(){
+ const viewport=window.visualViewport,now=Date.now();
+ if(!viewport||now-(window.__viewportNudge||0)<600)return;
+ window.__viewportNudge=now;
+ try{window.scrollTo((window.scrollX||0)+(viewport.offsetLeft||0),(window.scrollY||0)+(viewport.offsetTop||0));}catch{}
+}
 function uiKeyboardInset(){
- const viewport=window.visualViewport,el=document.activeElement;
- const typing=!!el&&el.isConnected!==false&&(el.isContentEditable===true||el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&!/^(button|checkbox|radio|range|file|submit|reset|color|image|hidden)$/i.test(el.type||'')));
+ const viewport=window.visualViewport,typing=uiTypingNow();
  const raw=viewport&&typing?Math.max(0,window.innerHeight-viewport.height-viewport.offsetTop):0;
  const inset=raw>120?Math.round(raw):0;
- document.documentElement?.style?.setProperty('--keyboard-inset',inset+'px');
+ const shift=uiViewportShift();
+ const root=document.documentElement?.style;
+ root?.setProperty?.('--keyboard-inset',inset+'px');root?.setProperty?.('--viewport-shift',shift+'px');
+ if(shift>0)uiRealignViewport();
  return inset;
 }
 

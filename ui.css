@@ -1013,7 +1013,7 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 
 /* One palette for surfaces, forms, charts and the anatomical map. */
-:root{--ui-version:"3.11.1";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
+:root{--ui-version:"3.11.2";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
 :root[data-theme=dark]{color-scheme:dark;--paper:#111b17;--white:#1b2a23;--ink:#ecf2e7;--muted:#acb8a8;--line:#35473b;--green:#c1dfa0;--lime:#d8ef96;--soft:#27382c;--surface-2:#24372b;--well:#2c4031;--line-2:#52664e;--ash:#bcc8b4;--dim:#a4b49e;--hold:#f0c08b;--danger:#ffb2a0;--muscle-zero:#1a2a21;--muscle-low:#405c3d;--muscle-medium:#77945d;--muscle-high:#c1dfa0}
 [data-theme=dark] nav.tabs{background:var(--paper)}
 [data-theme=dark] .n-primary{color:var(--paper)}
@@ -1354,7 +1354,7 @@ html:not([data-theme=dark]) input::placeholder,html:not([data-theme=dark]) texta
 .ui-load-label,.ui-load-link>span,.n-set-target>span{font-size:12px}
 .ui-load-detail,.ui-load-nearest{font-size:13px}
 .n-time-tools .n-time-help,.n-warmup-accounting,.n-warmup-foot{font-size:12px}
-.n-record-dock,.n-work-action{position:fixed;z-index:18;left:50%;transform:translateX(-50%);bottom:var(--keyboard-inset,0px);width:min(680px,100%);margin:0;padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--line);box-shadow:0 -9px 30px rgba(25,45,33,.045)}
+.n-record-dock,.n-work-action{position:fixed;z-index:18;left:50%;transform:translate(-50%,var(--viewport-shift,0px));bottom:var(--keyboard-inset,0px);width:min(680px,100%);margin:0;padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--line);box-shadow:0 -9px 30px rgba(25,45,33,.045)}
 .n-record-dock>.n-primary,.n-work-action>.n-primary{width:100%;margin:0;min-height:56px;justify-content:center;font-size:16px}
 .n-record-dock .n-save-status{display:block;text-align:center;font-size:12px;margin-top:6px}
 .n-record-dock .n-save-status:empty{display:none}

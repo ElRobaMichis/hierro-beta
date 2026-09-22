@@ -3335,6 +3335,14 @@ suite('3.10.1 — la barra fija no se queda flotando tras cerrar el teclado');
  chk(uiKeyboardInset()===0,'los controles sin teclado no mueven la barra');
  document.activeElement={tagName:'TEXTAREA'};window.visualViewport.height=800;
  chk(uiKeyboardInset()===0,'una diferencia pequeña, como la barra del navegador, no cuenta como teclado');
+ /* 3.11.2: al volver de otra app la vista visible queda desplazada respecto a la página */
+ const kbScroll=window.scrollTo,kbScrollY=window.scrollY,nudges=[];window.scrollTo=(x,y)=>nudges.push([x,y]);window.scrollY=100;window.__viewportNudge=0;
+ window.visualViewport={height:844,offsetTop:193,offsetLeft:0,addEventListener(){}};document.activeElement={tagName:'BODY'};
+ chk(uiKeyboardInset()===0&&uiViewportShift()===193&&nudges.length===1&&nudges[0][1]===293,'con la vista desplazada y sin teclado, la barra baja al borde visible y la página se realinea sin saltar');
+ chk(uiKeyboardInset()===0&&nudges.length===1,'la realineación no se repite en cadena');
+ window.__viewportNudge=0;document.activeElement={tagName:'INPUT',type:'number'};window.visualViewport.height=500;
+ chk(uiKeyboardInset()===151&&uiViewportShift()===0&&nudges.length===1,'con el teclado abierto manda su hueco: ni desplazamiento ni realineación');
+ window.scrollTo=kbScroll;window.scrollY=kbScrollY;
  window.visualViewport=kbViewport;window.innerHeight=kbHeight;
  if(kbActive)Object.defineProperty(document,'activeElement',kbActive);else delete document.activeElement;
 }
