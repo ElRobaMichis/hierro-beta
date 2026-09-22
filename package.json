@@ -1,6 +1,6 @@
 {
   "name": "hierro-beta",
-  "version": "3.11.2",
+  "version": "3.12.0",
   "private": true,
   "scripts": {
     "test:sync": "node tests/sync.js && node tests/sync-worker.mjs",

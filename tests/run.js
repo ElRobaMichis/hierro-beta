@@ -1904,7 +1904,7 @@ confirmFixtureSets();finishSession();
 fin = els['modalhost'].innerHTML;
 chk(fin.includes(fmtInt(600) + ' kg más') && fin.includes('anterior'),
     'compara contra tu Pierna anterior (1 200 → 1 800 kg)');
-chk(fin.includes('(+50 %)'), 'y dice cuánto en porcentaje');
+chk(fin.includes('de volumen (+50 %)'), 'y dice cuánto en porcentaje, nombrándolo volumen');
 chk(!fin.includes('récord'), 'más volumen sin más peso no es récord, y no se inventa uno');
 closeModal();
 
@@ -3244,7 +3244,8 @@ confirmFixtureSets();finishSession();
 fin=els['modalhost'].innerHTML;
 chk(fin.includes('Nuevos récords')&&/<b>2<\/b><i>récords hoy/.test(fin)&&/fin-poster-row"><span class="nm">Hack squat/.test(fin),'con varios récords el número gigante es cuántos, y la mejora mayor encabeza la lista');
 chk(fin.includes('<b>1,6</b> toneladas movidas · más que un coche')&&fin.includes('<b>4</b> series · <b>3</b> ejercicios'),'el peso movido acompaña al titular en toneladas, con una equivalencia y las cifras del día');
-chk(fin.includes('<b>+5 %</b> de peso movido frente a tu Full body anterior')&&fin.includes('Tu Full body anterior, de hace 7 días: <b>'+fmtInt(1500)+' kg</b> en 4 series'),'y con el porcentaje y los kilos de la última sesión completa del mismo plan');
+chk(fin.includes('<b>+5 %</b> de fuerza estimada frente a tu Full body anterior · mejor en 2 de 3 ejercicios'),'la fuerza estimada se compara ejercicio a ejercicio y dice en cuántos mejoraste');
+chk(fin.includes('<b>+5 %</b> de volumen (peso × reps) frente a tu Full body anterior')&&fin.includes('Tu Full body anterior, de hace 7 días: <b>'+fmtInt(1500)+' kg</b> en 4 series'),'y con el porcentaje y los kilos de la última sesión completa del mismo plan');
 chk(fin.includes('fin-poster-bodies')&&fin.includes('ui-muscle lit')&&fin.includes('Cuádriceps <b>2</b>')&&fin.includes('Pecho <b>1</b>'),'las siluetas encienden los grupos de hoy y la lista da sus series');
 chk(fin.includes('Sesión 4 · 4 semanas seguidas')&&!fin.includes('esta semana'),'la constancia va al pie del póster y calla lo que no es noticia');
 chk((fin.match(/fin-poster-row"/g)||[]).length===2&&fin.includes('class="dl">+3,3')&&fin.includes('polyline'),'cada marca lleva su curva corta y cuánto subió');
@@ -3407,6 +3408,26 @@ resetDB();uiResetRest();db.settings.health='off';db.settings.rest='off';
  clearGymGeo(home.id);chk(home.geo===undefined&&els['modalhost'].innerHTML.includes('Guardar mi ubicación actual'),'quitarla la borra de tus datos');
  closeModal();window.__gymCheck=null;db.active=null;
 }
+
+suite('3.12.0 — menos volumen con más peso no es menos fuerza');
+resetDB();db.settings.health='off';db.gym=defaultGym('kg');db.settings.unit='kg';
+Object.assign(exMeta('str-hack'),{muscle:'cuadriceps',lo:6,hi:8});Object.assign(exMeta('str-bench'),{muscle:'pecho',lo:6,hi:8});Object.assign(exMeta('str-curl'),{muscle:'isquios',lo:6,hi:8});
+db.routines.push({id:'str',name:'Full Body',split:(db.splits[0]||{}).id,exercises:[{id:'s1',name:'Hack Squat',key:'str-hack'},{id:'s2',name:'Incline Bench',key:'str-bench'},{id:'s3',name:'Leg Curl',key:'str-curl'}]});
+/* la sesión de la semana pasada: ligera y con muchas reps */
+db.history.push({id:uid(),routineId:'str',routineName:'Full Body',gymId:db.gyms[0].id,date:new Date(Date.now()-6*864e5).toISOString(),duration:4140,plannedSets:6,
+  entries:[{key:'str-hack',name:'Hack Squat',sets:[S(57.6,10),S(57.6,10)]},{key:'str-bench',name:'Incline Bench',sets:[S(28,8),S(28,8)]},{key:'str-curl',name:'Leg Curl',sets:[S(65,13),S(65,10)]}]});
+startSession('str');
+for(const x of [0,1,2]){while(db.active.exercises[x].sets.length<2)addSet(x);db.active.exercises[x].sets=db.active.exercises[x].sets.slice(0,2);}
+db.active.exercises[0].sets[0]={w:'62.6',r:'7',rir:'0'};db.active.exercises[0].sets[1]={w:'62.6',r:'7',rir:'0'};
+db.active.exercises[1].sets[0]={w:'32',r:'7',rir:'0'};db.active.exercises[1].sets[1]={w:'32',r:'4',rir:'0'};
+db.active.exercises[2].sets[0]={w:'67.5',r:'10',rir:'0'};db.active.exercises[2].sets[1]={w:'67.5',r:'10',rir:'0'};
+confirmFixtureSets();finishSession();
+fin=els['modalhost'].innerHTML;
+chk(/<b>−1\d %<\/b> de volumen \(peso × reps\)/.test(fin),'el volumen baja y se nombra como volumen, no como peso movido a secas');
+chk(fin.includes('<b>+3 %</b> de fuerza estimada frente a tu Full Body anterior · mejor en 2 de 3 ejercicios'),'la fuerza estimada sube: hack +1 %, press +11 %, curl −3 % → +3 % de media');
+chk(fin.includes('Menos reps con más peso: subiste la carga, no bajaste la fuerza.'),'y lo explica con una frase cuando el volumen baja y la fuerza sube');
+chk(sessionStrengthDelta({entries:[{key:'str-hack',sets:[S(50,10)]}]},{entries:[{key:'otro',sets:[S(50,10)]}]})===null,'sin ejercicios en común no se compara fuerza');
+closeModal();
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));

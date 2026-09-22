@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.11.2">
+<link rel="stylesheet" href="ui.css?v=3.12.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.11.2"></script>
-<script src="sync-core.js?v=3.11.2"></script>
-<script src="sync-engine.js?v=3.11.2"></script>
-<script src="qr.js?v=3.11.2"></script>
-<script src="sync.js?v=3.11.2"></script>
-<script src="push-core.js?v=3.11.2"></script>
-<script src="push.js?v=3.11.2"></script>
+<script src="ui.js?v=3.12.0"></script>
+<script src="sync-core.js?v=3.12.0"></script>
+<script src="sync-engine.js?v=3.12.0"></script>
+<script src="qr.js?v=3.12.0"></script>
+<script src="sync.js?v=3.12.0"></script>
+<script src="push-core.js?v=3.12.0"></script>
+<script src="push.js?v=3.12.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.11.2';
+const APP_VERSION = '3.12.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -4808,6 +4808,26 @@ function prDeltaLong(pr){
   return `<b>+${fmtE1RM(pr.key, d)} ${uLabelEx(pr.key)}</b>`;
 }
 
+/* cuánto cambió la fuerza entre dos sesiones: 1RM estimado ejercicio a ejercicio
+   (repeticiones en corporal y tiempo), promediado. Es la medida que responde
+   «¿estoy más fuerte?»; el volumen responde «¿cuánto trabajo hice?». */
+function sessionStrengthDelta(rec, prev){
+  const changes = [];
+  for(const e of rec.entries){
+    const meta = exMeta(e.key);
+    if(meta.type === 'asistido' || !e.sets.length) continue;
+    const p = prev.entries.find(x => x.key === e.key);
+    if(!p || !p.sets.length) continue;
+    const reps = ['corporal','tiempo'].includes(meta.type);
+    const now = reps ? Math.max(0, ...e.sets.map(st => st.r)) : bestE1RM(e.sets);
+    const before = reps ? Math.max(0, ...p.sets.map(st => st.r)) : bestE1RM(p.sets);
+    if(before > 0 && now > 0) changes.push((now - before) / before);
+  }
+  if(!changes.length) return null;
+  const avg = changes.reduce((a, b) => a + b, 0) / changes.length;
+  return { pct: Math.round(avg * 100), up: changes.filter(x => x > 1e-9).length, n: changes.length };
+}
+
 /* la pantalla completa que sustituye al modal de cierre: un póster del día */
 function finishScreenHTML(rec, prs, failNote){
   /* el titular es la mejora mayor, también al reabrir desde el diario (ahí las
@@ -4870,7 +4890,7 @@ function finishScreenHTML(rec, prs, failNote){
     } else if(vol > 0 && lastSession && lastVol > 0){
       const d = vol - lastVol, up = d >= 0;
       eyebrow = `Peso movido · ${routine}`;
-      caption = `Levantados en ${series(nSets)}. ${d===0?'El mismo volumen que en':`<b>${fmtInt(Math.abs(fromKg(d)))} ${uLabel()} ${up?'más':'menos'} (${cmpTxt})</b> que en`} tu ${routine} anterior.`;
+      caption = `Levantados en ${series(nSets)}. ${d===0?'El mismo volumen que en':`<b>${fmtInt(Math.abs(fromKg(d)))} ${uLabel()} ${up?'más':'menos'} de volumen (${cmpTxt})</b> que en`} tu ${routine} anterior.`;
     } else if(vol > 0){
       eyebrow = `Peso movido · ${routine}`;
       caption = `Levantados en ${series(nSets)}. ${lastSession ? 'Sigue registrando y aquí verás la comparación.' : 'Tu primera vez de este día: desde aquí se mide todo lo demás.'}`;
@@ -4890,7 +4910,14 @@ function finishScreenHTML(rec, prs, failNote){
     const t = tonnageParts(vol);
     stats.push(`<div><b>${t.num}</b> ${t.word}${like ? ` · ${like.replace(/\.$/, '').toLowerCase()}` : ''}</div>`);
   }
-  if(tone === 'pr' && cmp !== null) stats.push(`<div><b>${cmpTxt}</b> de peso movido frente a tu ${routine} anterior</div>`);
+  /* la fuerza va antes que el volumen: es la que dice si mejoraste */
+  const strength = (!isDeload && !partial && lastSession) ? sessionStrengthDelta(rec, lastSession) : null;
+  if(strength){
+    const sTxt = strength.pct === 0 ? 'Igual de fuerte' : `<b>${strength.pct > 0 ? '+' : '−'}${Math.abs(strength.pct)} %</b> de fuerza estimada`;
+    stats.push(`<div>${sTxt} frente a tu ${routine} anterior · mejor en ${strength.up} de ${strength.n} ${strength.n === 1 ? 'ejercicio' : 'ejercicios'}</div>`);
+  }
+  if(tone === 'pr' && cmp !== null) stats.push(`<div><b>${cmpTxt}</b> de volumen (peso × reps) frente a tu ${routine} anterior</div>`);
+  if(cmp !== null && cmp < 0 && strength && strength.pct > 0) stats.push(`<div>Menos reps con más peso: subiste la carga, no bajaste la fuerza.</div>`);
   if(ref){
     const rv = sessionVolume(ref.entries), rs = ref.entries.reduce((n, e) => n + e.sets.length, 0), rm = uiSessionMeasure(ref.entries);
     stats.push(`<div>Tu ${routine} anterior${ref === lastSession ? '' : ' (parcial)'}${agoLong(ref.date) ? ',' + agoLong(ref.date) : ''}: <b>${rv > 0 ? `${fmtInt(fromKg(rv))} ${uLabel()}` : `${fmtInt(rm.value)} ${rm.unit}`}</b> en ${series(rs)}</div>`);

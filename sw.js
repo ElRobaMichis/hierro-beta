@@ -15,21 +15,21 @@
    tardara dos arranques en verse: el primero servía la vieja y dejaba
    la nueva lista para el siguiente. */
 /* va siempre igual que APP_VERSION en index.html — hay un test que lo verifica */
-const CACHE = 'hierro-3.11.2';
+const CACHE = 'hierro-3.12.0';
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 const ASSETS = [
   './',
   './index.html',
   './ui.css',
   './ui.js',
-  './ui.css?v=3.11.2',
-  './ui.js?v=3.11.2',
-  './sync-core.js?v=3.11.2',
-  './sync-engine.js?v=3.11.2',
-  './sync.js?v=3.11.2',
-  './qr.js?v=3.11.2',
-  './push-core.js?v=3.11.2',
-  './push.js?v=3.11.2',
+  './ui.css?v=3.12.0',
+  './ui.js?v=3.12.0',
+  './sync-core.js?v=3.12.0',
+  './sync-engine.js?v=3.12.0',
+  './sync.js?v=3.12.0',
+  './qr.js?v=3.12.0',
+  './push-core.js?v=3.12.0',
+  './push.js?v=3.12.0',
   './icon.svg',
   './manifest.webmanifest',
   './icon-180.png',

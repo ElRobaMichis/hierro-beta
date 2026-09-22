@@ -27,3 +27,11 @@ Las capturas usan datos ficticios sembrados en un origen local independiente, co
 ![Pantalla completa en claro](finish-light-390-full.png)
 ![320 px](finish-dark-320.png)
 ![Tablet en oscuro](finish-dark-768.png)
+
+## 3.12.0 · fuerza y volumen, por separado
+
+Una sesión con más peso y menos repeticiones mostraba «−11 % de peso movido» y se leía como «hoy soy 11 % menos fuerte». El volumen (peso por repeticiones) mide cuánto trabajo se hizo; la fuerza la mide el 1RM estimado. Ahora el póster da las dos, en este orden:
+
+- **Fuerza estimada** frente a la última sesión completa del mismo plan: cambio medio del 1RM estimado ejercicio a ejercicio (repeticiones en corporal y tiempo, asistidos fuera), con «mejor en 4 de 6 ejercicios». Solo cuenta ejercicios presentes en ambas sesiones.
+- **Volumen (peso × reps)**, con ese nombre, en lugar de «peso movido».
+- Cuando el volumen baja y la fuerza sube, una frase lo aclara: «Menos reps con más peso: subiste la carga, no bajaste la fuerza.»
