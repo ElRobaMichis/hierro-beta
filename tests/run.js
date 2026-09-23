@@ -3300,8 +3300,7 @@ Object.assign(exMeta('rir-banca'),{equip:'barra',muscle:'pecho',lo:6,hi:8});exMe
 db.routines=[{id:'rir-day',name:'Torso',split:(db.splits[0]||{}).id,exercises:[{id:'r1',key:'rir-banca',name:'Press banca'},{id:'r2',key:'rir-plancha',name:'Plancha'}]}];
 view={name:'home'};startSession('rir-day');
 let rirEx=db.active.exercises[0];rirEx.sets=rirEx.sets.slice(0,1);rirEx.sets[0].w='40';prepareFixture(0);
-chk(uiSession().includes('aria-required="true"')&&uiSession().includes('role="radiogroup"')&&(uiSession().match(/uiPickRIR\(/g)||[]).length===6&&!uiSession().includes('Opcional'),'el RIR se presenta como necesario y se elige en la misma pantalla');
-uiPickRIR(0,0,3,null);chk(rirEx.sets[0].rir==='3','un toque en la fila guarda el esfuerzo sin abrir otra ventana');setVal(0,0,'rir','');
+chk(!uiSession().includes('n-rir')&&!uiSession().includes('Elegir')&&!uiSession().includes('Opcional'),'la pantalla de la serie no repite el RIR: se pide al registrar');
 setVal(0,0,'r','8');uiLogSet(0,0);
 chk(!rirEx.sets[0].done&&els['modalhost'].innerHTML.includes('n-rir-grid')&&els['modalhost'].innerHTML.includes('Para registrar la serie')&&!els['modalhost'].innerHTML.includes('Dejar sin anotar'),'registrar sin RIR abre el selector, sin opción de dejarlo en blanco');
 uiSetRIR(0,0,'2',true);
