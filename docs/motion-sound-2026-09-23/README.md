@@ -49,7 +49,10 @@ La app se usa en ráfagas: desbloquear, anotar peso y repeticiones, bloquear. Y 
 2. **Inicio anticipa.** En «Tus días», el número de ejercicios para avanzar cuenta y da un pequeño salto cada pocos segundos.
 3. **El tope del rango se nota al registrar.** Si la serie que acabas de guardar llega al tope, aparece «Tope del rango: 10 reps» con su propia campana, además del «clac». Si todas las series del ejercicio llegaron, dice «Todas tus series en el tope del rango» y suena la escala de subir. No promete una subida: la decide el motor con su historial y tu equipo.
 
+4. **Registrar se siente.** Las reps en reserva se eligen en la misma pantalla con seis botones (0 a 5+), de un toque y sin abrir otra ventana; si faltan, «Registrar serie» las sigue pidiendo como antes. Mantener pulsado + o − avanza solo y acelera. Los discos por lado aparecen como fichas con su color (rojo 25, azul 20, amarillo 15, verde 10, blanco 5…). Al registrar, un check sale del botón y aterriza en «Serie guardada». Terminar todas las series de un ejercicio tiene su propio cierre sonoro.
+
 ![Subir carga: el peso ya rodó a 60 y el +2,5 kg sale con destellos](forecast-up-390.jpg)
+![Reps en reserva de un toque y los discos por lado con su color](log-rir-plates-390.jpg)
 ![Tope del rango al registrar la serie](top-range-390.jpg)
 
 ## Verificación
