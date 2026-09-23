@@ -51,7 +51,13 @@ La app se usa en ráfagas: desbloquear, anotar peso y repeticiones, bloquear. Y 
 
 4. **Registrar se siente.** La fila «Reps en reserva» con su botón «Elegir» desaparece de la pantalla de la serie: el esfuerzo se pide una sola vez, al tocar «Registrar serie», y elegirlo guarda la serie en el mismo toque. Sus botones entran escalonados. Mantener pulsado + o − avanza solo y acelera. Los discos por lado aparecen como fichas con su color (rojo 25, azul 20, amarillo 15, verde 10, blanco 5…). Al registrar, un check sale del botón y aterriza en «Serie guardada». Terminar todas las series de un ejercicio tiene su propio cierre sonoro.
 
+5. **Hoy toca subir.** Al llegar en la sesión a un ejercicio cuya propuesta sube el peso, la propuesta se presenta una vez: el peso rueda del anterior al nuevo, aparece «+2,5 kg» con destellos, un borde lima y la escala de subir.
+6. **¡Lo lograste!** Si registras una serie con esa carga nueva y las reps propuestas, sale «¡Lo lograste! 60 kg × 6» con confeti pequeño y una fanfarria corta. Una vez por ejercicio y sesión.
+7. **Los kilos ruedan.** Con + y −, el número del peso y de las reps rueda dígito a dígito, verde al subir y ámbar al bajar. Cada paso suena como una nota de una escala: mantener pulsado toca una melodía que sube o baja. Al tocar el campo para escribir, se edita como siempre.
+8. **Inicio lo anticipa.** La tarjeta de tu siguiente entrenamiento dice cuántos ejercicios suben de peso.
+
 ![Subir carga: el peso ya rodó a 60 y el +2,5 kg sale con destellos](forecast-up-390.jpg)
+![¡Lo lograste! con confeti al registrar la carga nueva](achieved-390.jpg)
 ![La serie sin fila de RIR y los discos por lado con su color](log-rir-plates-390.jpg)
 ![Tope del rango al registrar la serie](top-range-390.jpg)
 

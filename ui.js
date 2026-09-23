@@ -534,7 +534,7 @@ function uiHome(){
   hero=syncForeignCard();
  }else if(nx?.routine.exercises.length){
   const r=nx.routine;
-  hero=`<section class="n-hero">${uiIcon('barbell')}<span class="n-eyebrow">Tu siguiente entrenamiento</span><h2>${esc(r.name)}</h2><p>${r.exercises.length} ejercicio${r.exercises.length===1?'':'s'} · ${esc(sp.name)}</p><span class="n-tag">Día ${nx.idx+1} de ${nx.total}</span>${uiButton('Empezar',uiAction('uiBeginSession',r.id))}</section>`;
+  hero=`<section class="n-hero">${uiIcon('barbell')}<span class="n-eyebrow">Tu siguiente entrenamiento</span><h2>${esc(r.name)}</h2><p>${r.exercises.length} ejercicio${r.exercises.length===1?'':'s'} · ${esc(sp.name)}</p><span class="n-tag">Día ${nx.idx+1} de ${nx.total}</span>${(n=>n?`<span class="n-tag ux-up-tag">${uiIcon('up')}${n} ${n===1?'sube':'suben'} de peso</span>`:'')(uiDayForecast(r).items.filter(x=>x.state==='load').length)}${uiButton('Empezar',uiAction('uiBeginSession',r.id))}</section>`;
  }else{
   hero=`<section class="n-hero">${uiIcon('barbell')}<span class="n-eyebrow">Empieza con lo que ya haces</span><h2>Tu primer <br>paso.</h2><p>Prepara un día con tus ejercicios. La próxima carga se construye con tu registro.</p>${uiButton(nx?'Añadir ejercicios':'Crear mi primer día',nx?uiGo({name:'routine',id:nx.routine.id,edit:true}):'promptNewRoutine()','plus')}${uiButton('Tengo un plan para importar',uiGo({name:'splits'}),'download','text')}</section>`;
  }
@@ -929,7 +929,7 @@ function uiStep(xi,si,field,direction){
  const delta=field==='r'?1:Math.max(.01,fromKgEx(ex.key,effStep(ex.key,typedToKg(ex.key,parseFloat(st.w)||0))));
  const n=parseFloat(st[field]);const next=Math.max(field==='r'?1:0,(Number.isFinite(n)?n:0)+direction*delta);
  const val=String(Math.round(next*100)/100),inp=document.getElementById(field==='w'?'n-weight':'n-reps');if(inp){inp.value=val;inp.setCustomValidity?.('');}setVal(xi,si,field,val);
- uxSound('tick',direction);uxBump(inp,direction);
+ uxSound('step',{n:Math.round(next/(field==='r'?1:delta)),toString(){return 'n'+this.n;}});uxNumSet(inp,val,direction);
 }
 function uiRepeatSet(xi){
  const ex=db.active.exercises[xi],si=uiCurrentSet(ex);if(si<0)return;
@@ -1346,6 +1346,8 @@ const UX_SND={
  resolve:a=>{[523.25,659.25,783.99,1046.5].forEach((f,i)=>a.bell(f,i*.08,.06,2.4,.6));[261.63,392].forEach(f=>a.synth({f,dur:2.4,gain:.022,attack:.4,release:1.6,cut0:300,cut1:1200,cut2:500,send:.7,detune:10}));},
  levelUp:a=>{a.noise({dur:.45,gain:.05,f:500,f2:4200,q:1.1,attack:.35,send:.3});[523.25,659.25,783.99,1046.5].forEach((f,i)=>a.bell(f,.2+i*.07,.075,1.5,.5));[2093,2637,3136].forEach((f,i)=>a.bell(f,.55+i*.09,.022,.7,.6));},
  levelDown:a=>[[659.25,0],[523.25,.16]].forEach(([f,t])=>a.bell(f,t,.06,1.1,.45)),
+ step:(a,o={})=>{const semis=[0,2,4,7,9,12,14,16,19,21,24],pos=((o.n%20)+20)%20,f=587.33*Math.pow(2,semis[pos<=10?pos:20-pos]/12);a.tone({f,dur:.28,gain:.075,attack:.002,send:.2});a.tone({f:f*4,dur:.06,gain:.012,attack:.001,send:.05});a.noise({dur:.012,gain:.02,type:'highpass',f:5200,send:0});},
+ achieved:a=>{a.noise({dur:.35,gain:.05,f:600,f2:4800,q:1.1,attack:.3,send:.3});[[523.25,0],[659.25,.09],[783.99,.18],[1046.5,.3]].forEach(([f,t])=>{a.bell(f,t+.28,.08,1.6,.5);a.synth({f,at:t+.28,dur:.35,gain:.03,attack:.01,release:.2,cut0:900,cut1:3600,cut2:1400,send:.3});});a.tone({f:110,f2:50,at:.3,dur:.4,gain:.3,send:.1});[2093,2637,3136,3520].forEach((f,i)=>a.bell(f,.75+i*.08+Math.random()*.05,.02,.7,.6));},
  exDone:a=>{a.bell(783.99,0,.07,1,.45);a.bell(1174.66,.12,.07,1.3,.5);},
  topRange:a=>{a.bell(1568,0,.08,1,.45);a.bell(2093,.11,.07,1.2,.5);},
  shutter:a=>{a.noise({dur:.04,gain:.2,type:'highpass',f:2200,send:.05});a.noise({at:.07,dur:.06,gain:.15,type:'highpass',f:1600,send:.05});},
@@ -1439,7 +1441,64 @@ function uxTabs(){
  const done=()=>{pill.remove();links.classList.remove('ux-moving');};if(move)move.finished.then(done,done);else done();
  uxAnim(on.querySelector('svg'),[{transform:'none'},{transform:'translateY(-4px) scale(1.14)',offset:.4},{transform:'none'}],{duration:520,easing:'cubic-bezier(.3,.7,.2,1)'});
 }
-function uxAfterRender(){uxTabs();uxPlatePills(document.getElementById('main'));}
+function uxAfterRender(){uxTabs();uxPlatePills(document.getElementById('main'));uxNumOverlays();uxLevelUpProposal();}
+
+/* ---------- los kilos y las reps ruedan sobre su campo ---------- */
+function uxNumOverlays(){
+ if(!uxMotion())return;
+ for(const id of ['n-weight','n-reps']){
+  const inp=document.getElementById(id),field=inp?.closest?.('.n-set-field');if(!inp||!field||inp.__uxNum)continue;
+  const o=document.createElement('span');o.className='ux-num';o.setAttribute('aria-hidden','true');field.append(o);inp.__uxNum=o;inp.classList.add('ux-masked');
+  uxNumPlace(inp);o.__roll=new UxRoller(o);o.__roll.set(inp.value,1,true);
+  inp.addEventListener('input',()=>{uxNumPlace(inp);o.__roll.set(inp.value,1,true);});
+  inp.addEventListener('focus',()=>{o.style.visibility='hidden';});inp.addEventListener('blur',()=>{o.style.visibility='';o.__roll.set(inp.value,1,true);});
+ }
+}
+function uxNumPlace(inp){
+ const o=inp.__uxNum;if(!o)return;const cs=getComputedStyle(inp);
+ Object.assign(o.style,{left:inp.offsetLeft+'px',top:inp.offsetTop+'px',width:inp.offsetWidth+'px',height:inp.offsetHeight+'px',fontFamily:cs.fontFamily,fontSize:cs.fontSize,fontWeight:cs.fontWeight,fontStretch:cs.fontStretch,lineHeight:cs.lineHeight,letterSpacing:cs.letterSpacing,paddingTop:cs.paddingTop,paddingBottom:cs.paddingBottom});
+}
+function uxNumSet(inp,val,dir){
+ const o=inp?.__uxNum;if(!o){uxBump(inp,dir);return;}
+ uxNumPlace(inp);o.__roll.set(val,dir);
+ uxAnim(o,[{color:dir>0?'#4C9970':'#C2963A'},{color:getComputedStyle(inp).caretColor||'currentColor'}],{duration:650,easing:'ease-out'});
+}
+
+/* ---------- hoy toca subir: la propuesta se presenta ---------- */
+const uxShownUp=new Set(),uxCheered=new Set();
+function uxUpInfo(ex){
+ if(!ex?.sugg||ex.sugg.type!=='up'||exMeta(ex.key).type!=='normal'||!(ex.sugg.w>0))return null;
+ const last=uiLastEntry(ex.key),prev=last?workWeight(last.entry.sets):0;
+ return prev>0&&ex.sugg.w>prev+1e-9?{prev,next:ex.sugg.w}:null;
+}
+function uxLevelUpProposal(){
+ if(view.name!=='session'||!db.active)return;
+ const box=document.querySelector?.('.n-set-proposal');if(!box)return;
+ const xi=sessionOpenIdx(),ex=db.active.exercises[xi],up=uxUpInfo(ex);if(!up)return;
+ box.classList.add('ux-levelup');
+ const key=db.active.id+':'+xi;if(uxShownUp.has(key)||ex.sets.some(s=>s.done)||!uxMotion()){box.classList.add('ux-levelup-rest');return;}
+ uxShownUp.add(key);
+ const title=box.querySelector('.n-set-target>span'),strong=box.querySelector('.n-set-target strong');
+ const delta=`+${fmtWEx(ex.key,up.next-up.prev)} ${uLabelEx(ex.key)}`;
+ title?.insertAdjacentHTML('beforeend',`<em class="ux-up-badge">${uiIcon('up')}${delta}</em>`);
+ const node=[...(strong?.childNodes||[])].find(n=>n.nodeType===3&&/\d/.test(n.nodeValue));
+ if(node){const m=node.nodeValue.match(/^[\d.,]+/);if(m){const span=document.createElement('span');span.textContent=m[0];node.nodeValue=node.nodeValue.slice(m[0].length);strong.insertBefore(span,node);
+  const roll=new UxRoller(span);roll.set(fmtWEx(ex.key,kgToTyped(ex.key,up.prev)),1,true);setTimeout(()=>{if(span.isConnected)roll.set(m[0],1);},650);}}
+ uxAnim(box,[{transform:'scale(.96)',opacity:.4},{transform:'none',opacity:1}],{spring:'bouncy',delay:120});
+ const badge=title?.querySelector('.ux-up-badge');uxAnim(badge,[{transform:'scale(0) rotate(-12deg)'},{transform:'none'}],{spring:'bouncy',delay:750});
+ setTimeout(()=>{if(!box.isConnected)return;uxSound('levelUp');uxHaptic([10,30,18]);uxSparks(badge);},700);
+}
+function uxAchieved(ex,st){
+ const up=uxUpInfo(ex),key=db.active?.id+':'+ex?.key;if(!up||uxCheered.has(key))return false;
+ const kg=Number.isFinite(st.totalKg)?st.totalKg:recordedSetKg(ex.key,st);if(!(kg>=up.next-1e-6&&Number(st.r)>=ex.sugg.reps))return false;
+ uxCheered.add(key);
+ const status=document.querySelector?.('.n-rest-status');
+ if(status){status.insertAdjacentHTML('afterend',`<div class="ux-top-row"><span class="ux-top-chip ux-win" role="status">${uiIcon('spark')}<span>¡Lo lograste! ${fmtWEx(ex.key,kg)} ${uLabelEx(ex.key)} × ${esc(st.r)}</span></span></div>`);
+  const chip=document.querySelector('.ux-win');uxAnim(chip,[{transform:'scale(.5)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy',delay:420});
+  setTimeout(()=>{if(!chip?.isConnected)return;const r=chip.getBoundingClientRect();uxConfetti([[(r.left+r.width/2)/innerWidth,(r.top+r.height/2)/innerHeight,55,6.2,8]]);uxSparks(chip);},520);}
+ setTimeout(()=>uxSound('achieved'),380);uxHaptic([30,40,30,40,80]);
+ return true;
+}
 
 /* ---------- lo que viene: cada propuesta se revela al verla ---------- */
 let uxRevealNext=0;
@@ -1485,6 +1544,7 @@ function uxSetLogged(xi,si,from){
  if(exNow&&exNow.sets.every(s=>s.done)&&!exNow.sets.every(s=>Number(s.r)>=hiNow))setTimeout(()=>uxSound('exDone'),320);
  /* llegar al tope del rango es la antesala de subir: se nota en el momento */
  const ex=db.active?.exercises?.[xi],st=ex?.sets?.[si];if(!ex||!st||exMeta(ex.key).type==='asistido')return;
+ if(uxAchieved(ex,st))return;
  const hi=effRange(ex.key).hi,r=Number(st.r);if(!(r>=hi))return;
  const done=ex.sets.filter(s=>s.done),all=done.length===ex.sets.length&&done.every(s=>Number(s.r)>=hi);
  const unit=exMeta(ex.key).type==='tiempo'?'s':'reps',status=document.querySelector?.('.n-rest-status');
