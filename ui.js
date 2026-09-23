@@ -1485,7 +1485,7 @@ function uxLevelUpProposal(){
  const key=db.active.id+':'+xi;if(uxShownUp.has(key)||ex.sets.some(s=>s.done)||!uxMotion()){box.classList.add('ux-levelup-rest');return;}
  uxShownUp.add(key);
  const node=[...(strong?.childNodes||[])].find(n=>n.nodeType===3&&/\d/.test(n.nodeValue));
- if(node){const m=node.nodeValue.match(/^[\d.,]+/);if(m){const span=document.createElement('span');span.textContent=m[0];node.nodeValue=node.nodeValue.slice(m[0].length);strong.insertBefore(span,node);
+ if(node){const m=node.nodeValue.match(/^[\d.,]+/);if(m){const wrap=document.createElement('span'),span=document.createElement('span');span.textContent=m[0];node.nodeValue=node.nodeValue.slice(m[0].length);strong.insertBefore(wrap,node);wrap.append(span,node);
   const roll=new UxRoller(span);roll.set(fmtWEx(ex.key,kgToTyped(ex.key,up.prev)),1,true);setTimeout(()=>{if(span.isConnected)roll.set(m[0],1);},650);}}
  uxAnim(box,[{transform:'scale(.96)',opacity:.4},{transform:'none',opacity:1}],{spring:'bouncy',delay:120});
  const badge=box.querySelector('.ux-up-badge');uxAnim(badge,[{transform:'scale(0) rotate(-12deg)'},{transform:'none'}],{spring:'bouncy',delay:750});
@@ -1515,7 +1515,7 @@ function uxAchieved(ex,st){
 /* ---------- lo que viene: cada propuesta se revela al verla ---------- */
 let uxRevealNext=0;
 function uxSparks(el){
- if(!el||!uxMotion())return;el.style.position='relative';
+ if(!el||!uxMotion())return;if(getComputedStyle(el).position==='static')el.style.position='relative';
  for(let i=0;i<9;i++){const s=document.createElement('i'),a=i/9*Math.PI*2,d=26+Math.random()*14;s.className='ux-spark';el.append(s);
   const anim=uxAnim(s,[{transform:'translate(-50%,-50%) scale(.4)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d}px)) scale(1)`,opacity:0}],{duration:700,easing:'cubic-bezier(.2,.7,.3,1)',fill:'forwards'});
   if(anim)anim.finished.then(()=>s.remove(),()=>s.remove());else s.remove();}
