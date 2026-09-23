@@ -789,7 +789,7 @@ function uiSession(){
   const weightLabel=effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Total de las dos':discosOffset(ex.key)>0?'Discos totales':m.type==='asistido'?'Ayuda':corp?'Lastre opcional':'Peso';
   const offset=discosOffset(ex.key),hint=offset>0?'Sin '+(effEquip(ex.key)==='barra'?'la barra':'el aparato'):effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Suma ambas manos':m.type==='asistido'?'Menos ayuda = más esfuerzo':corp?'Vacío = sin lastre':uLabelEx(ex.key);
   const prev=ex.sets.slice(0,si).reverse().find(x=>x.done);
-  work=`<div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):''}</div>${ex.sugg?uiSetProposal(xi,!!prev):`<p class="n-first-hint">${corp?'Registra lo que completes.':'Elige una carga para tu rango.'}</p>`}${uiLastLoad(xi)}<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="${weightLabel} · ${uLabelEx(ex.key)} · serie ${si+1}" aria-describedby="n-weight-help" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small id="n-weight-help">${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Rango <span>${r.lo}–${r.hi}</span></small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?`<div class="n-time-tools">${uiButton(s.setTimer?.key===ex.key&&s.setTimer.si===si?'Retomar cronómetro':'Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text')}<span class="n-time-help">Por tiempo: no se usa RIR.</span></div>`:`<div class="n-rir"><span>Reps en reserva</span><button id="n-rir-choice" aria-label="Repeticiones en reserva: ${st.rir!==''&&st.rir!==undefined?esc(st.rir):'por anotar'}" aria-required="true" onclick="uiRIR(${xi},${si})">${st.rir!==''&&st.rir!==undefined?`${Number(st.rir)>=5?'5+':esc(st.rir)}`:'Elegir'}${uiIcon('chevron')}</button></div>`}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status"></span></div>`;
+  work=`<div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):''}</div>${ex.sugg?uiSetProposal(xi,!!prev):`<p class="n-first-hint">${corp?'Registra lo que completes.':'Elige una carga para tu rango.'}</p>`}${uiLastLoad(xi)}<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="${weightLabel} · ${uLabelEx(ex.key)} · serie ${si+1}" aria-describedby="n-weight-help" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small id="n-weight-help">${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Rango <span>${r.lo}–${r.hi}</span></small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?`<div class="n-time-tools">${uiButton(s.setTimer?.key===ex.key&&s.setTimer.si===si?'Retomar cronómetro':'Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text')}<span class="n-time-help">Por tiempo: no se usa RIR.</span></div>`:`<div class="n-rir n-rir-inline"><span>Reps en reserva<small>¿Cuántas más podías hacer?</small></span><div id="n-rir-choice" class="n-rir-chips" role="radiogroup" aria-required="true" aria-label="Repeticiones en reserva" tabindex="-1">${[0,1,2,3,4,5].map(n=>{const on=st.rir!==''&&st.rir!==undefined&&st.rir!==null&&Math.min(5,Number(st.rir))===n;return `<button type="button" role="radio" aria-checked="${on}" aria-label="${n===0?'0, al fallo':n===5?'5 o más':n}" onclick="uiPickRIR(${xi},${si},${n},this)">${n===5?'5+':n}</button>`;}).join('')}</div></div>`}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status"></span></div>`;
  }
  const logged=ex.sets.map((st,i)=>st.done?`<button class="n-set-chip" onclick="uiEditSet(${xi},${i})" aria-label="Editar serie ${i+1}: ${uiSetDisplay(ex.key,st)}"><span>${i+1}</span>${uiSetDisplay(ex.key,st)}${uiIcon('check')}</button>`:'').join('');
  return `<div class="n-focus">${title}${exerciseNotes(ex.key)&&!resting&&!complete?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(exerciseNotes(ex.key))}">${uiIcon('pin')}<span><small>${m.gymNotes?esc(db.gym.name):'Tu nota'}</small><strong>${esc(exerciseNotes(ex.key))}</strong></span>${uiIcon('edit')}</button>`:''}${work}${typeof pushActive==='function'&&pushActive()&&(resting||preparing)?`<p class="n-push-session" data-push-status role="status">${esc(pushMessage)}</p>`:''}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
@@ -921,7 +921,8 @@ function uiLogSet(xi,si){
  /* el esfuerzo forma parte del registro: sin RIR se pide antes de confirmar */
  if(exMeta(ex.key).type!=='tiempo'&&(st.rir===''||st.rir===undefined||st.rir===null)){uiRIR(xi,si,true);return;}
  if(!commitChange(()=>{db.active.open=xi;st.done=true;delete st.autoWeightKg;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastSeriesAt=db.active.lastLog=Date.now();if(db.active.setTimer?.key===ex.key)delete db.active.setTimer;startRestAuto(ex.key);db.active.restKey=ex.key;db.active.uiRest=!!restUntil;})){uiSaveState();return;}
- render();window.scrollTo(0,0);uxSetLogged(xi,si);
+ const from=document.getElementById('n-record')?.getBoundingClientRect?.();
+ render();window.scrollTo(0,0);uxSetLogged(xi,si,from);
 }
 function uiStep(xi,si,field,direction){
  const ex=db.active.exercises[xi],st=ex.sets[si];
@@ -958,6 +959,12 @@ function uiRIR(xi,si,andLog=false){
  if(exMeta(db.active.exercises[xi].key).type==='tiempo'){infoModal('Segundos, sin RIR','RIR cuenta repeticiones que podrías haber hecho. Para este ejercicio registra el tiempo completado; la propuesta se basa en esa duración.');return;}
  const st=db.active.exercises[xi].sets[si];
  openModal(`<h2>Repeticiones en reserva</h2><p class="muted">${andLog?'Para registrar la serie, anota el esfuerzo. ':''}Al terminar, ¿cuántas más habrías podido hacer con buena técnica?</p><div class="n-rir-grid">${[0,1,2,3,4,5].map(n=>`<button class="${String(st.rir)===String(n)?'on':''}" onclick="uiSetRIR(${xi},${si},'${n}',${andLog?'true':'false'})"><b>${n===5?'5+':n}</b><small>${n===0?'Al fallo':n===5?'Con margen':'en reserva'}</small></button>`).join('')}</div>`);
+}
+/* el esfuerzo se elige en la misma pantalla, de un toque y sin redibujar el formulario */
+function uiPickRIR(xi,si,n,button){
+ if(!db.active?.exercises[xi]?.sets[si])return;setVal(xi,si,'rir',String(n));
+ button?.parentElement?.querySelectorAll?.('[role=radio]').forEach(b=>b.setAttribute('aria-checked',String(b===button)));
+ uxSound('tick',n>=2?1:-1);uxHaptic(6);uxAnim(button,[{transform:'scale(.8)'},{transform:'none'}],{spring:'bouncy'});
 }
 function uiSetRIR(xi,si,val,andLog=false){setVal(xi,si,'rir',val);closeModal();if(andLog){uiLogSet(xi,si);return;}render();uiFocus('n-rir-choice');}
 function uiAddSet(xi){db.active.exercises[xi].sets.push({w:'',r:'',rir:''});uiResetRest();save();closeModal();render();}
@@ -1344,6 +1351,7 @@ const UX_SND={
  resolve:a=>{[523.25,659.25,783.99,1046.5].forEach((f,i)=>a.bell(f,i*.08,.06,2.4,.6));[261.63,392].forEach(f=>a.synth({f,dur:2.4,gain:.022,attack:.4,release:1.6,cut0:300,cut1:1200,cut2:500,send:.7,detune:10}));},
  levelUp:a=>{a.noise({dur:.45,gain:.05,f:500,f2:4200,q:1.1,attack:.35,send:.3});[523.25,659.25,783.99,1046.5].forEach((f,i)=>a.bell(f,.2+i*.07,.075,1.5,.5));[2093,2637,3136].forEach((f,i)=>a.bell(f,.55+i*.09,.022,.7,.6));},
  levelDown:a=>[[659.25,0],[523.25,.16]].forEach(([f,t])=>a.bell(f,t,.06,1.1,.45)),
+ exDone:a=>{a.bell(783.99,0,.07,1,.45);a.bell(1174.66,.12,.07,1.3,.5);},
  topRange:a=>{a.bell(1568,0,.08,1,.45);a.bell(2093,.11,.07,1.2,.5);},
  shutter:a=>{a.noise({dur:.04,gain:.2,type:'highpass',f:2200,send:.05});a.noise({at:.07,dur:.06,gain:.15,type:'highpass',f:1600,send:.05});},
  object:(a,k)=>UX_OBJ_SOUND[k]?.(a)
@@ -1436,7 +1444,7 @@ function uxTabs(){
  const done=()=>{pill.remove();links.classList.remove('ux-moving');};if(move)move.finished.then(done,done);else done();
  uxAnim(on.querySelector('svg'),[{transform:'none'},{transform:'translateY(-4px) scale(1.14)',offset:.4},{transform:'none'}],{duration:520,easing:'cubic-bezier(.3,.7,.2,1)'});
 }
-function uxAfterRender(){uxTabs();}
+function uxAfterRender(){uxTabs();uxPlatePills(document.getElementById('main'));}
 
 /* ---------- lo que viene: cada propuesta se revela al verla ---------- */
 let uxRevealNext=0;
@@ -1473,10 +1481,13 @@ function uxForecastReveal(main){
 
 /* ---------- sesión ---------- */
 function uxBump(el,dir=1){uxAnim(el,[{transform:'none'},{transform:`translateY(${dir>0?-3:3}px) scale(1.04)`,offset:.35},{transform:'none'}],{duration:320,easing:'cubic-bezier(.3,.7,.2,1)'});}
-function uxSetLogged(xi,si){
+function uxSetLogged(xi,si,from){
  uxSound('success');uxHaptic([14,40,26]);
  const rest=document.getElementById('rest')||document.querySelector?.('.n-rest-phase');
  uxAnim(rest,[{transform:'scale(.92)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy'});
+ uxFlyCheck(from,document.querySelector?.('.n-rest-status'));
+ const exNow=db.active?.exercises?.[xi],hiNow=exNow?effRange(exNow.key).hi:0;
+ if(exNow&&exNow.sets.every(s=>s.done)&&!exNow.sets.every(s=>Number(s.r)>=hiNow))setTimeout(()=>uxSound('exDone'),320);
  /* llegar al tope del rango es la antesala de subir: se nota en el momento */
  const ex=db.active?.exercises?.[xi],st=ex?.sets?.[si];if(!ex||!st||exMeta(ex.key).type==='asistido')return;
  const hi=effRange(ex.key).hi,r=Number(st.r);if(!(r>=hi))return;
@@ -1485,6 +1496,38 @@ function uxSetLogged(xi,si){
  if(status&&!document.querySelector('.ux-top-chip')){status.insertAdjacentHTML('afterend',`<div class="ux-top-row"><span class="ux-top-chip" role="status">${uiIcon('spark')}<span>${all?'Todas tus series en el tope del rango':`Tope del rango: ${r} ${unit}`}</span></span></div>`);uxAnim(document.querySelector('.ux-top-chip'),[{transform:'scale(.6)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy',delay:260});}
  setTimeout(()=>uxSound(all?'levelUp':'topRange'),all?380:300);
 }
+/* un check sale del botón y aterriza en «Serie guardada» */
+function uxFlyCheck(from,to){
+ if(!from||!to||!uxMotion()||!document.body)return;
+ const b=to.getBoundingClientRect(),fly=document.createElement('span');fly.className='ux-fly';fly.innerHTML=uiIcon('check');
+ const size=52,x0=from.left+from.width/2-size/2,y0=from.top+from.height/2-size/2,x1=b.left+22-size/2,y1=b.top+b.height/2-size/2;
+ fly.style.cssText=`left:${x0}px;top:${y0}px`;document.body.append(fly);
+ const a=uxAnim(fly,[{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${(x1-x0)*.5}px,${(y1-y0)*.5-40}px) scale(.9)`,opacity:1,offset:.5},{transform:`translate(${x1-x0}px,${y1-y0}px) scale(.35)`,opacity:.2}],{duration:560,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'});
+ const land=()=>{fly.remove();uxAnim(to,[{transform:'scale(1)'},{transform:'scale(1.12)',offset:.4},{transform:'none'}],{spring:'bouncy',duration:600});};
+ if(a)a.finished.then(land,land);else land();
+}
+/* los discos por lado, como fichas con su color */
+function uxPlateColor(v){const t=typeof PLATE_COLORS!=='undefined'?PLATE_COLORS[db.settings.unit==='lb'?'lb':'kg']:[];for(const [w,c] of t)if(Math.abs(v-w)<.05)return c;return '#7E828A';}
+function uxPlatePills(root,animate=false){
+ root?.querySelectorAll?.('.ui-load-card .ui-load-number b').forEach((b,i)=>{
+  const v=Number(b.textContent.replace(',','.'));if(!(v>0)||b.classList.contains('ux-plate'))return;
+  const c=uxPlateColor(v);b.classList.add('ux-plate');if(['#CFCCC4','#A7ACB4'].includes(c))b.classList.add('lt');b.style.setProperty('--c',c);
+  if(animate)uxAnim(b,[{transform:'scale(.4)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy',delay:i*60});
+ });
+}
+/* mantener + o − avanza solo, cada vez más rápido */
+let uxHold=null;
+function uxHoldStop(){if(uxHold){clearTimeout(uxHold.t);if(uxHold.fired)uxHold.swallow=true;const h=uxHold;setTimeout(()=>{if(uxHold===h)uxHold=null;},0);}}
+if(typeof document!=='undefined'&&document.addEventListener){
+ document.addEventListener('pointerdown',ev=>{
+  const btn=ev.target?.closest?.('.n-stepper button');if(!btn||ev.button>0)return;
+  const h={btn,fired:0,swallow:false,t:0};uxHold=h;
+  const step=delay=>{h.t=setTimeout(()=>{if(uxHold!==h||!btn.isConnected)return;h.fired++;btn.click();step(Math.max(55,delay*.85));},delay);};
+  step(420);
+ });
+ ['pointerup','pointercancel','pointerleave'].forEach(t=>document.addEventListener(t,ev=>{if(uxHold&&(t!=='pointerleave'||ev.target===uxHold.btn))uxHoldStop();},true));
+ document.addEventListener('click',ev=>{if(uxHold?.swallow&&ev.isTrusted&&ev.target?.closest?.('.n-stepper button')===uxHold.btn){ev.stopPropagation();ev.preventDefault();uxHold=null;}},true);
+}
 function uxRestDone(){
  const rest=document.getElementById('rest');
  uxAnim(rest,[{transform:'scale(1)'},{transform:'scale(1.05)',offset:.35},{transform:'none'}],{spring:'bouncy',duration:700});
@@ -1492,6 +1535,7 @@ function uxRestDone(){
 function uxLoadChanged(el,before){
  if(!before)return;const now=el?.querySelector?.('.ui-load-number')?.textContent||'';if(now===before)return;
  uxAnim(el.querySelector('.ui-load-number'),[{opacity:0,transform:'translateY(8px)',filter:'blur(4px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{spring:'soft'});
+ uxPlatePills(el,true);
  uxSound('clink',now.length>before.length?.95:1.3);
 }
 
