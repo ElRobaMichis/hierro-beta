@@ -3442,7 +3442,9 @@ chk(uxWarmSeen.join(',')==='warm:countdown,warm:finish'&&!uxWarmCue(),'el calent
 suite('3.14.0 — lo que viene se celebra al verlo');
 const uxActiveSaved=db.active;db.active=null;let uxLogOk=true;try{uxSetLogged(0,0);}catch{uxLogOk=false;}db.active=uxActiveSaved;
 chk(uxLogOk,'registrar sin sesión visible no rompe el aviso de tope del rango');
-chk(['levelUp','levelDown','topRange'].every(n=>uxSound(n)===false),'los sonidos nuevos callan sin audio disponible');
+chk(['levelUp','levelDown','topRange','achieved','exDone'].every(n=>uxSound(n)===false)&&uxSound('step',{n:3})===false,'los sonidos nuevos callan sin audio disponible');
+chk(uxUpInfo({key:'x',sugg:{type:'reps',w:60,reps:8}})===null&&uxUpInfo(null)===null,'solo una propuesta de subir peso abre la ceremonia');
+chk(uxAchieved(null,{})===false,'sin propuesta de subida no hay felicitación');
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));
