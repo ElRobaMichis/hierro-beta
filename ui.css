@@ -1013,7 +1013,7 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 
 /* One palette for surfaces, forms, charts and the anatomical map. */
-:root{--ui-version:"3.13.0";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
+:root{--ui-version:"3.14.0";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
 :root[data-theme=dark]{color-scheme:dark;--paper:#111b17;--white:#1b2a23;--ink:#ecf2e7;--muted:#acb8a8;--line:#35473b;--green:#c1dfa0;--lime:#d8ef96;--soft:#27382c;--surface-2:#24372b;--well:#2c4031;--line-2:#52664e;--ash:#bcc8b4;--dim:#a4b49e;--hold:#f0c08b;--danger:#ffb2a0;--muscle-zero:#1a2a21;--muscle-low:#405c3d;--muscle-medium:#77945d;--muscle-high:#c1dfa0}
 [data-theme=dark] nav.tabs{background:var(--paper)}
 [data-theme=dark] .n-primary{color:var(--paper)}
@@ -1507,3 +1507,15 @@ body:has(.modal) .n-record-dock,body:has(.modal) .n-work-action{visibility:hidde
 @keyframes ux-drift{from{transform:rotate(-32deg) translateY(0)}to{transform:rotate(-25deg) translateY(-12px)}}
 @keyframes ux-shine{0%,72%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
 @keyframes ux-sheet{from{opacity:0;transform:translateY(28px) scale(.98)}to{opacity:1;transform:none}}
+.ux-top-row{margin:10px 0 0;text-align:center}
+.ux-top-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;background:#e1efc3;color:#335323;font-size:13px;font-weight:650}
+.ux-top-chip svg{width:16px;height:16px}
+:root[data-theme=dark] .ux-top-chip{background:#34502c;color:#e1efc3}
+.ux-spark{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:#b9e27d;box-shadow:0 0 6px #d8ef96;pointer-events:none}
+.n-range-track i{transform-origin:left}
+@media(prefers-reduced-motion:no-preference){
+ html:not([data-motion=off]) .n-forecast-state.ux-lit{animation:ux-glow 2.2s ease-in-out 2}
+ html:not([data-motion=off]) .n-day-tile.has-next-step .n-day-tile-count b{display:inline-block;animation:ux-nudge 3.2s 1.2s ease-in-out infinite}
+}
+@keyframes ux-glow{0%,100%{box-shadow:0 0 0 0 rgba(185,226,125,0)}50%{box-shadow:0 0 0 6px rgba(185,226,125,.45)}}
+@keyframes ux-nudge{0%,80%,100%{transform:none}88%{transform:translateY(-5px)}94%{transform:translateY(1px)}}
