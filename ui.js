@@ -374,7 +374,7 @@ function uiUseSuggestion(xi){
  window.__proposalUndo.applied={w:st.w,r:st.r};
  db.active.open=xi;save();render();
  const status=document.getElementById('n-draft-status');if(status)status.textContent='Propuesta preparada. Registra al terminar la serie.';
- uxSound('pop');
+ uxSound('pop');uxAppliedAnim(true);
 }
 function uiProposalMatches(ex,st){
  return !!ex?.sugg&&String(st?.w??'').trim()!==''&&String(st?.r??'').trim()!==''&&Math.abs(Number(st.w)-Number(inputWEx(ex.key,kgToTyped(ex.key,ex.sugg.w))))<1e-9&&Number(st.r)===ex.sugg.reps;
@@ -390,10 +390,11 @@ function uiUndoProposal(xi){
  for(const key of ['w','r','wkg','totalKg','autoWeightKg']){if(previous[key]===undefined)delete st[key];else st[key]=previous[key];}
  delete window.__proposalUndo;save();render();
  const status=document.getElementById('n-draft-status');if(status)status.textContent='Borrador anterior recuperado.';
+ uxSound('back');uxAppliedAnim(false);
 }
 function uiProposalAction(xi){
  const ex=db.active.exercises[xi],matches=uiProposalMatches(ex,ex.sets[uiCurrentSet(ex)]);
- return `<div class="n-proposal-actions"><button class="n-text" id="n-fill-proposal" aria-label="${matches?'Propuesta aplicada':'Aplicar propuesta'}" onclick="uiUseSuggestion(${xi})" ${matches?'disabled':''}><span>${matches?'Aplicada':'Aplicar'}</span>${uiIcon(matches?'check':'copy')}</button>${uiCanUndoProposal(ex)?uiButton('Deshacer',uiAction('uiUndoProposal',xi),'back','text'):''}</div>`;
+ return `<div class="n-proposal-actions"><button class="n-text" id="n-fill-proposal" aria-label="${matches?'Propuesta aplicada':'Aplicar propuesta'}" onclick="uiUseSuggestion(${xi})" ${matches?'disabled':''}><span>${matches?'Aplicada':'Aplicar'}</span>${uiIcon(matches?'check':'copy')}</button>${uiCanUndoProposal(ex)?`<button type="button" class="n-text n-proposal-undo" aria-label="Deshacer" onclick="${uiAction('uiUndoProposal',xi)}">${uiIcon('undo')}</button>`:''}</div>`;
 }
 function uiRefreshSuggestionAction(xi){
  const ex=db.active?.exercises[xi],si=ex?uiCurrentSet(ex):-1;
@@ -465,6 +466,7 @@ Object.assign(UI_ICONS,{
  close:'<path d="m6 6 12 12M18 6 6 18"/>',
  user:'<circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>',
  back:'<path d="m14 5-7 7 7 7"/>',
+ undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
  up:'<path d="m6 15 6-6 6 6"/>',
  copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>',
@@ -1461,7 +1463,8 @@ function uxNumPlace(inp){
 function uxNumSet(inp,val,dir){
  const o=inp?.__uxNum;if(!o){uxBump(inp,dir);return;}
  uxNumPlace(inp);o.__roll.set(val,dir);
- uxAnim(o,[{color:dir>0?'#4C9970':'#C2963A'},{color:getComputedStyle(inp).caretColor||'currentColor'}],{duration:650,easing:'ease-out'});
+ o.getAnimations?.().forEach(a=>a.cancel());const base=getComputedStyle(o).color,accent=dir>0?'#4C9970':'#C2963A';
+ uxAnim(o,[{color:accent},{color:accent,offset:.3},{color:base}],{duration:900,easing:'cubic-bezier(.4,0,.2,1)'});
 }
 
 /* ---------- hoy toca subir: la propuesta se presenta ---------- */
@@ -1476,17 +1479,26 @@ function uxLevelUpProposal(){
  const box=document.querySelector?.('.n-set-proposal');if(!box)return;
  const xi=sessionOpenIdx(),ex=db.active.exercises[xi],up=uxUpInfo(ex);if(!up)return;
  box.classList.add('ux-levelup');
- const key=db.active.id+':'+xi;if(uxShownUp.has(key)||ex.sets.some(s=>s.done)||!uxMotion()){box.classList.add('ux-levelup-rest');return;}
- uxShownUp.add(key);
  const title=box.querySelector('.n-set-target>span'),strong=box.querySelector('.n-set-target strong');
  const delta=`+${fmtWEx(ex.key,up.next-up.prev)} ${uLabelEx(ex.key)}`;
- title?.insertAdjacentHTML('beforeend',`<em class="ux-up-badge">${uiIcon('up')}${delta}</em>`);
+ if(!box.querySelector('.ux-up-badge'))box.insertAdjacentHTML('afterbegin',`<em class="ux-up-badge">${uiIcon('up')}${delta}</em>`);
+ const key=db.active.id+':'+xi;if(uxShownUp.has(key)||ex.sets.some(s=>s.done)||!uxMotion()){box.classList.add('ux-levelup-rest');return;}
+ uxShownUp.add(key);
  const node=[...(strong?.childNodes||[])].find(n=>n.nodeType===3&&/\d/.test(n.nodeValue));
  if(node){const m=node.nodeValue.match(/^[\d.,]+/);if(m){const span=document.createElement('span');span.textContent=m[0];node.nodeValue=node.nodeValue.slice(m[0].length);strong.insertBefore(span,node);
   const roll=new UxRoller(span);roll.set(fmtWEx(ex.key,kgToTyped(ex.key,up.prev)),1,true);setTimeout(()=>{if(span.isConnected)roll.set(m[0],1);},650);}}
  uxAnim(box,[{transform:'scale(.96)',opacity:.4},{transform:'none',opacity:1}],{spring:'bouncy',delay:120});
- const badge=title?.querySelector('.ux-up-badge');uxAnim(badge,[{transform:'scale(0) rotate(-12deg)'},{transform:'none'}],{spring:'bouncy',delay:750});
+ const badge=box.querySelector('.ux-up-badge');uxAnim(badge,[{transform:'scale(0) rotate(-12deg)'},{transform:'none'}],{spring:'bouncy',delay:750});
  setTimeout(()=>{if(!box.isConnected)return;uxSound('levelUp');uxHaptic([10,30,18]);uxSparks(badge);},700);
+}
+/* aplicar la propuesta: los números entran rodando y la píldora confirma en el mismo sitio */
+function uxAppliedAnim(applied){
+ if(!uxMotion())return;
+ const b=document.getElementById('n-fill-proposal'),undo=document.querySelector('.n-proposal-undo');
+ uxAnim(b,[{transform:'scale(.85)',opacity:.5},{transform:'none',opacity:1}],{spring:'bouncy'});
+ if(applied)uxAnim(b?.querySelector('svg'),[{transform:'scale(0) rotate(-30deg)'},{transform:'none'}],{spring:'bouncy',delay:80});
+ uxAnim(undo,[{transform:'scale(.4)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy',delay:120});
+ for(const id of ['n-weight','n-reps']){const inp=document.getElementById(id),o=inp?.__uxNum;if(!o||!inp.value)continue;o.__roll.set('',1,true);o.__roll.set(inp.value,applied?1:-1);}
 }
 function uxAchieved(ex,st){
  const up=uxUpInfo(ex),key=db.active?.id+':'+ex?.key;if(!up||uxCheered.has(key))return false;
