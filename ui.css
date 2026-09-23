@@ -1527,7 +1527,8 @@ body:has(.modal) .n-record-dock,body:has(.modal) .n-work-action{visibility:hidde
 .ux-num{position:absolute;display:flex;align-items:center;justify-content:center;pointer-events:none;box-sizing:border-box;color:var(--bone);font-variant-numeric:tabular-nums}
 .n-set-field input.ux-masked:not(:focus){color:transparent;caret-color:transparent}
 .n-set-proposal.ux-levelup{position:relative;box-shadow:0 0 0 1.5px #b9e27d,0 10px 28px -14px rgba(76,153,112,.7)}
-.ux-up-badge{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:2px 8px 2px 5px;border-radius:999px;background:#d8ef96;color:#1d3329;font-style:normal;font-size:11px;font-weight:750;vertical-align:1px}
+.ux-up-badge{position:absolute;top:-11px;left:12px;z-index:1;display:inline-flex;align-items:center;gap:3px;padding:2px 9px 2px 6px;border-radius:999px;background:#d8ef96;color:#1d3329;font-style:normal;font-size:11px;font-weight:750;line-height:18px;box-shadow:0 2px 8px -2px rgba(76,153,112,.6)}
+.n-set-proposal.ux-levelup{margin-top:14px}
 .ux-up-badge svg{width:12px;height:12px;stroke-width:2.6}
 .ux-win{background:#d8ef96;color:#1d3329;box-shadow:0 8px 22px -10px rgba(76,153,112,.8)}
 :root[data-theme=dark] .ux-win{background:#d8ef96;color:#1d3329}
@@ -1538,3 +1539,8 @@ body:has(.modal) .n-record-dock,body:has(.modal) .n-work-action{visibility:hidde
  html:not([data-motion=off]) .n-hero .ux-up-tag{animation:ux-glow 2.4s 1s ease-in-out infinite}
 }
 @keyframes ux-sweep{to{transform:translateX(120%)}}
+.n-set-proposal .n-proposal-actions{flex-direction:row;align-items:center;gap:6px}
+.n-set-proposal #n-fill-proposal:disabled{background:#e1efc3;border-color:#e1efc3;color:#335323;padding:8px 12px}
+:root[data-theme=dark] .n-set-proposal #n-fill-proposal:disabled{background:#34502c;border-color:#34502c;color:#e1efc3}
+.n-set-proposal .n-proposal-undo{width:44px;min-width:44px;min-height:44px;padding:0;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line-2);color:var(--ink)}
+.n-set-proposal .n-proposal-undo svg{width:17px;height:17px}
