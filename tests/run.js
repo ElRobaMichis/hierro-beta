@@ -3262,7 +3262,7 @@ confirmFixtureSets();finishSession();
 fin=els['modalhost'].innerHTML;
 chk(fin.includes('Peso movido · Suelto')&&/<b>400<\/b><i>kg movidos/.test(fin)&&fin.includes('Más que una moto.'),'sin marcas el número gigante es el peso movido, con su equivalencia');
 chk(!fin.includes('fin-poster-bodies')&&fin.includes('Tu primera sesión')&&!fin.includes('récord')&&fin.includes('Lo más pesado del día'),'sin grupo asignado no hay siluetas; la primera sesión se celebra sin comparar');
-chk(volumeLike(5598)==='Más que un elefante.'&&volumeLike(11000)==='Como dos elefantes.'&&volumeLike(80)===''&&tonnageParts(5598.55).num==='5,6','las equivalencias y las toneladas se calculan sobre kilos reales');
+chk(volumeLike(5598)==='Más que un elefante.'&&volumeLike(11000)==='Más que un T-Rex.'&&volumeLike(90000)==='Más que un avión de pasajeros.'&&volumeLike(12300)==='Como un autobús.'&&volumeLike(80)===''&&tonnageParts(5598.55).num==='5,6','las equivalencias y las toneladas se calculan sobre kilos reales');
 closeModal();
 
 /* =====================================================================
@@ -3428,6 +3428,16 @@ chk(fin.includes('<b>+3 %</b> de fuerza estimada frente a tu Full Body anterior 
 chk(fin.includes('Menos reps con más peso: subiste la carga, no bajaste la fuerza.'),'y lo explica con una frase cuando el volumen baja y la fuerza sube');
 chk(sessionStrengthDelta({entries:[{key:'str-hack',sets:[S(50,10)]}]},{entries:[{key:'otro',sets:[S(50,10)]}]})===null,'sin ejercicios en común no se compara fuerza');
 closeModal();
+
+suite('3.13.0 — movimiento y sonido sin tocar los datos');
+chk([120,250,500,1300,2500,5000,8000,12000,40000,70000,150000].every(kg=>uxLikeArt(uxLikeKey(volumeLike(kg))).includes('<svg')),'cada equivalencia del póster tiene su dibujo y su sonido');
+chk(uxLikeKey('Como dos camionetas.')==='camioneta'&&uxLikeKey('Más que un camión cargado.')==='camion'&&uxLikeKey('Como un T-Rex.')==='trex'&&uxLikeKey('Sin comparación')===null,'la camioneta no se confunde con el camión');
+const uxClock={textContent:''};uxText(uxClock,'1:05');chk(uxClock.textContent==='1:05','sin animaciones el reloj escribe el texto tal cual');
+chk(uxSound('inexistente')===false,'un sonido desconocido no hace nada');
+db.settings.sound='off';chk(uxSound('success')===false&&uxAudio()===null,'con el sonido apagado la interfaz calla');db.settings.sound='on';
+const uxWarmSeen=[],uxBeepSaved=beep;beep=kind=>{uxWarmSeen.push((uxWarmCue()?'warm':'')+':'+(kind||'finish'));return {};};
+uxWarmBeep('countdown');uxWarmBeep();beep=uxBeepSaved;
+chk(uxWarmSeen.join(',')==='warm:countdown,warm:finish'&&!uxWarmCue(),'el calentamiento conserva sus avisos y solo cambia el timbre');
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));

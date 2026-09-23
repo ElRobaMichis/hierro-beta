@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.12.0">
+<link rel="stylesheet" href="ui.css?v=3.13.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.12.0"></script>
-<script src="sync-core.js?v=3.12.0"></script>
-<script src="sync-engine.js?v=3.12.0"></script>
-<script src="qr.js?v=3.12.0"></script>
-<script src="sync.js?v=3.12.0"></script>
-<script src="push-core.js?v=3.12.0"></script>
-<script src="push.js?v=3.12.0"></script>
+<script src="ui.js?v=3.13.0"></script>
+<script src="sync-core.js?v=3.13.0"></script>
+<script src="sync-engine.js?v=3.13.0"></script>
+<script src="qr.js?v=3.13.0"></script>
+<script src="sync.js?v=3.13.0"></script>
+<script src="push-core.js?v=3.13.0"></script>
+<script src="push.js?v=3.13.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.12.0';
+const APP_VERSION = '3.13.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -4271,6 +4271,7 @@ function startSession(rid, deload, localOnly=false){
   restUntil = null;
   delete scrollMem.session;   /* una sesión nueva empieza arriba */
   if(!save())return;closeModal();go({name:'session'});
+  if(typeof uxSound==='function')uxSound('start');
 }
 
 function setVal(xi, si, field, val){
@@ -4780,8 +4781,9 @@ function sessionStreak(rec){
 
 /* equivalencias del peso movido, para darle escala al número (aproximadas, redondeadas) */
 const VOL_LIKE = [[120,'una nevera','neveras'],[250,'una moto','motos'],[500,'un caballo','caballos'],
-  [1300,'un coche','coches'],[2500,'una camioneta','camionetas'],[5000,'un elefante','elefantes'],
-  [12000,'un autobús','autobuses'],[40000,'un camión cargado','camiones cargados'],[150000,'una ballena azul','ballenas azules']];
+  [1300,'un coche','coches'],[2500,'una camioneta','camionetas'],[5000,'un elefante','elefantes'],[8000,'un T-Rex','T-Rex'],
+  [12000,'un autobús','autobuses'],[40000,'un camión cargado','camiones cargados'],[70000,'un avión de pasajeros','aviones de pasajeros'],
+  [150000,'una ballena azul','ballenas azules']];
 function volumeLike(kg){
   let pick = null; for(const o of VOL_LIKE) if(kg >= o[0]) pick = o;
   if(!pick) return '';
@@ -5064,6 +5066,7 @@ function finishSession(){
   showUpdateToast();releaseWake();
   closeModal();
   openFullModal(finishScreenHTML(rec, prs, failNote));
+  if(typeof uxCelebrate==='function')uxCelebrate(rec, prs);
 }
 
 function setGoal(k){ if(!GOALS[k])return;db.settings.goal=k;if(db.active)for(const ex of db.active.exercises)refreshActiveSugg(ex.key);save();render(); }
@@ -5486,6 +5489,9 @@ function beep(kind='finish'){
   const result={sound:false,vibration:false},short=kind==='countdown';
   try{if(db.settings.vibration!=='off'&&navigator.vibrate)result.vibration=navigator.vibrate(short?45:[100,80,140])!==false;}catch(e){}
   if(db.settings.sound==='off'||!audioCtx||audioCtx.state!=='running')return result;
+  /* con Web Audio completo suena la paleta de la interfaz; el calentamiento, más tranquilo */
+  const warm=typeof uxWarmCue==='function'&&uxWarmCue();
+  if(typeof uxSound==='function'&&uxSound(short?(warm?'wood':'countdown'):(warm?'bowl':'restDone'))){result.sound=true;return result;}
   try{
     const t0=audioCtx.currentTime,duration=short ? 0.09 : 0.18;
     for(const [f,t] of short?[[660,0]]:[[880,0],[1175,.2]]){
@@ -5517,13 +5523,14 @@ function tickRest(){
     restUntil=null;
     if(db.active){delete db.active.restUntil;delete db.active.restDuration;save();}
     beep();notify('Descanso listo','A la siguiente serie.','hierro-rest');
+    if(typeof uxRestDone==='function')uxRestDone();
     const status=document.getElementById('n-rest-announcement');if(status)status.textContent='Descanso terminado. Tu siguiente paso está listo.';
   }
   if(!box)return;
   const phase=!!db.active?.uiRest;
   box.className=rem?'rest on':phase?'rest done':'rest';
   if(l)l.textContent=rem?(rem<=3?'Prepárate…':'Descansando'):phase?'Descanso listo':'Descanso';
-  if(t)t.textContent=rem?fmtClock(rem):phase?'¡Vamos!':fmtClock(total);
+  if(t){const shown=rem?fmtClock(rem):phase?'¡Vamos!':fmtClock(total);if(typeof uxText==='function')uxText(t,shown);else t.textContent=shown;}
   if(f)f.style.width=(rem?(total?Math.max(0,Math.min(100,(1-rem/total)*100)):0):phase?100:0)+'%';
   const action=document.querySelector?.('.n-rest-phase [onclick="uiContinue()"] span');
   if(action)action.textContent=rem?'Saltar descanso':'Continuar';

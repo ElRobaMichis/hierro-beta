@@ -1013,7 +1013,7 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 
 /* One palette for surfaces, forms, charts and the anatomical map. */
-:root{--ui-version:"3.12.0";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
+:root{--ui-version:"3.13.0";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
 :root[data-theme=dark]{color-scheme:dark;--paper:#111b17;--white:#1b2a23;--ink:#ecf2e7;--muted:#acb8a8;--line:#35473b;--green:#c1dfa0;--lime:#d8ef96;--soft:#27382c;--surface-2:#24372b;--well:#2c4031;--line-2:#52664e;--ash:#bcc8b4;--dim:#a4b49e;--hold:#f0c08b;--danger:#ffb2a0;--muscle-zero:#1a2a21;--muscle-low:#405c3d;--muscle-medium:#77945d;--muscle-high:#c1dfa0}
 [data-theme=dark] nav.tabs{background:var(--paper)}
 [data-theme=dark] .n-primary{color:var(--paper)}
@@ -1478,3 +1478,32 @@ body:has(.modal) .n-record-dock,body:has(.modal) .n-work-action{visibility:hidde
 .n-last-load small{font-size:11px;color:var(--ash)}
 .n-last-load b{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .n-last-load .n-text{flex:none;margin:0}
+
+/* Movimiento y sonido: números que ruedan, la píldora de navegación, el
+   destello del botón principal, el confeti del póster y los objetos de
+   comparación. Todo se apaga con Animaciones o «Reducir movimiento». */
+.ux-roll{display:inline-flex;align-items:baseline;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ux-slot{position:relative;display:inline-block;overflow:hidden;line-height:1.15;height:1.15em;vertical-align:bottom}
+.ux-ch{display:inline-block}
+.ux-ch.out{position:absolute;left:0;top:0}
+.n-nav-links{position:relative}
+.n-nav-links>button{position:relative;z-index:1}
+.ux-pill{position:absolute;z-index:0;pointer-events:none;display:block}
+.n-nav-links.ux-moving button.on{background:transparent}
+.ux-confetti{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999}
+.fin-poster-like .ux-like-ic{display:inline-block;width:46px;height:32px;vertical-align:-9px;margin-right:8px}
+.fin-poster-stats .ux-like-ic{display:inline-block;width:38px;height:26px;vertical-align:-8px;margin-left:6px}
+#restfill{transition:width 1s linear}
+#warmup-ring{transition:stroke-dashoffset 1s linear}
+@media(prefers-reduced-motion:no-preference){
+ html:not([data-motion=off]) .n-hero>.ui-icon{animation:ux-drift 16s ease-in-out infinite alternate}
+ html:not([data-motion=off]) .n-hero .n-primary{position:relative;overflow:hidden}
+ html:not([data-motion=off]) .n-hero .n-primary::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.5) 50%,transparent 70%);transform:translateX(-130%);animation:ux-shine 7s 1.6s ease-in-out infinite}
+ html:not([data-motion=off]) .modal:not(.full){animation:ux-sheet .5s cubic-bezier(.2,.9,.25,1.08)}
+ html:not([data-motion=off]) .tog i{transition:transform .38s cubic-bezier(.3,1.6,.5,1),background-color .2s ease}
+ html:not([data-motion=off]) :is(.n-row,.n-day-tile,.n-lift-row,.n-diary-entry,.n-nav-links button,.n-goals button,.n-rir-grid button){transition:transform .16s ease,background-color .18s ease}
+ html:not([data-motion=off]) :is(.n-row,.n-lift-row,.n-diary-entry,.n-nav-links button,.n-goals button,.n-rir-grid button):active{transform:scale(.97)}
+}
+@keyframes ux-drift{from{transform:rotate(-32deg) translateY(0)}to{transform:rotate(-25deg) translateY(-12px)}}
+@keyframes ux-shine{0%,72%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+@keyframes ux-sheet{from{opacity:0;transform:translateY(28px) scale(.98)}to{opacity:1;transform:none}}

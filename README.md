@@ -6,6 +6,8 @@ Abre ese enlace en tu teléfono y añádelo a la pantalla de inicio. Se instala 
 
 Los planes y el historial se guardan en tu dispositivo. Puedes restaurar un respaldo de Hierro desde **Tú → Datos y respaldos**. Esta beta utiliza almacenamiento y cachés independientes de la aplicación principal; importar o editar aquí no cambia sus datos. La sincronización cifrada es opcional: crea o vincula tu espacio desde **Tú → Sincronización**. Los avisos remotos se activan por dispositivo y necesitan internet.
 
+La versión **3.13.0** añade movimiento y sonido sin cambiar el diseño. Las vistas entran con suavidad, los números cuentan, los relojes ruedan y el póster final celebra con confeti, fanfarria y el dibujo de su comparación. Registrar una serie, calentar y terminar un descanso tienen sonidos propios, sintetizados en el dispositivo y disponibles sin conexión. Todo respeta Sonido, Vibración, Animaciones y «Reducir movimiento». Consulta [qué se mueve y qué suena](docs/motion-sound-2026-09-23/README.md).
+
 La versión **3.6.2** alinea las tarjetas de la derecha con las de la izquierda en preferencias de sesión y objetivos del ejercicio. Comparten filas y altura en escritorio; el móvil conserva una sola columna. Consulta la [verificación de las dos filas y sus capturas](docs/ui-row-alignment-2026-09-14/README.md).
 
 La versión **3.6.1** unifica el ancho, los márgenes interiores y la separación de las tarjetas de preferencias de sesión y objetivos del ejercicio. «Probar aviso» tiene espacio propio debajo de vibración. Consulta la [comprobación con capturas](docs/ui-panel-alignment-2026-09-14/README.md).
