@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.13.0';
+const UI_VERSION = '3.14.0';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -921,7 +921,7 @@ function uiLogSet(xi,si){
  /* el esfuerzo forma parte del registro: sin RIR se pide antes de confirmar */
  if(exMeta(ex.key).type!=='tiempo'&&(st.rir===''||st.rir===undefined||st.rir===null)){uiRIR(xi,si,true);return;}
  if(!commitChange(()=>{db.active.open=xi;st.done=true;delete st.autoWeightKg;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastSeriesAt=db.active.lastLog=Date.now();if(db.active.setTimer?.key===ex.key)delete db.active.setTimer;startRestAuto(ex.key);db.active.restKey=ex.key;db.active.uiRest=!!restUntil;})){uiSaveState();return;}
- render();window.scrollTo(0,0);uxSetLogged();
+ render();window.scrollTo(0,0);uxSetLogged(xi,si);
 }
 function uiStep(xi,si,field,direction){
  const ex=db.active.exercises[xi],st=ex.sets[si];
@@ -1342,6 +1342,9 @@ const UX_SND={
   [130.81,196,261.63,329.63].forEach(f=>a.synth({f,at:T+.1,dur:3.4,gain:.022,attack:.6,release:2.2,cut0:300,cut1:1600,cut2:600,send:.7,detune:12}));
   const pent=[2093,2349.3,2637,3136,3520,4186];for(let i=0;i<14;i++)a.bell(pent[Math.floor(Math.random()*6)],T+.2+Math.random()*2.3,.02,.7,.7);},
  resolve:a=>{[523.25,659.25,783.99,1046.5].forEach((f,i)=>a.bell(f,i*.08,.06,2.4,.6));[261.63,392].forEach(f=>a.synth({f,dur:2.4,gain:.022,attack:.4,release:1.6,cut0:300,cut1:1200,cut2:500,send:.7,detune:10}));},
+ levelUp:a=>{a.noise({dur:.45,gain:.05,f:500,f2:4200,q:1.1,attack:.35,send:.3});[523.25,659.25,783.99,1046.5].forEach((f,i)=>a.bell(f,.2+i*.07,.075,1.5,.5));[2093,2637,3136].forEach((f,i)=>a.bell(f,.55+i*.09,.022,.7,.6));},
+ levelDown:a=>[[659.25,0],[523.25,.16]].forEach(([f,t])=>a.bell(f,t,.06,1.1,.45)),
+ topRange:a=>{a.bell(1568,0,.08,1,.45);a.bell(2093,.11,.07,1.2,.5);},
  shutter:a=>{a.noise({dur:.04,gain:.2,type:'highpass',f:2200,send:.05});a.noise({at:.07,dur:.06,gain:.15,type:'highpass',f:1600,send:.05});},
  object:(a,k)=>UX_OBJ_SOUND[k]?.(a)
 };
@@ -1417,7 +1420,8 @@ function uxEnterView(main){
   path.setAttribute('pathLength','1');path.style.strokeDasharray='1';const a=uxAnim(path,[{strokeDashoffset:1},{strokeDashoffset:0}],{duration:900,delay:200+i*60,easing:'cubic-bezier(.3,.7,.2,1)'});
   const clear=()=>{path.removeAttribute('pathLength');path.style.strokeDasharray='';};if(a)a.finished.then(clear,clear);else clear();
  });
- main.querySelectorAll('.n-week-stat strong,.n-week-value strong,.n-lifetime b,.n-lift-row strong').forEach((el,i)=>uxCountUp(el,{delay:120+i*40}));
+ main.querySelectorAll('.n-week-stat strong,.n-week-value strong,.n-lifetime b,.n-lift-row strong,.n-day-tile-count b').forEach((el,i)=>uxCountUp(el,{delay:120+i*40}));
+ uxForecastReveal(main);
  return true;
 }
 /* la píldora de la barra de navegación viaja de una pestaña a otra */
@@ -1434,12 +1438,52 @@ function uxTabs(){
 }
 function uxAfterRender(){uxTabs();}
 
+/* ---------- lo que viene: cada propuesta se revela al verla ---------- */
+let uxRevealNext=0;
+function uxSparks(el){
+ if(!el||!uxMotion())return;el.style.position='relative';
+ for(let i=0;i<9;i++){const s=document.createElement('i'),a=i/9*Math.PI*2,d=26+Math.random()*14;s.className='ux-spark';el.append(s);
+  const anim=uxAnim(s,[{transform:'translate(-50%,-50%) scale(.4)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d}px)) scale(1)`,opacity:0}],{duration:700,easing:'cubic-bezier(.2,.7,.3,1)',fill:'forwards'});
+  if(anim)anim.finished.then(()=>s.remove(),()=>s.remove());else s.remove();}
+}
+function uxRevealCard(card){
+ const now=Date.now(),start=Math.max(0,uxRevealNext-now);uxRevealNext=now+start+650;
+ const state=card.querySelector('.n-forecast-state'),up=card.classList.contains('is-ready'),down=!!state&&/state-(ease|back)/.test(state.className);
+ card.querySelectorAll('.n-range-track i').forEach((bar,i)=>uxAnim(bar,[{transform:'scaleX(0)'},{transform:'none'}],{duration:650,delay:start+i*110,easing:'cubic-bezier(.3,.7,.2,1)'}));
+ card.querySelectorAll('.n-range-set.is-full b svg').forEach((check,i)=>uxAnim(check,[{transform:'scale(0)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy',delay:start+300+i*110}));
+ const strong=card.querySelector('.n-forecast-target strong'),delta=card.querySelector('.n-forecast-delta');
+ if(!strong||(!up&&!down))return;
+ const m=(delta?.textContent||'').match(/([+−-])\s*([\d.,]+)/),to=strong.textContent.trim();
+ if(m&&/^[\d.,]+$/.test(to)){
+  const n=v=>Number(v.replace(/\./g,'').replace(',','.')),dec=(to.split(',')[1]||'').length,sign=m[1]==='+'?1:-1;
+  let from=(n(to)-sign*n(m[2])).toFixed(Math.max(dec,(m[2].split(',')[1]||'').length)).replace('.',',');
+  if(from.includes(',')&&!to.includes(','))from=from.replace(/,0+$/,'');
+  const roll=new UxRoller(strong);roll.set(from,1,true);
+  setTimeout(()=>{if(!strong.isConnected)return;roll.set(to,sign);uxSound(up?'levelUp':'levelDown');if(up)uxHaptic([10,30,18]);},start+700);
+ }else setTimeout(()=>{if(card.isConnected)uxSound(up?'levelUp':'levelDown');},start+700);
+ uxAnim(delta,[{transform:'scale(.3)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy',delay:start+850});
+ if(up){setTimeout(()=>{if(delta?.isConnected)uxSparks(delta);},start+900);state?.classList.add('ux-lit');}
+}
+function uxForecastReveal(main){
+ const cards=[...main.querySelectorAll('.n-forecast')];if(!cards.length||typeof IntersectionObserver!=='function')return;
+ uxRevealNext=Date.now()+450;
+ const io=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){io.unobserve(e.target);uxRevealCard(e.target);}},{threshold:.45});
+ cards.forEach(c=>io.observe(c));
+}
+
 /* ---------- sesión ---------- */
 function uxBump(el,dir=1){uxAnim(el,[{transform:'none'},{transform:`translateY(${dir>0?-3:3}px) scale(1.04)`,offset:.35},{transform:'none'}],{duration:320,easing:'cubic-bezier(.3,.7,.2,1)'});}
-function uxSetLogged(){
+function uxSetLogged(xi,si){
  uxSound('success');uxHaptic([14,40,26]);
  const rest=document.getElementById('rest')||document.querySelector?.('.n-rest-phase');
  uxAnim(rest,[{transform:'scale(.92)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy'});
+ /* llegar al tope del rango es la antesala de subir: se nota en el momento */
+ const ex=db.active?.exercises?.[xi],st=ex?.sets?.[si];if(!ex||!st||exMeta(ex.key).type==='asistido')return;
+ const hi=effRange(ex.key).hi,r=Number(st.r);if(!(r>=hi))return;
+ const done=ex.sets.filter(s=>s.done),all=done.length===ex.sets.length&&done.every(s=>Number(s.r)>=hi);
+ const unit=exMeta(ex.key).type==='tiempo'?'s':'reps',status=document.querySelector?.('.n-rest-status');
+ if(status&&!document.querySelector('.ux-top-chip')){status.insertAdjacentHTML('afterend',`<div class="ux-top-row"><span class="ux-top-chip" role="status">${uiIcon('spark')}<span>${all?'Todas tus series en el tope del rango':`Tope del rango: ${r} ${unit}`}</span></span></div>`);uxAnim(document.querySelector('.ux-top-chip'),[{transform:'scale(.6)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy',delay:260});}
+ setTimeout(()=>uxSound(all?'levelUp':'topRange'),all?380:300);
 }
 function uxRestDone(){
  const rest=document.getElementById('rest');

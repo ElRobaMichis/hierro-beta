@@ -3439,6 +3439,11 @@ const uxWarmSeen=[],uxBeepSaved=beep;beep=kind=>{uxWarmSeen.push((uxWarmCue()?'w
 uxWarmBeep('countdown');uxWarmBeep();beep=uxBeepSaved;
 chk(uxWarmSeen.join(',')==='warm:countdown,warm:finish'&&!uxWarmCue(),'el calentamiento conserva sus avisos y solo cambia el timbre');
 
+suite('3.14.0 — lo que viene se celebra al verlo');
+const uxActiveSaved=db.active;db.active=null;let uxLogOk=true;try{uxSetLogged(0,0);}catch{uxLogOk=false;}db.active=uxActiveSaved;
+chk(uxLogOk,'registrar sin sesión visible no rompe el aviso de tope del rango');
+chk(['levelUp','levelDown','topRange'].every(n=>uxSound(n)===false),'los sonidos nuevos callan sin audio disponible');
+
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));
 console.log(fail === 0 ? `TODOS LOS TESTS OK (${pass})` : `${fail} FALLOS de ${pass + fail}`);

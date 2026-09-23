@@ -41,6 +41,17 @@ Todos los sonidos se sintetizan con Web Audio: no hay archivos, así que pesan c
 - iPhone no permite vibrar a las páginas web; allí quedan el sonido y la animación. Con el interruptor de silencio activado, iOS calla el sonido.
 - Nada de esta capa guarda datos ni cambia cálculos. Las equivalencias del póster suman dos escalones: un T-Rex (8 t) y un avión de pasajeros (70 t).
 
+## 3.14.0 · lo que viene se celebra
+
+La app se usa en ráfagas: desbloquear, anotar peso y repeticiones, bloquear. Y el momento que más se espera es abrir un día y ver si toca subir. Esta versión pone el movimiento ahí.
+
+1. **Cada propuesta se revela al verla.** Al abrir un día, cada tarjeta se anima cuando entra en pantalla: las barras de tus series se llenan, los checks de las que tocaron el tope aparecen uno a uno y, si la propuesta es **Subir carga**, el peso rueda del anterior al nuevo (57,5 → 60), el «+2,5 kg» sale con destellos y suena una escala que sube. Si toca ajustar hacia abajo, el número baja con dos notas suaves: es información, no un regaño.
+2. **Inicio anticipa.** En «Tus días», el número de ejercicios para avanzar cuenta y da un pequeño salto cada pocos segundos.
+3. **El tope del rango se nota al registrar.** Si la serie que acabas de guardar llega al tope, aparece «Tope del rango: 10 reps» con su propia campana, además del «clac». Si todas las series del ejercicio llegaron, dice «Todas tus series en el tope del rango» y suena la escala de subir. No promete una subida: la decide el motor con su historial y tu equipo.
+
+![Subir carga: el peso ya rodó a 60 y el +2,5 kg sale con destellos](forecast-up-390.jpg)
+![Tope del rango al registrar la serie](top-range-390.jpg)
+
 ## Verificación
 
 - `node tests/run.js` incluye una suite nueva: cada equivalencia tiene dibujo y sonido, la camioneta no se confunde con el camión, sin animaciones el reloj escribe el texto tal cual, con el sonido apagado la interfaz calla y el calentamiento conserva sus avisos.
