@@ -2831,7 +2831,7 @@ chk(collectEntries(db.active).length===0&&db.history.length===0,'los calentamien
 chk(warmEx.sets[0].w==='60'&&warmEx.sets[0].r==='','la carga de trabajo permanece, sin inventar repeticiones realizadas');
 const completedWarmToken=warmState.id;
 setVal(0,0,'w','65');chk(!warmupRequired(0)&&ensureWarmup(0).id===completedWarmToken,'subir la carga menos de un 15 % conserva la preparación ya hecha');
-setVal(0,0,'w','70');chk(warmupRequired(0)&&ensureWarmup(0).id!==completedWarmToken,'subir la carga más de un 15 % antes de empezar trabajo recalcula la preparación');
+setVal(0,0,'w','70');{const wUp=ensureWarmup(0);chk(warmupRequired(0)&&wUp.id!==completedWarmToken&&wUp.completed===2&&wUp.plan.steps.length===3&&wUp.phase==='set'&&wUp.plan.note.includes('Lo que ya calentaste cuenta'),'subir más de un 15 % conserva los dos escalones hechos, añade solo el que falta y lo explica');}
 setVal(0,0,'w','60');prepareFixture(0);warmState=ensureWarmup(0);setVal(0,0,'w','55');
 chk(!warmupRequired(0)&&ensureWarmup(0).id===warmState.id,'bajar la carga ya preparada no obliga a repetir el recorrido');
 setVal(0,0,'r','8');db.settings.rest='auto';logSetFixture(0,0);
@@ -3285,7 +3285,9 @@ chk(!warmupRequired(0)&&uiSession().includes('Última vez')&&uiSession().include
 setPairs(db.gym.plates.findIndex(p=>p.kg===10),-1);
 chk(!warmupRequired(0)&&ensureWarmup(0).id===lstId,'cambiar el inventario de discos no reinicia una preparación terminada');
 setVal(0,0,'w','45');chk(!warmupRequired(0)&&ensureWarmup(0).id===lstId,'subir de 60 a 65 kg totales tampoco');
-setVal(0,0,'w','55');chk(warmupRequired(0)&&ensureWarmup(0).id!==lstId,'una subida del 25 % sí vuelve a preparar');
+setVal(0,0,'w','55');{const lstUp=ensureWarmup(0);chk(warmupRequired(0)&&lstUp.id!==lstId&&lstUp.completed>0&&lstUp.completed<lstUp.plan.steps.length,'una subida del 25 % añade el escalón que falta sin empezar de cero');
+ const lstDone=lstUp.completed;Object.assign(exMeta('lst-banca'),{lo:8,hi:12});const lstRange=ensureWarmup(0);
+ chk(lstRange.completed===lstDone,'cambiar el rango a media preparación conserva lo ya calentado');Object.assign(exMeta('lst-banca'),{lo:6,hi:8});}
 /* preparación a medias: el inventario recalcula solo lo pendiente */
 setVal(0,0,'w','40');ensureWarmup(0,true);let lstW=ensureWarmup(0);
 const lstNow=Date.now;let lstClock=lstNow();Date.now=()=>lstClock;
