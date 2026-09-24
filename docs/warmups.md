@@ -35,6 +35,8 @@ Cambiar de ejercicio o recargar conserva los pasos y descansos. Un identificador
 
 Desde 3.9.0, subir la carga prevista hasta un 15 % conserva la preparación: terminada sigue terminada y, a medias, mantiene los escalones hechos y recalcula los pendientes para la nueva carga. Por encima de ese margen se vuelve a preparar. Cambiar el inventario de discos o mancuernas ya no descarta escalones hechos; solo vuelve a montar los pendientes con lo que hay. Cambiar de gimnasio, de máquina o de salto principal sigue reiniciando.
 
+Desde 3.14.1, lo ya calentado no se descarta mientras el equipo sea el mismo. Si la carga sube más de un 15 % después de empezar la preparación, se conservan los escalones hechos y solo se añaden los que quedan por encima del último, con una frase que lo explica; si ninguno falta, la preparación sigue terminada. Cambiar el rango de repeticiones o el grupo muscular a mitad de la preparación tampoco la reinicia: solo recalcula lo pendiente. Cambiar de gimnasio, de tipo de ejercicio, de máquina, de salto de placas o de barra sigue empezando una preparación nueva, porque cambia el equipo.
+
 Desde 3.7.0, el plan guarda `heavy`; los estados antiguos sin ese campo usan 30 segundos de descanso en todos los escalones y se validan igual.
 
 Desde 3.6.3, corregir únicamente el ajuste fino o las notas de montaje conserva las aproximaciones realizadas si la carga prevista sigue igual o es menor. Una preparación terminada permanece terminada. En una preparación parcial se conserva el descanso original y se recalculan solo los escalones pendientes. Cambiar de gimnasio, el salto principal, la unidad o aumentar la carga mantiene la comprobación del contexto completo.
