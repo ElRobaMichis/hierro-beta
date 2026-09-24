@@ -5308,6 +5308,7 @@ function ensureWarmup(xi, force=false){
     if(force){ex.warmup={id:uid(),context,phase:'setup',forced:true};delete ex.warmupDone;save();}
     return ex.warmup?.phase==='setup'?ex.warmup:{phase:'setup'};
   }
+  const prevW=old?.plan?.W;
   const sameW=plan.W===old?.plan?.W || (Number.isFinite(plan.W)&&Number.isFinite(old?.plan?.W)&&Math.abs(plan.W-old.plan.W)<.001);
   const assisted=exMeta(ex.key).type==='asistido';
   const easier=assisted?plan.W>=old?.plan?.W:plan.W<=old?.plan?.W;
@@ -5331,7 +5332,11 @@ function ensureWarmup(xi, force=false){
       old.plan={...plan,steps,rows:steps.map(st=>warmupStepText(ex.key,st))};
       old.id=uid(); // old controls cannot confirm a recalculated, unfinished step
       if(old.phase==='done'){old.phase='set';delete old.completedAt;delete ex.warmupDone;
-        old.plan.note='Subiste tu carga de trabajo. Lo que ya calentaste cuenta: solo falta este escalón para llegar con buena preparación.';}
+        old.plan.note='Subiste tu carga de trabajo. Lo que ya calentaste cuenta: solo falta este escalón para llegar con buena preparación.';
+        /* con barra o carro se teclean solo los discos: si lo tecleado es justo el total
+           que ya estaba calentado, probablemente se escribió el total por costumbre */
+        const draft=ex.sets.find(st=>!st.done),typed=parseFloat(draft?.w),off=discosOffset(ex.key);
+        if(off>0&&Number.isFinite(typed)&&Math.abs(toKgEx(ex.key,typed)-prevW)<.001)old.plan.maybeTotal=prevW;}
       if(old.phase==='set' && old.completed===steps.length){old.phase='done';old.completedAt=Date.now();ex.warmupDone=true;}
     }else if(heavier)old.plan={...old.plan,W:plan.W};
     save();return old;

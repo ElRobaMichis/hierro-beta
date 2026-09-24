@@ -6,7 +6,7 @@ Abre ese enlace en tu teléfono y añádelo a la pantalla de inicio. Se instala 
 
 Los planes y el historial se guardan en tu dispositivo. Puedes restaurar un respaldo de Hierro desde **Tú → Datos y respaldos**. Esta beta utiliza almacenamiento y cachés independientes de la aplicación principal; importar o editar aquí no cambia sus datos. La sincronización cifrada es opcional: crea o vincula tu espacio desde **Tú → Sincronización**. Los avisos remotos se activan por dispositivo y necesitan internet.
 
-La versión **3.14.1** conserva el calentamiento ya hecho: subir mucho la carga, cambiar el rango o el grupo muscular solo añade o recalcula los escalones que faltan, en vez de empezar de cero. Consulta los [criterios del calentamiento](docs/warmups.md).
+La versión **3.14.1** conserva el calentamiento ya hecho: subir mucho la carga, cambiar el rango o el grupo muscular solo añade o recalcula los escalones que faltan, en vez de empezar de cero, y si escribes el total con la barra en el campo de discos te lo señala para corregirlo de un toque. Consulta los [criterios del calentamiento](docs/warmups.md).
 
 La versión **3.14.0** celebra lo que viene: al abrir un día, cada propuesta se revela al verla y «Subir carga» hace rodar el peso hasta el nuevo con destellos y una escala que sube. Registrar también se siente: las reps en reserva se piden una sola vez al registrar, mantener + o − acelera, los discos por lado llevan su color llegar al tope del rango se anuncia en el momento, la propuesta de subir peso se presenta con su «+2,5 kg» y lograrla trae un «¡Lo lograste!» con confeti. Consulta [la sección 3.14.0](docs/motion-sound-2026-09-23/README.md#3140--lo-que-viene-se-celebra).
 

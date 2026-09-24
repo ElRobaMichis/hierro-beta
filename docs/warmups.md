@@ -37,6 +37,8 @@ Desde 3.9.0, subir la carga prevista hasta un 15 % conserva la preparación: ter
 
 Desde 3.14.1, lo ya calentado no se descarta mientras el equipo sea el mismo. Si la carga sube más de un 15 % después de empezar la preparación, se conservan los escalones hechos y solo se añaden los que quedan por encima del último, con una frase que lo explica; si ninguno falta, la preparación sigue terminada. Cambiar el rango de repeticiones o el grupo muscular a mitad de la preparación tampoco la reinicia: solo recalcula lo pendiente. Cambiar de gimnasio, de tipo de ejercicio, de máquina, de salto de placas o de barra sigue empezando una preparación nueva, porque cambia el equipo.
 
+En ejercicios con barra o carro se teclean solo los discos. Si después de calentar se teclea justo el total que ya estaba calentado, lo más probable es que se escribiera el total por costumbre: la preparación pregunta «¿Escribiste el total con la barra?» y ofrece usar los discos correspondientes con un toque, que devuelve la preparación a terminada. Si de verdad querías más carga, basta con hacer el escalón que falta.
+
 Desde 3.7.0, el plan guarda `heavy`; los estados antiguos sin ese campo usan 30 segundos de descanso en todos los escalones y se validan igual.
 
 Desde 3.6.3, corregir únicamente el ajuste fino o las notas de montaje conserva las aproximaciones realizadas si la carga prevista sigue igual o es menor. Una preparación terminada permanece terminada. En una preparación parcial se conserva el descanso original y se recalculan solo los escalones pendientes. Cambiar de gimnasio, el salto principal, la unidad o aumentar la carga mantiene la comprobación del contexto completo.

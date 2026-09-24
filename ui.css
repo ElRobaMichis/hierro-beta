@@ -1544,3 +1544,6 @@ body:has(.modal) .n-record-dock,body:has(.modal) .n-work-action{visibility:hidde
 :root[data-theme=dark] .n-set-proposal #n-fill-proposal:disabled{background:#34502c;border-color:#34502c;color:#e1efc3}
 .n-set-proposal .n-proposal-undo{width:44px;min-width:44px;min-height:44px;padding:0;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line-2);color:var(--ink)}
 .n-set-proposal .n-proposal-undo svg{width:17px;height:17px}
+.n-warmup-total{margin:14px 0 4px;padding:13px 14px;border-radius:16px;background:var(--well);border:1px solid var(--line-2);text-align:left}
+.n-warmup-total p{font-size:13px;line-height:1.5;margin:0 0 10px}
+.n-warmup-total .n-secondary{width:100%}

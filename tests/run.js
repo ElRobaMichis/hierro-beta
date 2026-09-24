@@ -3285,6 +3285,9 @@ chk(!warmupRequired(0)&&uiSession().includes('Última vez')&&uiSession().include
 setPairs(db.gym.plates.findIndex(p=>p.kg===10),-1);
 chk(!warmupRequired(0)&&ensureWarmup(0).id===lstId,'cambiar el inventario de discos no reinicia una preparación terminada');
 setVal(0,0,'w','45');chk(!warmupRequired(0)&&ensureWarmup(0).id===lstId,'subir de 60 a 65 kg totales tampoco');
+setVal(0,0,'w','60');{const lstTot=ensureWarmup(0);
+ chk(warmupRequired(0)&&lstTot.plan.maybeTotal===60&&uiSession().includes('¿Escribiste el total con la barra?')&&uiSession().includes('Usar 40 kg de discos'),'teclear el total ya calentado en el campo de discos pregunta si fue el total');
+ uiWarmupFixTotal(0);chk(lstEx.sets[0].w==='40'&&!warmupRequired(0),'un toque corrige a 40 kg de discos y la preparación vuelve a estar terminada');}
 setVal(0,0,'w','55');{const lstUp=ensureWarmup(0);chk(warmupRequired(0)&&lstUp.id!==lstId&&lstUp.completed>0&&lstUp.completed<lstUp.plan.steps.length,'una subida del 25 % añade el escalón que falta sin empezar de cero');
  const lstDone=lstUp.completed;Object.assign(exMeta('lst-banca'),{lo:8,hi:12});const lstRange=ensureWarmup(0);
  chk(lstRange.completed===lstDone,'cambiar el rango a media preparación conserva lo ya calentado');Object.assign(exMeta('lst-banca'),{lo:6,hi:8});}
