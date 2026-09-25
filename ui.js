@@ -1204,11 +1204,11 @@ function uiDiary(){
   return `<button class="n-diary-entry" onclick="${uiAction('uiReceipt',h.id)}"><span class="n-date-tile"><b>${d.getDate()}</b><small>${esc(d.toLocaleDateString('es-MX',{month:'short'}))}</small></span><span class="grow"><b>${esc(h.routineName)}</b><small>${fmtDurShort(h.duration)} · ${sets} serie${sets===1?'':'s'}${h.deload?' · Descarga':''}${h.prs?.length?` · ${h.prs.length} ${h.prs.length===1?'marca':'marcas'}`:''}</small></span><span class="n-diary-volume">${volume>0?fmtVolShort(volume):uiSessionMeasure(h.entries).value+' '+uiSessionMeasure(h.entries).unit}</span>${uiIcon('chevron')}</button>`;
  }).join('')||'<div class="n-empty"><h2>Tu diario empieza contigo.</h2><p>Aquí aparecerán las sesiones que termines.</p></div>'}</div>${list.length>limit?`<div class="n-diary-more">${uiButton('Mostrar más sesiones','moreHistory()','plus','secondary')}</div>`:''}`;
 }
-function uiReceipt(id){
+function uiReceipt(id,source=''){
  const h=db.history.find(h=>h.id===id);if(!h)return;
  const prs=new Set((h.prs||[]).map(p=>p.key));
  const rows=h.entries.map(e=>`<button class="n-receipt-exercise" onclick="${uiAction('uiOpenProgress',e.key,id)}" aria-label="Ver progreso de ${esc(e.name)}"><span><b>${esc(e.name)}</b>${prs.has(e.key)?'<span class="fin-mark">PR</span>':''}${uiIcon('chevron')}</span><span class="fin-sets">${setsLine(e.key,e.sets)}</span></button>`).join('');
- openModal(`<span class="n-eyebrow">${fmtDate(h.date)}${h.deload?' · Descarga':''}</span><h2>${esc(h.routineName)}</h2><p class="muted">${fmtDurShort(h.duration)} · ${h.entries.reduce((n,e)=>n+e.sets.length,0)} ${h.entries.reduce((n,e)=>n+e.sets.length,0)===1?'serie':'series'}</p><p class="hint">Toca un ejercicio para ver su progreso.</p><div class="n-receipt">${rows}</div><div class="n-receipt-actions">${uiButton('Guardar tarjeta',uiAction('uiShareSession',id,'diary'),'share')}${uiButton('Editar sesión',`closeModal();${uiAction('editSession',id)}`,'edit','secondary')}</div><div class="n-receipt-danger">${uiButton('Eliminar sesión',`closeModal();${uiAction('deleteSession',id)}`,'trash','danger')}</div>${uiButton('Cerrar','closeModal()','close','text')}`);
+ openModal(`<span class="n-eyebrow">${fmtDate(h.date)}${h.deload?' · Descarga':''}</span><h2>${esc(h.routineName)}</h2><p class="muted">${fmtDurShort(h.duration)} · ${h.entries.reduce((n,e)=>n+e.sets.length,0)} ${h.entries.reduce((n,e)=>n+e.sets.length,0)===1?'serie':'series'}</p><p class="hint">Toca un ejercicio para ver su progreso.</p><div class="n-receipt">${rows}</div><div class="n-receipt-actions">${uiButton('Guardar tarjeta',uiAction('uiShareSession',id,source==='finish'?'finish':'diary'),'share')}${uiButton('Editar sesión',`closeModal();${uiAction('editSession',id)}`,'edit','secondary')}</div><div class="n-receipt-danger">${uiButton('Eliminar sesión',`closeModal();${uiAction('deleteSession',id)}`,'trash','danger')}</div>${source==='finish'?uiButton('Volver al resumen',uiAction('uiReturnToFinish',id),'arrow','text'):uiButton('Cerrar','closeModal()','close','text')}`);
 }
 
 function uiEditHistory(){
@@ -1725,9 +1725,10 @@ function uiStoryPause(){
  else{s.paused=false;uxSound('tick',1);if(s.auto&&s.bar)s.bar.play();else{s.auto=uxMotion();uxStoryTimer(s);}}
  uxStoryUI(s);
 }
+/* todas las series viven en el desglose del diario; desde ahí se vuelve al mismo capítulo */
 function uiStoryDetail(){
- const s=uxStoryState();if(s){s.auto=false;s.bar?.cancel();s.bar=null;uxStoryUI(s);}
- document.querySelector?.('#modalhost .fin-detail')?.scrollIntoView?.({behavior:uxMotion()?'smooth':'auto',block:'start'});
+ const s=uxStoryState(),id=s?.el.dataset.rec;if(!id)return;
+ s.auto=false;s.bar?.cancel();s.bar=null;uxSound('pop');uiReceipt(id,'finish');
 }
 if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('keydown',e=>{
  if(!document.querySelector?.('#modalhost .fin-story')||e.target?.closest?.('input,textarea,select'))return;

@@ -1872,9 +1872,14 @@ chk(fin.includes('<div class="fin-huge">2</div>') && fin.includes('récords nuev
 chk(/data-kind="prs"[\s\S]*Curl[\s\S]*data-kind="vs"/.test(fin), 'el otro récord va en el mismo capítulo');
 chk(fin.includes('1RM est.') && fin.includes('class="dl up">+10 kg'), 'cada marca dice de qué es y cuánto subió, con su unidad');
 chk(/data-kind="vs"[\s\S]*50 × 10<\/span><svg class="arr"[\s\S]*60 × 10/.test(fin), 'antes → ahora enseña tu mejor serie de la vez pasada y la de hoy');
-chk(fin.includes('El detalle') && fin.includes('Total movido'), 'debajo, el recibo con su total');
-chk(fin.includes('fin-mark'), 'los ejercicios con récord van marcados en el recibo');
-chk(fin.includes('Ver historial') && fin.includes('Listo'), 'las salidas siguen a mano');
+chk(!fin.includes('El detalle') && !fin.includes('fin-total') && fin.includes('Ver el detalle'), 'el cierre ya no repite el recibo: queda a un toque');
+chk(fin.includes('Guardar tarjeta') && fin.includes('Listo'), 'las salidas siguen a mano');
+const finRec = db.history[db.history.length - 1];
+uiStoryDetail(); uiReceipt(finRec.id, 'finish');
+const finReceipt = els['modalhost'].innerHTML;
+chk(finReceipt.includes('fin-mark') && finReceipt.includes('60 × 10') && finReceipt.includes('Volver al resumen') && !finReceipt.includes('Cerrar'), 'todas las series abren en el desglose del diario, con los récords marcados y la vuelta al resumen');
+uiReturnToFinish(finRec.id);
+chk(els['modalhost'].innerHTML.includes('fin-story'), 'y volver deja otra vez la historia');
 closeModal();
 
 suite('Cierre — sin récord manda el peso movido');
@@ -1888,7 +1893,7 @@ addSet(0);
 db.active.exercises[0].sets[1] = { w:'60', r:'10', rir:'' };
 confirmFixtureSets();finishSession();
 fin = els['modalhost'].innerHTML;
-chk(fin.includes('Peso movido') && fin.includes(fmtInt(1200)), '1 200 kg movidos como titular');
+chk(fin.includes('Peso movido') && fin.includes('<em><b>1,2</b> toneladas.</em>'), '1 200 kg movidos tienen su capítulo, en toneladas');
 chk(!fin.includes('récord'), 'y ni se menciona la palabra récord: hoy no tocaba');
 chk(fin.includes('Tu primera vez con este día') && !fin.includes('data-kind="vs"'), 'sin sesión previa, lo dice en vez de comparar');
 closeModal();
@@ -1925,8 +1930,8 @@ startSession('rc');
 db.active.exercises[0].sets[0] = { w:'', r:'12', rir:'' };
 confirmFixtureSets();finishSession();
 fin = els['modalhost'].innerHTML;
-chk(fin.includes('12') && fin.includes('reps') && fin.includes('Total de reps'),
-    'sin peso que sumar, el titular y el total van en reps');
+chk(fin.includes('<em><b>12</b> reps.</em>') && fin.includes('Sin peso que sumar'),
+    'sin peso que sumar, el capítulo cuenta las reps');
 closeModal();
 
 suite('Cierre — descarga y Apple Salud');
@@ -2264,7 +2269,7 @@ exMeta('plancha ux').type='tiempo';
 const timeRec={id:'timed-ux',routineName:'Core',date:new Date().toISOString(),duration:120,entries:[{key:'plancha ux',name:'Plancha',sets:[S(0,30),S(0,45)]}]};
 const timeFinish=finishScreenHTML(timeRec,[],'');
 chk(uiSessionMeasure(timeRec.entries).value===75 && uiSessionMeasure(timeRec.entries).unit==='s', 'una sesión solo por tiempo suma segundos');
-chk(timeFinish.includes('Tiempo registrado')&&timeFinish.includes('Total de segundos')&&!timeFinish.includes('Total de reps'), 'el cierre por tiempo no celebra cero repeticiones');
+chk(timeFinish.includes('Tiempo registrado')&&timeFinish.includes('<b>75</b> segundos')&&!timeFinish.includes(' reps.'), 'el cierre por tiempo no celebra cero repeticiones');
 db.history=[{id:'only-history',date:new Date().toISOString(),entries:[{key:'historico ux',name:'Ejercicio histórico',sets:[S(20,10)]}]}];
 view={name:'history'};openExerciseByKey('historico ux');
 chk(view.name==='exercise'&&view.exname==='Ejercicio histórico', 'un ejercicio retirado del plan sigue abriéndose desde el historial');

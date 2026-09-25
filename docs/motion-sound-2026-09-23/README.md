@@ -70,9 +70,9 @@ El póster final juntaba en una sola tarjeta récords, 1RM, toneladas, peso movi
 3. **Récords.** Si los hay, el número crece con la fanfarria y el confeti, y cada marca muestra lo de antes tachado, lo de ahora y cuánto subió. «PR» cae como un sello.
 4. **Antes → ahora.** Tu mejor serie de la última vez que hiciste cada ejercicio frente a la de hoy (57,5 × 10 → 60 × 8) con su «+2,5 kg». Cada fila suena una nota más alta. Si algo bajó, el chip queda discreto.
 5. **Peso movido.** Las toneladas cuentan hasta su número y el objeto aparece con su sonido: elefante, T-Rex, avión…
-6. **Constancia.** Las semanas seguidas se encienden una a una y cierra un acorde con coro y confeti. Desde aquí puedes volver a verlo o bajar al detalle.
+6. **Constancia.** Las semanas seguidas se encienden una a una y cierra un acorde con coro y confeti. Desde aquí puedes volver a verlo o abrir el detalle.
 
-**A tu ritmo.** Cada capítulo dura 7 segundos y avanza solo la primera vez. Tocar a la derecha o a la izquierda pasa de capítulo y deja la historia en tus manos. Mantener pulsado la sostiene mientras dure. El botón de pausa la congela para hacer captura con calma, y vuelve a reproducirla. Los sonidos suenan la primera vez que ves cada capítulo. Solo aparecen los capítulos que tienen algo que contar: sin récords no hay capítulo de récords y la primera vez no hay «antes». Debajo siguen el detalle de cada serie, «Guardar tarjeta» y «Listo».
+**A tu ritmo.** Cada capítulo dura 7 segundos y avanza solo la primera vez. Tocar a la derecha o a la izquierda pasa de capítulo y deja la historia en tus manos. Mantener pulsado la sostiene mientras dure. El botón de pausa la congela para hacer captura con calma, y vuelve a reproducirla. Los sonidos suenan la primera vez que ves cada capítulo. Solo aparecen los capítulos que tienen algo que contar: sin récords no hay capítulo de récords y la primera vez no hay «antes». Debajo solo quedan «Guardar tarjeta» y «Listo». El desglose serie por serie ya no se repite en el cierre: «Ver el detalle», en el último capítulo, abre el mismo desglose del diario y «Volver al resumen» regresa al capítulo donde estabas. La nota por entrenar casi todo al fallo pasa al último capítulo.
 
 ![Fuerza: la barra pasa la marca de la vez pasada](story-lead-390.jpg)
 ![Hoy trabajaste: los grupos del día encendidos](story-body-390.jpg)

@@ -4873,7 +4873,8 @@ function prevEntryOf(rec, key){
 
 /* la pantalla completa del cierre: el día contado en capítulos, como
    historias. Avanzan solos despacio, se detienen al tocarlos y tienen pausa
-   para hacer captura; debajo queda el detalle completo */
+   para hacer captura. Todas las series quedan a un toque, en el mismo
+   desglose del diario */
 function finishScreenHTML(rec, prs, failNote){
   /* la mejora mayor va primero, también al reabrir desde el diario (ahí las
      marcas vienen sin «gain» y en el orden del plan) */
@@ -4992,14 +4993,11 @@ function finishScreenHTML(rec, prs, failNote){
     <h2>${st.run > 1 ? `<em>${st.run} semanas</em> seguidas.` : st.total === 1 ? 'Tu primera <em>sesión.</em>' : `Sesión <em>${st.total}.</em>`}</h2>
     ${st.run > 1 ? `<div class="fin-weeks" aria-hidden="true">${'<i></i>'.repeat(dots)}</div>` : ''}
     <p>${(st.run > 1 ? chips.filter(c => !c.endsWith('semanas seguidas')) : chips).join(' · ')}.${st.run > 1 ? ' Sigue así.' : st.total === 1 ? ' El primer paso ya está dado.' : ' Una más en la cuenta.'}</p>
+    ${failNote ? `<p class="fin-note">${failNote}</p>` : ''}
     <div class="fin-story-cta"><button type="button" class="fin-story-btn" onclick="uiStoryGo(0)">Ver de nuevo</button><button type="button" class="fin-story-btn" onclick="uiStoryDetail()">Ver el detalle</button></div>`);
 
   const n = chaps.length;
   const pauseIc = '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="ic-pause" d="M8 5v14M16 5v14"/><path class="ic-play" d="m8 5 11 7-11 7z"/></svg>';
-  const totalTxt = vol > 0
-    ? `${fmtInt(fromKg(vol))}<i> ${uLabel()}</i>`
-    : `${fmtInt(fallback.value)}<i> ${fallback.unit}</i>`;
-
   return `
     <div class="fin-story${isDeload ? ' calm' : ''}" data-rec="${rec.id}" data-n="${n}" data-big="${prs.length && !isDeload ? 1 : 0}">
       <div class="fin-story-bars" aria-hidden="true">${'<i><b></b></i>'.repeat(n)}</div>
@@ -5011,14 +5009,6 @@ function finishScreenHTML(rec, prs, failNote){
       <button type="button" class="fin-story-tap prev" aria-label="Anterior" onclick="uiStory(-1)"></button>
       <button type="button" class="fin-story-tap next" aria-label="Siguiente" onclick="uiStory(1)"></button>
       <div class="fin-story-foot" aria-live="polite"><span class="tip">Toca a la derecha para seguir</span><span class="count">1 / ${n}</span></div>
-    </div>
-    ${failNote ? `<div style="margin-top:18px">${failNote}</div>` : ''}
-    <div class="fin-more fin-detail"><div class="fin-lbl">El detalle</div>
-      ${receiptHTML(rec.entries, prKeys)}
-      <div class="fin-total"><span class="l">${vol > 0 ? 'Total movido' : fallback.unit === 's' ? 'Total de segundos' : 'Total de reps'}</span>
-        <span class="v">${totalTxt}</span></div>
-      <button class="note-a" style="display:block;margin:14px auto 0"
-        onclick="closeModal(); go({name:'history',progressTab:'diary'})">Ver historial</button>
     </div>
     <div class="fin-dock">
       <div class="fin-dock-row">
@@ -5082,13 +5072,9 @@ function finishSession(){
   const spF = db.splits.find(x => x.id === rec.splitId);
   const rirAll = entries.flatMap(e => e.sets).filter(s => s.rir !== undefined && s.rir !== null);
   const zeros = rirAll.filter(s => s.rir === 0).length;
-  const failNote = (!(spF && spF.failOk) && rirAll.length >= 4 && zeros / rirAll.length >= 0.7) ? `
-    <div class="note" style="margin:0 0 18px">
-      <div class="note-t">Hoy llegaste al fallo (RIR 0) en ${zeros} de ${rirAll.length} series</div>
-      <div class="note-d">Ir al fallo da casi el mismo músculo que quedarte a 1–3 reps de él,
-        pero alarga la recuperación 24–48 h. Prueba dejar 1–2 reps en reserva en la mayoría de series —
-        progresarás igual y llegarás con más energía a la próxima sesión.</div>
-    </div>` : '';
+  const failNote = (!(spF && spF.failOk) && rirAll.length >= 4 && zeros / rirAll.length >= 0.7)
+    ? `Hoy llegaste al fallo (RIR 0) en ${zeros} de ${rirAll.length} series. Alarga la recuperación 24–48 h; dejar 1–2 reps en reserva te hace progresar igual.`
+    : '';
 
   const committed=commitChange(()=>{
     db.history.push(rec);db.active=null;restUntil=null;
