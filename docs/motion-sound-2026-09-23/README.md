@@ -61,6 +61,23 @@ La app se usa en ráfagas: desbloquear, anotar peso y repeticiones, bloquear. Y 
 ![La serie sin fila de RIR y los discos por lado con su color](log-rir-plates-390.jpg)
 ![Tope del rango al registrar la serie](top-range-390.jpg)
 
+## 3.15.0 · el cierre en capítulos
+
+El póster final juntaba en una sola tarjeta récords, 1RM, toneladas, peso movido, volumen, la sesión anterior y la comparación: demasiadas cifras a la vez. Ahora el día se cuenta en capítulos a pantalla completa, uno por idea, y cada uno tiene su momento y su sonido.
+
+1. **Fuerza.** «Fuiste +3 % más fuerte.» Una barra pasa la marca de «La vez pasada» y, al cruzarla, suena una subida con campanas. Si la fuerza no subió, lo dice con calma («Sostuviste tu fuerza», «Hoy costó un poco más») y sin fanfarria. Si hiciste menos reps con más peso, lo explica. Una descarga abre con «Recargar también es avanzar» y un cuenco.
+2. **Hoy trabajaste.** El cuerpo de frente y de espalda aparece apagado, lo recorre una línea de luz y cada grupo se enciende con una nota cristalina, del que tuvo más series al que menos, junto a sus series.
+3. **Récords.** Si los hay, el número crece con la fanfarria y el confeti, y cada marca muestra lo de antes tachado, lo de ahora y cuánto subió. «PR» cae como un sello.
+4. **Antes → ahora.** Tu mejor serie de la última vez que hiciste cada ejercicio frente a la de hoy (57,5 × 10 → 60 × 8) con su «+2,5 kg». Cada fila suena una nota más alta. Si algo bajó, el chip queda discreto.
+5. **Peso movido.** Las toneladas cuentan hasta su número y el objeto aparece con su sonido: elefante, T-Rex, avión…
+6. **Constancia.** Las semanas seguidas se encienden una a una y cierra un acorde con coro y confeti. Desde aquí puedes volver a verlo o bajar al detalle.
+
+**A tu ritmo.** Cada capítulo dura 7 segundos y avanza solo la primera vez. Tocar a la derecha o a la izquierda pasa de capítulo y deja la historia en tus manos. Mantener pulsado la sostiene mientras dure. El botón de pausa la congela para hacer captura con calma, y vuelve a reproducirla. Los sonidos suenan la primera vez que ves cada capítulo. Solo aparecen los capítulos que tienen algo que contar: sin récords no hay capítulo de récords y la primera vez no hay «antes». Debajo siguen el detalle de cada serie, «Guardar tarjeta» y «Listo».
+
+![Fuerza: la barra pasa la marca de la vez pasada](story-lead-390.jpg)
+![Hoy trabajaste: los grupos del día encendidos](story-body-390.jpg)
+![Antes → ahora: tu mejor serie de la vez pasada y la de hoy](story-vs-390.jpg)
+
 ## Verificación
 
 - `node tests/run.js` incluye una suite nueva: cada equivalencia tiene dibujo y sonido, la camioneta no se confunde con el camión, sin animaciones el reloj escribe el texto tal cual, con el sonido apagado la interfaz calla y el calentamiento conserva sus avisos.

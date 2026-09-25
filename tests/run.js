@@ -1868,10 +1868,10 @@ db.active.exercises[0].sets[0] = { w:'21', r:'10', rir:'' };   /* +5 %  */
 db.active.exercises[1].sets[0] = { w:'60', r:'10', rir:'' };   /* +20 % */
 confirmFixtureSets();finishSession();
 let fin = els['modalhost'].innerHTML;
-chk(fin.includes('Nuevos récords') && /fin-poster-row"><span class="nm">Press/.test(fin), 'con dos récords el titular los cuenta y Press, la mejora mayor, encabeza la lista');
-chk(/<b>2<\/b><i>récords hoy/.test(fin) && fin.includes('Curl'), 'el otro récord va en la misma lista del póster');
-chk(fin.includes('1RM estimado') && fin.includes('sobre tu marca'), 'la cifra viene explicada');
-chk(fin.includes('<svg') && fin.includes('polyline'), 'y con su curva de progresión');
+chk(fin.includes('<div class="fin-huge">2</div>') && fin.includes('récords nuevos.') && /data-kind="prs"[\s\S]*?fin-vs-row"><span class="nm"><span>Press/.test(fin), 'con dos récords el capítulo los cuenta y Press, la mejora mayor, encabeza la lista');
+chk(/data-kind="prs"[\s\S]*Curl[\s\S]*data-kind="vs"/.test(fin), 'el otro récord va en el mismo capítulo');
+chk(fin.includes('1RM est.') && fin.includes('class="dl up">+10 kg'), 'cada marca dice de qué es y cuánto subió, con su unidad');
+chk(/data-kind="vs"[\s\S]*50 × 10<\/span><svg class="arr"[\s\S]*60 × 10/.test(fin), 'antes → ahora enseña tu mejor serie de la vez pasada y la de hoy');
 chk(fin.includes('El detalle') && fin.includes('Total movido'), 'debajo, el recibo con su total');
 chk(fin.includes('fin-mark'), 'los ejercicios con récord van marcados en el recibo');
 chk(fin.includes('Ver historial') && fin.includes('Listo'), 'las salidas siguen a mano');
@@ -1890,7 +1890,7 @@ confirmFixtureSets();finishSession();
 fin = els['modalhost'].innerHTML;
 chk(fin.includes('Peso movido') && fin.includes(fmtInt(1200)), '1 200 kg movidos como titular');
 chk(!fin.includes('récord'), 'y ni se menciona la palabra récord: hoy no tocaba');
-chk(fin.includes('Tu primera vez de este día'), 'sin sesión previa, lo dice en vez de comparar');
+chk(fin.includes('Tu primera vez con este día') && !fin.includes('data-kind="vs"'), 'sin sesión previa, lo dice en vez de comparar');
 closeModal();
 /* la segunda vez ya hay contra qué medirse: mismo peso, una serie más
    (subir el peso sería récord y el titular pasaría a ser ese) */
@@ -1902,9 +1902,9 @@ addSet(0); db.active.exercises[0].sets[2] = { w:'60', r:'10', rir:'' };
 db.active.exercises[0].sets=db.active.exercises[0].sets.filter(st=>st.w!==''&&st.r!=='');
 confirmFixtureSets();finishSession();
 fin = els['modalhost'].innerHTML;
-chk(fin.includes(fmtInt(600) + ' kg más') && fin.includes('anterior'),
-    'compara contra tu Pierna anterior (1 200 → 1 800 kg)');
-chk(fin.includes('de volumen (+50 %)'), 'y dice cuánto en porcentaje, nombrándolo volumen');
+chk(fin.includes('Sostuviste <em>tu fuerza.</em>') && fin.includes('class="dl same">Igual'),
+    'compara contra tu Pierna anterior: la misma mejor serie es la misma fuerza');
+chk(fin.includes('<b>+50 %</b> de volumen frente a tu Pierna anterior.'), 'y dice cuánto más volumen hiciste, nombrándolo volumen');
 chk(!fin.includes('récord'), 'más volumen sin más peso no es récord, y no se inventa uno');
 closeModal();
 
@@ -3242,17 +3242,18 @@ db.active.exercises[1].sets[0]={w:'42.5',r:'10',rir:'1'};
 db.active.exercises[2].sets[0]={w:'10',r:'10',rir:'1'};
 confirmFixtureSets();finishSession();
 fin=els['modalhost'].innerHTML;
-chk(fin.includes('Nuevos récords')&&/<b>2<\/b><i>récords hoy/.test(fin)&&/fin-poster-row"><span class="nm">Hack squat/.test(fin),'con varios récords el número gigante es cuántos, y la mejora mayor encabeza la lista');
-chk(fin.includes('<b>1,6</b> toneladas movidas · más que un coche')&&fin.includes('<b>4</b> series · <b>3</b> ejercicios'),'el peso movido acompaña al titular en toneladas, con una equivalencia y las cifras del día');
-chk(fin.includes('<b>+5 %</b> de fuerza estimada frente a tu Full body anterior · mejor en 2 de 3 ejercicios'),'la fuerza estimada se compara ejercicio a ejercicio y dice en cuántos mejoraste');
-chk(fin.includes('<b>+5 %</b> de volumen (peso × reps) frente a tu Full body anterior')&&fin.includes('Tu Full body anterior, de hace 7 días: <b>'+fmtInt(1500)+' kg</b> en 4 series'),'y con el porcentaje y los kilos de la última sesión completa del mismo plan');
-chk(fin.includes('fin-poster-bodies')&&fin.includes('ui-muscle lit')&&fin.includes('Cuádriceps <b>2</b>')&&fin.includes('Pecho <b>1</b>'),'las siluetas encienden los grupos de hoy y la lista da sus series');
-chk(fin.includes('Sesión 4 · 4 semanas seguidas')&&!fin.includes('esta semana'),'la constancia va al pie del póster y calla lo que no es noticia');
-chk((fin.match(/fin-poster-row"/g)||[]).length===2&&fin.includes('class="dl">+3,3')&&fin.includes('polyline'),'cada marca lleva su curva corta y cuánto subió');
-chk(!fin.includes('fin-foot')&&!fin.includes('fin-hero')&&!fin.includes('También hoy'),'desaparecen la tarjeta antigua, el pie suelto y la lista aparte');
+chk(fin.includes('<div class="fin-huge">2</div>')&&/data-kind="prs"[\s\S]*?fin-vs-row"><span class="nm"><span>Hack squat/.test(fin),'con varios récords el número gigante es cuántos, y la mejora mayor encabeza la lista');
+chk(fin.includes('<em><b>1,6</b> toneladas.</em><br>Más que un coche.')&&fin.includes('En 4 series y '),'el peso movido tiene su capítulo en toneladas, con una equivalencia y las cifras del día');
+chk(fin.includes('Fuiste <em>+5 %</em> más fuerte.')&&fin.includes('Que en tu Full body anterior, de hace 7 días. Mejor en <b>2 de 3</b> ejercicios.'),'la fuerza estimada abre la historia, comparada ejercicio a ejercicio y diciendo en cuántos mejoraste');
+chk(fin.includes('<b>+5 %</b> de volumen frente a tu Full body anterior.')&&!fin.includes('peso × reps'),'el volumen queda como una línea, sin repetir la sesión anterior entera');
+chk(fin.includes('fin-bodies')&&fin.includes('ui-muscle lit')&&fin.includes('data-g="cuadriceps"')&&/<span>Cuádriceps<\/span><b>2<small> series/.test(fin)&&/<span>Pecho<\/span><b>1<small> serie</.test(fin),'las siluetas encienden los grupos de hoy y la lista da sus series');
+chk(fin.includes('<em>4 semanas</em> seguidas.')&&fin.includes('<p>Sesión 4. Sigue así.</p>')&&!fin.includes('esta semana'),'la constancia cierra la historia y calla lo que no es noticia');
+chk((fin.match(/fin-vs-row"/g)||[]).length===5&&fin.includes('class="dl up">+3,3 kg'),'cada marca dice cuánto subió, y antes → ahora repasa los tres ejercicios');
+chk(fin.includes('data-n="6"')&&['lead','body','prs','vs','vol','streak'].every(k=>fin.includes(`data-kind="${k}"`))&&(fin.match(/ hidden>/g)||[]).length>=5,'seis capítulos, y solo el primero a la vista');
+chk(!fin.includes('fin-poster')&&!fin.includes('fin-hero')&&!fin.includes('También hoy'),'desaparecen el póster, la tarjeta antigua y la lista aparte');
 const capRec=db.history[db.history.length-1];
 closeModal();uiReturnToFinish(capRec.id);
-chk(/fin-poster-row"><span class="nm">Hack squat/.test(els['modalhost'].innerHTML),'reabrir desde el diario conserva el mismo orden de marcas');
+chk(/data-kind="prs"[\s\S]*?fin-vs-row"><span class="nm"><span>Hack squat/.test(els['modalhost'].innerHTML),'reabrir desde el diario conserva el mismo orden de marcas');
 closeModal();
 /* sin marcas: manda el peso movido con su escala; sin grupos no hay siluetas */
 resetDB();db.settings.health='off';
@@ -3260,8 +3261,8 @@ db.routines.push({id:'cap2',name:'Suelto',split:(db.splits[0]||{}).id,exercises:
 startSession('cap2');db.active.exercises[0].sets=db.active.exercises[0].sets.slice(0,1);db.active.exercises[0].sets[0]={w:'40',r:'10',rir:'1'};
 confirmFixtureSets();finishSession();
 fin=els['modalhost'].innerHTML;
-chk(fin.includes('Peso movido · Suelto')&&/<b>400<\/b><i>kg movidos/.test(fin)&&fin.includes('Más que una moto.'),'sin marcas el número gigante es el peso movido, con su equivalencia');
-chk(!fin.includes('fin-poster-bodies')&&fin.includes('Tu primera sesión')&&!fin.includes('récord')&&fin.includes('Lo más pesado del día'),'sin grupo asignado no hay siluetas; la primera sesión se celebra sin comparar');
+chk(fin.includes('<em><b>400</b> kg.</em><br>Más que una moto.'),'sin marcas el peso movido tiene su capítulo, con su equivalencia');
+chk(!fin.includes('fin-bodies')&&fin.includes('Tu primera <em>sesión.</em>')&&!fin.includes('récord')&&fin.includes('Lo más pesado del día')&&fin.includes('data-n="3"'),'sin grupo asignado no hay siluetas; la primera sesión se celebra sin comparar');
 chk(volumeLike(5598)==='Más que un elefante.'&&volumeLike(11000)==='Más que un T-Rex.'&&volumeLike(90000)==='Más que un avión de pasajeros.'&&volumeLike(12300)==='Como un autobús.'&&volumeLike(80)===''&&tonnageParts(5598.55).num==='5,6','las equivalencias y las toneladas se calculan sobre kilos reales');
 closeModal();
 
@@ -3324,7 +3325,7 @@ db.active.exercises[0].sets=db.active.exercises[0].sets.filter((st,i)=>i===0||st
 db.active.plannedSets=3;confirmFixtureSets();
 db.active.exercises[0].sets.push({w:'',r:'',rir:''},{w:'',r:'',rir:''});finishSession();
 fin=els['modalhost'].innerHTML;
-chk(fin.includes('series previstas')&&fin.includes('Tu Lower anterior, de hace 5 días: <b>'+fmtInt(1200)+' kg</b> en 3 series')&&!fin.includes(' %'),'una sesión parcial no se compara, pero sí muestra cuánto moviste en la anterior');
+chk(fin.includes('series previstas')&&/40 × 10<\/span><svg class="arr"[\s\S]*?40 × 9/.test(fin)&&fin.includes('class="dl down">−1 reps')&&!fin.includes(' %'),'una sesión parcial no se compara en fuerza, pero antes → ahora sí enseña la serie anterior');
 closeModal();
 
 suite('3.10.1 — la barra fija no se queda flotando tras cerrar el teclado');
@@ -3428,8 +3429,8 @@ db.active.exercises[1].sets[0]={w:'32',r:'7',rir:'0'};db.active.exercises[1].set
 db.active.exercises[2].sets[0]={w:'67.5',r:'10',rir:'0'};db.active.exercises[2].sets[1]={w:'67.5',r:'10',rir:'0'};
 confirmFixtureSets();finishSession();
 fin=els['modalhost'].innerHTML;
-chk(/<b>−1\d %<\/b> de volumen \(peso × reps\)/.test(fin),'el volumen baja y se nombra como volumen, no como peso movido a secas');
-chk(fin.includes('<b>+3 %</b> de fuerza estimada frente a tu Full Body anterior · mejor en 2 de 3 ejercicios'),'la fuerza estimada sube: hack +1 %, press +11 %, curl −3 % → +3 % de media');
+chk(!/de volumen frente/.test(fin),'cuando el volumen baja no se anuncia como si fuera menos fuerza');
+chk(fin.includes('Fuiste <em>+3 %</em> más fuerte.')&&fin.includes('Mejor en <b>2 de 3</b> ejercicios.'),'la fuerza estimada sube: hack +1 %, press +11 %, curl −3 % → +3 % de media');
 chk(fin.includes('Menos reps con más peso: subiste la carga, no bajaste la fuerza.'),'y lo explica con una frase cuando el volumen baja y la fuerza sube');
 chk(sessionStrengthDelta({entries:[{key:'str-hack',sets:[S(50,10)]}]},{entries:[{key:'otro',sets:[S(50,10)]}]})===null,'sin ejercicios en común no se compara fuerza');
 closeModal();
@@ -3450,6 +3451,23 @@ chk(uxLogOk,'registrar sin sesión visible no rompe el aviso de tope del rango')
 chk(['levelUp','levelDown','topRange','achieved','exDone'].every(n=>uxSound(n)===false)&&uxSound('step',{n:3})===false,'los sonidos nuevos callan sin audio disponible');
 chk(uxUpInfo({key:'x',sugg:{type:'reps',w:60,reps:8}})===null&&uxUpInfo(null)===null,'solo una propuesta de subir peso abre la ceremonia');
 chk(uxAchieved(null,{})===false,'sin propuesta de subida no hay felicitación');
+
+suite('3.15.0 — el cierre en capítulos');
+exMeta('cap-asis').type='asistido';exMeta('cap-plank').type='tiempo';exMeta('cap-row').type='normal';
+chk(bestSetOf('cap-row',[S(60,6),S(57.5,10),S(60,5)]).r===10&&bestSetOf('cap-asis',[S(20,10),S(15,8),S(15,9)]).r===9&&bestSetOf('cap-plank',[S(0,40),S(0,55)]).r===55,'la mejor serie es la de más 1RM estimado, la de menos ayuda o la más larga');
+chk(bestSetDelta('cap-asis',S(20,10),S(15,10)).cls==='up'&&bestSetDelta('cap-asis',S(20,10),S(15,10)).txt==='−5 kg de ayuda','en asistidos bajar la ayuda cuenta como subir');
+chk(bestSetDelta('cap-plank',S(0,40),S(0,55)).txt==='+15 s'&&bestSetText('cap-plank',S(0,55))==='55 s'&&bestSetDelta('cap-row',S(60,8),S(60,8)).txt==='Igual','por tiempo se habla en segundos, y sin cambios dice «Igual»');
+resetDB();db.settings.health='off';
+db.routines.push({id:'dl',name:'Torso',split:(db.splits[0]||{}).id,exercises:[{id:'z1',name:'Remo',key:'cap-row'}]});
+db.history.push({id:'dl-prev',routineId:'dl',routineName:'Torso',date:new Date(Date.now()-3*864e5).toISOString(),duration:1800,plannedSets:1,entries:[{key:'cap-row',name:'Remo',sets:[S(60,10)]}]});
+const dlRec={id:'dl-now',routineId:'dl',routineName:'Torso',deload:true,date:new Date().toISOString(),duration:1500,plannedSets:1,entries:[{key:'cap-row',name:'Remo',sets:[S(40,10)]}]};
+const dlFin=finishScreenHTML(dlRec,[],'');
+chk(dlFin.includes('fin-story calm')&&dlFin.includes('Recargar también <em>es avanzar.</em>')&&!dlFin.includes('data-kind="vol"')&&!dlFin.includes('data-kind="vs"'),'una descarga cierra en calma, sin comparar ni celebrar kilos');
+const laterRec={id:'dl-old',routineId:'dl',routineName:'Torso',date:new Date(Date.now()-5*864e5).toISOString(),duration:1500,plannedSets:1,entries:[{key:'cap-row',name:'Remo',sets:[S(55,10)]}]};
+chk(!finishScreenHTML(laterRec,[],'').includes('data-kind="vs"'),'al reabrir una sesión vieja solo se compara con lo que vino antes');
+let storyOk=true;try{uxCelebrate(dlRec,[]);uiStory(1);uiStoryPause();uiStoryGo(0);uiStoryDetail();}catch(e){storyOk=false;}
+chk(storyOk&&uxSound('pride')===false&&uxSound('glow',2)===false,'sin pantalla ni audio, los controles de la historia no rompen nada');
+closeModal();
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));

@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.14.1">
+<link rel="stylesheet" href="ui.css?v=3.15.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.14.1"></script>
-<script src="sync-core.js?v=3.14.1"></script>
-<script src="sync-engine.js?v=3.14.1"></script>
-<script src="qr.js?v=3.14.1"></script>
-<script src="sync.js?v=3.14.1"></script>
-<script src="push-core.js?v=3.14.1"></script>
-<script src="push.js?v=3.14.1"></script>
+<script src="ui.js?v=3.15.0"></script>
+<script src="sync-core.js?v=3.15.0"></script>
+<script src="sync-engine.js?v=3.15.0"></script>
+<script src="qr.js?v=3.15.0"></script>
+<script src="sync.js?v=3.15.0"></script>
+<script src="push-core.js?v=3.15.0"></script>
+<script src="push.js?v=3.15.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.14.1';
+const APP_VERSION = '3.15.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -4830,9 +4830,52 @@ function sessionStrengthDelta(rec, prev){
   return { pct: Math.round(avg * 100), up: changes.filter(x => x > 1e-9).length, n: changes.length };
 }
 
-/* la pantalla completa que sustituye al modal de cierre: un póster del día */
+/* la mejor serie de un ejercicio, para el «antes → ahora»: la de más 1RM
+   estimado; en corporal y tiempo, la de más reps; en asistidos, la de menos ayuda */
+function bestSetOf(key, sets){
+  const t = exMeta(key).type;
+  let best = null;
+  for(const st of sets){
+    if(!best){ best = st; continue; }
+    if(t === 'asistido'){ if(st.w < best.w - 1e-9 || (Math.abs(st.w - best.w) < 1e-9 && st.r > best.r)) best = st; }
+    else if(t === 'corporal' || t === 'tiempo'){ if(st.r > best.r || (st.r === best.r && st.w > best.w)) best = st; }
+    else {
+      const a = epley(st.w, st.r), b = epley(best.w, best.r);
+      if(a > b + 1e-9 || (Math.abs(a - b) < 1e-9 && st.w > best.w)) best = st;
+    }
+  }
+  return best;
+}
+function bestSetText(key, st){
+  if(exMeta(key).type === 'tiempo') return st.w > 0 ? `${fmtWEx(key, st.w)} × ${st.r} s` : `${st.r} s`;
+  return st.w > 0 ? `${fmtWEx(key, st.w)} × ${st.r}` : `${st.r} reps`;
+}
+/* cuánto cambió la mejor serie: primero el peso, y si es el mismo, las reps */
+function bestSetDelta(key, prev, now){
+  const t = exMeta(key).type, dw = now.w - prev.w, dr = now.r - prev.r;
+  if(Math.abs(dw) > 1e-9){
+    const up = t === 'asistido' ? dw < 0 : dw > 0;
+    return { txt:`${dw > 0 ? '+' : '−'}${fmtWEx(key, Math.abs(dw))} ${uLabelEx(key)}${t === 'asistido' ? ' de ayuda' : ''}`, cls: up ? 'up' : 'down' };
+  }
+  if(dr) return { txt:`${dr > 0 ? '+' : '−'}${Math.abs(dr)} ${t === 'tiempo' ? 's' : 'reps'}`, cls: dr > 0 ? 'up' : 'down' };
+  return { txt:'Igual', cls:'same' };
+}
+/* la última vez que hiciste ese ejercicio antes de esta sesión, en cualquier día del plan */
+function prevEntryOf(rec, key){
+  let out = null, when = '';
+  for(const h of db.history){
+    if(h.id === rec.id || h.deload || !(h.date < rec.date) || h.date <= when) continue;
+    const e = h.entries.find(x => x.key === key && x.sets.length);
+    if(e){ out = e; when = h.date; }
+  }
+  return out;
+}
+
+/* la pantalla completa del cierre: el día contado en capítulos, como
+   historias. Avanzan solos despacio, se detienen al tocarlos y tienen pausa
+   para hacer captura; debajo queda el detalle completo */
 function finishScreenHTML(rec, prs, failNote){
-  /* el titular es la mejora mayor, también al reabrir desde el diario (ahí las
+  /* la mejora mayor va primero, también al reabrir desde el diario (ahí las
      marcas vienen sin «gain» y en el orden del plan) */
   const prGain = pr => pr.assist ? (pr.prev - pr.now) / (pr.prev || 1) : (pr.now - pr.prev) / (pr.prev || 1);
   prs = [...(prs || [])].sort((a, b) => prGain(b) - prGain(a));
@@ -4841,156 +4884,148 @@ function finishScreenHTML(rec, prs, failNote){
   const nSets = rec.entries.reduce((a, e) => a + e.sets.length, 0);
   const partial = !!rec.plannedSets && nSets < rec.plannedSets;
   const fallback = uiSessionMeasure(rec.entries);
-  const best = prs.length ? prs[0] : null;
   const routine = esc(rec.routineName);
   const series = n => `${n} serie${n === 1 ? '' : 's'}`;
-  /* las sesiones completas del mismo día del plan comparan el peso movido; la
-     referencia de «tu sesión anterior» se muestra siempre, aunque sea parcial */
-  const sameDay = routineSessions(rec).filter(h => h.id !== rec.id && !h.deload);
+  /* la fuerza se compara con la última sesión completa del mismo día del plan */
+  const sameDay = routineSessions(rec).filter(h => h.id !== rec.id && !h.deload && h.date < rec.date);
   const completeSession = h => !h.plannedSets || h.entries.reduce((n,e)=>n+e.sets.length,0) >= h.plannedSets;
   const prevSessions = sameDay.filter(completeSession);
   const lastSession = prevSessions.length ? prevSessions[prevSessions.length - 1] : null;
   const lastVol = lastSession ? sessionVolume(lastSession.entries) : 0;
-  const ref = lastSession || (sameDay.length ? sameDay[sameDay.length - 1] : null);
   const minutes = Math.max(1, Math.round(rec.duration / 60));
   const st = sessionStreak(rec);
   const ms = sessionMuscleStats(rec.entries);
   const like = (vol > 0 && !isDeload) ? volumeLike(vol) : '';
   const cmp = (!isDeload && !partial && vol > 0 && lastVol > 0) ? Math.round((vol - lastVol) / lastVol * 100) : null;
-  const cmpTxt = cmp === null ? '' : `${cmp >= 0 ? '+' : '−'}${Math.abs(cmp)} %`;
-
-  /* ---- el titular: qué número manda hoy ---- */
-  let tone = 'pr', eyebrow, num, word, caption, tagline = '';
-  if(prs.length > 1){
-    eyebrow = 'Nuevos récords';
-    num = String(prs.length); word = 'récords hoy';
-    const what = best.assist ? '' : (best.unit === 's' || best.unit === 'reps') ? '' : ' de 1RM estimado';
-    caption = `${esc(exBaseName(best.name))}: ${prDeltaLong(best)}${what} sobre tu marca${agoLong(best.date)}.`;
-  } else if(best){
-    eyebrow = `Nuevo récord · ${esc(exBaseName(best.name))}`;
-    if(best.assist){ num = fmtWEx(best.key, best.now); word = `${uLabelEx(best.key)} de ayuda`; }
-    else if(best.unit === 's' || best.unit === 'reps'){ num = fmtNum(Math.round(best.now*10)/10); word = best.unit; }
-    else { num = fmtE1RM(best.key, best.now); word = uLabelEx(best.key); }
-    caption = best.assist
-      ? (best.now === 0
-          ? `Ya lo haces <b>sin asistencia</b>: cero ayuda de la máquina.`
-          : `La menor ayuda con la que has sostenido el rango. ${prDeltaLong(best)} sobre tu marca${agoLong(best.date)}.`)
-      : `${(best.unit === 's' || best.unit === 'reps') ? 'Tu mejor marca.' : '1RM estimado.'} ${prDeltaLong(best)} sobre tu marca${agoLong(best.date)}.`;
-  } else if(isDeload){
-    tone = 'calm'; eyebrow = 'Descarga guardada';
-    if(st.run > 1){ num = String(st.run); word = 'semanas seguidas'; }
-    else { num = String(st.total); word = st.total === 1 ? 'sesión' : 'sesiones'; }
-    caption = `Series suaves, a propósito. Tu progresión y tus récords no se tocan:
-               la próxima sesión normal retoma exactamente donde ibas.`;
-  } else {
-    tone = 'vol';
-    const t = vol > 0 ? tonnageParts(vol) : { num: fmtInt(fallback.value), word: fallback.unit === 's' ? 'segundos' : 'reps' };
-    num = t.num; word = t.word;
-    if(partial){
-      eyebrow = `Tu sesión · ${routine}`;
-      caption = `Guardaste <b>${nSets} de ${rec.plannedSets} series previstas</b>. Cada una cuenta. Esta sesión parcial se conserva sin compararla con una completa.`;
-    } else if(vol > 0 && lastSession && lastVol > 0){
-      const d = vol - lastVol, up = d >= 0;
-      eyebrow = `Peso movido · ${routine}`;
-      caption = `Levantados en ${series(nSets)}. ${d===0?'El mismo volumen que en':`<b>${fmtInt(Math.abs(fromKg(d)))} ${uLabel()} ${up?'más':'menos'} de volumen (${cmpTxt})</b> que en`} tu ${routine} anterior.`;
-    } else if(vol > 0){
-      eyebrow = `Peso movido · ${routine}`;
-      caption = `Levantados en ${series(nSets)}. ${lastSession ? 'Sigue registrando y aquí verás la comparación.' : 'Tu primera vez de este día: desde aquí se mide todo lo demás.'}`;
-    } else if(fallback.unit === 's'){
-      eyebrow = `Tiempo registrado · ${routine}`;
-      caption = `Tu esfuerzo en ${series(nSets)} por tiempo. Cada segundo cuenta.`;
-    } else {
-      eyebrow = `Repeticiones · ${routine}`;
-      caption = `Sin peso que sumar: hoy cuentan las repeticiones, en ${series(nSets)}.`;
-    }
-    tagline = partial ? '' : like;
-  }
-
-  /* ---- las cifras que acompañan al titular ---- */
-  const stats = [];
-  if(tone === 'pr' && vol > 0){
-    const t = tonnageParts(vol);
-    stats.push(`<div><b>${t.num}</b> ${t.word}${like ? ` · ${like.replace(/\.$/, '').toLowerCase()}` : ''}</div>`);
-  }
-  /* la fuerza va antes que el volumen: es la que dice si mejoraste */
   const strength = (!isDeload && !partial && lastSession) ? sessionStrengthDelta(rec, lastSession) : null;
-  if(strength){
-    const sTxt = strength.pct === 0 ? 'Igual de fuerte' : `<b>${strength.pct > 0 ? '+' : '−'}${Math.abs(strength.pct)} %</b> de fuerza estimada`;
-    stats.push(`<div>${sTxt} frente a tu ${routine} anterior · mejor en ${strength.up} de ${strength.n} ${strength.n === 1 ? 'ejercicio' : 'ejercicios'}</div>`);
-  }
-  if(tone === 'pr' && cmp !== null) stats.push(`<div><b>${cmpTxt}</b> de volumen (peso × reps) frente a tu ${routine} anterior</div>`);
-  if(cmp !== null && cmp < 0 && strength && strength.pct > 0) stats.push(`<div>Menos reps con más peso: subiste la carga, no bajaste la fuerza.</div>`);
-  if(ref){
-    const rv = sessionVolume(ref.entries), rs = ref.entries.reduce((n, e) => n + e.sets.length, 0), rm = uiSessionMeasure(ref.entries);
-    stats.push(`<div>Tu ${routine} anterior${ref === lastSession ? '' : ' (parcial)'}${agoLong(ref.date) ? ',' + agoLong(ref.date) : ''}: <b>${rv > 0 ? `${fmtInt(fromKg(rv))} ${uLabel()}` : `${fmtInt(rm.value)} ${rm.unit}`}</b> en ${series(rs)}</div>`);
-  }
-  stats.push(`<div><b>${nSets}</b> ${nSets === 1 ? 'serie' : 'series'} · <b>${rec.entries.length}</b> ${rec.entries.length === 1 ? 'ejercicio' : 'ejercicios'} · <b>${minutes}</b> min</div>`);
+  const prKeys = new Set(prs.map(p => p.key));
+  const ARR = '<svg class="arr" viewBox="0 0 18 10" aria-hidden="true"><path d="M1 5h14M11 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const row = (name, pr, old, now, d, unit) => `<div class="fin-vs-row"><span class="nm"><span>${esc(exBaseName(name))}</span>${pr ? '<span class="fin-pr">PR</span>' : ''}</span><span class="ba"><span class="old">${old}</span>${ARR}<span class="new">${now}</span>${unit ? `<em class="u">${unit}</em>` : ''}</span><span class="dl ${d.cls}">${d.txt}</span></div>`;
+  const chaps = [];
+  const add = (kind, html, attrs = '') => chaps.push({ kind, html, attrs });
 
-  /* ---- las filas: todas las marcas del día, o lo más pesado ---- */
-  let rows = '';
+  /* 1 · el titular: cuánto más fuerte, o lo que toque decir hoy */
+  if(isDeload){
+    add('lead', `<span class="k">Descarga guardada</span><h2>Recargar también <em>es avanzar.</em></h2>
+      <p>Series suaves, a propósito. Tu progresión y tus récords no se tocan: la próxima sesión normal retoma exactamente donde ibas.</p>`, ' data-tone="calm"');
+  } else if(strength){
+    const p = strength.pct, fill = Math.max(18, Math.min(96, 70 + p * 4));
+    const title = p > 0 ? `Fuiste <em>+${p} %</em> más fuerte.` : p === 0 ? `Sostuviste <em>tu fuerza.</em>` : `Hoy costó <em>un poco más.</em>`;
+    const vs = `${p === 0 ? 'Igual que en' : p > 0 ? 'Que en' : `<b>−${Math.abs(p)} %</b> de fuerza estimada frente a`} tu ${routine} anterior${agoLong(lastSession.date) ? ',' + agoLong(lastSession.date) : ''}.`;
+    add('lead', `<span class="k">Fuerza estimada · ${routine}</span><h2>${title}</h2>
+      <div class="fin-meter${p > 0 ? '' : ' flat'}" style="--fill:${fill}%" aria-hidden="true"><div class="trk"></div><div class="fill"></div><div class="mark"><i>La vez pasada</i></div></div>
+      <p>${vs} Mejor en <b>${strength.up} de ${strength.n}</b> ${strength.n === 1 ? 'ejercicio' : 'ejercicios'}.</p>
+      ${p > 0 && cmp !== null && cmp < 0 ? '<p class="fin-sub">Menos reps con más peso: subiste la carga, no bajaste la fuerza.</p>' : ''}
+      ${p < 0 ? '<p class="fin-sub">Un día así también suma: lo que manda es la tendencia.</p>' : ''}`, p > 0 ? ' data-up="1"' : '');
+  } else if(partial){
+    add('lead', `<span class="k">Tu sesión · ${routine}</span><h2>Cada serie <em>cuenta.</em></h2>
+      <p>Guardaste <b>${nSets} de ${rec.plannedSets} series previstas</b>. Esta sesión parcial se conserva sin compararla con una completa.</p>`);
+  } else {
+    const first = !sameDay.length;
+    add('lead', `<span class="k">${routine} · hoy</span><h2>Hoy te lo <em>ganaste.</em></h2>
+      <p>${first ? 'Tu primera vez con este día: desde aquí se mide todo lo demás.' : 'Tu próxima sesión completa de este día ya tendrá con qué compararse.'}</p>`);
+  }
+
+  /* 2 · el cuerpo: los grupos de hoy se encienden */
+  if(ms.total){
+    const groups = MUSCLES.filter(([k]) => ms.counts[k]).sort((a, b) => ms.counts[b[0]] - ms.counts[a[0]]);
+    const shown = groups.slice(0, 5), rest = groups.length - shown.length;
+    add('body', `<span class="k">Hoy trabajaste</span><h2>Lo que <em>encendiste</em> hoy.</h2>
+      <div class="fin-bodies"><figure>${posterBodySVG(false, ms)}<figcaption>Frente</figcaption></figure><figure>${posterBodySVG(true, ms)}<figcaption>Espalda</figcaption></figure><div class="scan" aria-hidden="true"></div></div>
+      <ul class="fin-glist">${shown.map(([k, l]) => `<li data-g="${k}"><span>${l}</span><b>${ms.counts[k]}<small> ${ms.counts[k] === 1 ? 'serie' : 'series'}</small></b><span class="gb"><i style="width:${Math.round(ms.counts[k] / ms.max * 100)}%;background:${uiMuscleColor(ms.counts[k], ms.max)}"></i></span></li>`).join('')}</ul>
+      ${rest || ms.untagged ? `<p class="fin-sub">${rest ? `Y ${rest} ${rest === 1 ? 'grupo más' : 'grupos más'}.` : ''}${ms.untagged ? ` ${series(ms.untagged)} sin grupo asignado.` : ''}</p>` : ''}`);
+  }
+
+  /* 3 · los récords: cuántos y de cuánto */
   if(prs.length){
-    rows = prs.slice(0, 5).map(pr => {
-      const serie = prMetricSeries(pr.key, 6).map(v => pr.assist ? -v : v);
-      const sp = serie.length > 1 ? sparkSVG(serie, '#f4cb9a', { w:64, h:20, p:3, r:2.5 }) : '';
-      return `<div class="fin-poster-row"><span class="nm">${esc(exBaseName(pr.name))}</span><span class="sp">${sp}</span><span class="vl">${prValueHTML(pr)}</span><span class="dl">${prDeltaHTML(pr)}</span></div>`;
-    }).join('') + (prs.length > 5 ? `<div class="fin-poster-more">y ${prs.length - 5} ${prs.length - 5 === 1 ? 'récord más' : 'récords más'}, marcados en el detalle</div>` : '');
-  } else if(!isDeload){
-    let top = null;
-    for(const e of rec.entries){
-      if(['asistido','tiempo'].includes(exMeta(e.key).type)) continue;
-      for(const st of e.sets) if(st.w > 0 && (!top || st.w > top.w)) top = { w:st.w, r:st.r, e };
-    }
-    if(top) rows = `<div class="fin-poster-row"><span class="nm">Lo más pesado del día</span><span class="vl">${esc(exBaseName(top.e.name))} · ${fmtWEx(top.e.key, top.w)} ${uLabelEx(top.e.key)} × ${top.r}</span></div>`;
+    const best = prs[0];
+    const old = pr => pr.assist ? fmtWEx(pr.key, pr.prev) : (pr.unit === 's' || pr.unit === 'reps') ? fmtNum(Math.round(pr.prev*10)/10) : fmtE1RM(pr.key, pr.prev);
+    const what = pr => (pr.assist || pr.unit === 's' || pr.unit === 'reps') ? '' : '1RM est.';
+    add('prs', `<span class="k">${prs.length === 1 ? 'Récord' : 'Récords'}</span><div class="fin-huge">${prs.length}</div>
+      <h2>${prs.length === 1 ? 'récord nuevo.' : 'récords nuevos.'}</h2>
+      <div class="fin-vs">${prs.slice(0, 4).map(pr => row(pr.name, true, old(pr), prValueHTML(pr), { txt: `${prDeltaHTML(pr)} ${pr.assist ? uLabelEx(pr.key) : pr.unit || uLabelEx(pr.key)}`, cls:'up' }, what(pr))).join('')}</div>
+      ${prs.length > 4 ? `<p class="fin-sub">Y ${prs.length - 4} ${prs.length - 4 === 1 ? 'récord más' : 'récords más'}, marcados en el detalle.</p>` : prs.length === 1 ? `<p class="fin-sub">${prDeltaLong(best)}${what(best) ? ' de 1RM estimado' : ''} sobre tu marca${agoLong(best.date)}.</p>` : ''}`);
   }
 
-  /* ---- el cuerpo y la constancia ---- */
-  const bodies = ms.total ? `<div class="fin-poster-bodies">${posterBodySVG(false, ms)}${posterBodySVG(true, ms)}</div>` : '';
+  /* 4 · antes → ahora: tu mejor serie de hoy frente a la de la última vez */
+  const vs = rec.entries.map(e => {
+    const prev = prevEntryOf(rec, e.key);
+    if(!prev || !e.sets.length) return null;
+    const a = bestSetOf(e.key, prev.sets), b = bestSetOf(e.key, e.sets);
+    return row(e.name, prKeys.has(e.key), bestSetText(e.key, a), bestSetText(e.key, b), bestSetDelta(e.key, a, b));
+  }).filter(Boolean);
+  if(vs.length && !isDeload){
+    add('vs', `<span class="k">Antes → ahora</span><h2>Así te <em>moviste</em> hoy.</h2>
+      <div class="fin-vs">${vs.slice(0, 5).join('')}</div>
+      ${vs.length > 5 ? `<p class="fin-sub">Y ${vs.length - 5} ${vs.length - 5 === 1 ? 'ejercicio más' : 'ejercicios más'} en el detalle.</p>` : ''}`);
+  }
+
+  /* 5 · lo que moviste, con su objeto */
+  let top = null;
+  if(!prs.length && !isDeload) for(const e of rec.entries){
+    if(['asistido','tiempo'].includes(exMeta(e.key).type)) continue;
+    for(const s of e.sets) if(s.w > 0 && (!top || s.w > top.w)) top = { w:s.w, r:s.r, e };
+  }
+  const topLine = top ? `<p class="fin-sub">Lo más pesado del día: <b>${esc(exBaseName(top.e.name))} · ${fmtWEx(top.e.key, top.w)} ${uLabelEx(top.e.key)} × ${top.r}</b></p>` : '';
+  if(!isDeload){
+    if(vol > 0){
+      const t = tonnageParts(vol), unit = t.word.startsWith('tonelada') ? (t.num === '1' ? 'tonelada' : 'toneladas') : t.word.split(' ')[0];
+      const likeKey = like && typeof uxLikeKey === 'function' ? uxLikeKey(like) : null;
+      const art = likeKey && typeof uxLikeArt === 'function' ? uxLikeArt(likeKey, ' xl') : '';
+      add('vol', `<span class="k">Peso movido</span>${art ? `<div class="fin-art">${art}</div>` : ''}
+        <h2><em><b>${t.num}</b> ${unit}.</em>${like ? `<br>${like}` : ''}</h2>
+        <p>En ${series(nSets)} y ${minutes} min.</p>${cmp > 0 ? `<p class="fin-sub"><b>+${cmp} %</b> de volumen frente a tu ${routine} anterior.</p>` : ''}${topLine}`, likeKey ? ` data-like="${likeKey}"` : '');
+    } else {
+      const secs = fallback.unit === 's';
+      add('vol', `<span class="k">${secs ? 'Tiempo registrado' : 'Repeticiones'}</span>
+        <h2><em><b>${fmtInt(fallback.value)}</b> ${secs ? 'segundos' : 'reps'}.</em></h2>
+        <p>${secs ? 'Tu esfuerzo por tiempo' : 'Sin peso que sumar: hoy cuentan las repeticiones'}, en ${series(nSets)} y ${minutes} min.</p>${topLine}`);
+    }
+  }
+
+  /* 6 · la constancia, y las salidas */
   const chips = [st.total === 1 ? 'Tu primera sesión' : `Sesión ${st.total}`];
   if(st.week > 1) chips.push(`${st.week}.ª esta semana`);
   if(st.run > 1) chips.push(`${st.run} semanas seguidas`);
-  const groups = MUSCLES.filter(([k]) => ms.counts[k]).sort((a, b) => ms.counts[b[0]] - ms.counts[a[0]]);
-  const groupsRow = ms.total ? `<div class="fin-more"><div class="fin-lbl">Hoy trabajaste</div>
-      <div class="fin-groups-row">${groups.map(([k, l]) => `<span><i style="background:${uiMuscleColor(ms.counts[k], ms.max)}"></i>${l} <b>${ms.counts[k]}</b></span>`).join('')}${ms.untagged ? `<span class="is-muted"><i></i>Sin grupo <b>${ms.untagged}</b></span>` : ''}</div></div>` : '';
+  const dots = Math.min(st.run, 12);
+  add('streak', `<span class="k">Constancia</span>
+    <h2>${st.run > 1 ? `<em>${st.run} semanas</em> seguidas.` : st.total === 1 ? 'Tu primera <em>sesión.</em>' : `Sesión <em>${st.total}.</em>`}</h2>
+    ${st.run > 1 ? `<div class="fin-weeks" aria-hidden="true">${'<i></i>'.repeat(dots)}</div>` : ''}
+    <p>${(st.run > 1 ? chips.filter(c => !c.endsWith('semanas seguidas')) : chips).join(' · ')}.${st.run > 1 ? ' Sigue así.' : st.total === 1 ? ' El primer paso ya está dado.' : ' Una más en la cuenta.'}</p>
+    <div class="fin-story-cta"><button type="button" class="fin-story-btn" onclick="uiStoryGo(0)">Ver de nuevo</button><button type="button" class="fin-story-btn" onclick="uiStoryDetail()">Ver el detalle</button></div>`);
 
-  /* ---- el recibo ---- */
-  const filas = receiptHTML(rec.entries, new Set(prs.map(p => p.key)));
+  const n = chaps.length;
+  const pauseIc = '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="ic-pause" d="M8 5v14M16 5v14"/><path class="ic-play" d="m8 5 11 7-11 7z"/></svg>';
   const totalTxt = vol > 0
     ? `${fmtInt(fromKg(vol))}<i> ${uLabel()}</i>`
     : `${fmtInt(fallback.value)}<i> ${fallback.unit}</i>`;
-  const len = Math.min(5, Math.max(1, String(num).replace(/\s/g, '').length));
 
   return `
-    <div class="ui-finish-brand">${uiBrand()}<span>${fmtDate(rec.date)}</span></div>
-    <h1 class="ui-finish-title">${isDeload ? 'Recargar también<br>es avanzar.' : 'Hoy te lo ganaste.'}</h1>
-    <div class="ui-finish-intro">${routine} · sesión guardada en tu dispositivo</div>
-    <div class="fin-poster">
-      <div class="fin-poster-head"><span>${routine}</span><span>${fmtDate(rec.date)}</span></div>
-      <div class="fin-poster-main${bodies ? '' : ' no-body'}">
-        <div class="fin-poster-lead">
-          <div class="fin-poster-eyebrow ${tone}">${eyebrow}</div>
-          <div class="fin-poster-n ${tone} len-${len}"><b>${num}</b><i>${word}</i></div>
-          ${tagline ? `<div class="fin-poster-like">${tagline}</div>` : ''}
-          <div class="fin-poster-caption">${caption}</div>
-        </div>
-        ${bodies}
+    <div class="fin-story${isDeload ? ' calm' : ''}" data-rec="${rec.id}" data-n="${n}" data-big="${prs.length && !isDeload ? 1 : 0}">
+      <div class="fin-story-bars" aria-hidden="true">${'<i><b></b></i>'.repeat(n)}</div>
+      <div class="fin-story-top"><span class="brand">hierro</span><span class="when">${routine} · ${fmtDate(rec.date)}</span>
+        <button type="button" class="fin-story-pause" aria-label="Pausar" onclick="uiStoryPause()">${pauseIc}</button></div>
+      <div class="fin-story-body">
+        ${chaps.map((c, i) => `<section class="fin-chap" data-chap="${i}" data-kind="${c.kind}"${c.attrs} aria-label="${i + 1} de ${n}"${i ? ' hidden' : ''}>${c.html}</section>`).join('')}
       </div>
-      <div class="fin-poster-stats">${stats.join('')}</div>
-      ${rows ? `<div class="fin-poster-rows">${rows}</div>` : ''}
-      <div class="fin-poster-foot"><span>${chips.join(' · ')}</span><b>hierro</b></div>
+      <button type="button" class="fin-story-tap prev" aria-label="Anterior" onclick="uiStory(-1)"></button>
+      <button type="button" class="fin-story-tap next" aria-label="Siguiente" onclick="uiStory(1)"></button>
+      <div class="fin-story-foot" aria-live="polite"><span class="tip">Toca a la derecha para seguir</span><span class="count">1 / ${n}</span></div>
     </div>
-    ${groupsRow}
     ${failNote ? `<div style="margin-top:18px">${failNote}</div>` : ''}
-    <div class="fin-more"><div class="fin-lbl">El detalle</div>
-      ${filas}
+    <div class="fin-more fin-detail"><div class="fin-lbl">El detalle</div>
+      ${receiptHTML(rec.entries, prKeys)}
       <div class="fin-total"><span class="l">${vol > 0 ? 'Total movido' : fallback.unit === 's' ? 'Total de segundos' : 'Total de reps'}</span>
         <span class="v">${totalTxt}</span></div>
       <button class="note-a" style="display:block;margin:14px auto 0"
         onclick="closeModal(); go({name:'history',progressTab:'diary'})">Ver historial</button>
     </div>
     <div class="fin-dock">
-      <button class="btn ghost ui-share" onclick="uiShareSession('${rec.id}')">${uiIcon('share')} Guardar tarjeta para compartir</button>
+      <div class="fin-dock-row">
+        <button class="btn ghost ui-share" onclick="uiShareSession('${rec.id}')">${uiIcon('share')} Guardar tarjeta</button>
+        <button class="btn" onclick="closeModal(); go({name:'home'})">Listo</button>
+      </div>
       ${healthBtnHTML(rec.duration)}
-      <button class="btn" style="margin-top:9px" onclick="closeModal(); go({name:'home'})">Listo</button>
     </div>`;
 }
 
