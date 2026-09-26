@@ -3472,6 +3472,12 @@ const laterRec={id:'dl-old',routineId:'dl',routineName:'Torso',date:new Date(Dat
 chk(!finishScreenHTML(laterRec,[],'').includes('data-kind="vs"'),'al reabrir una sesión vieja solo se compara con lo que vino antes');
 let storyOk=true;try{uxCelebrate(dlRec,[]);uiStory(1);uiStoryPause();uiStoryGo(0);uiStoryDetail();}catch(e){storyOk=false;}
 chk(storyOk&&uxSound('pride')===false&&uxSound('glow',2)===false,'sin pantalla ni audio, los controles de la historia no rompen nada');
+db.history.push(dlRec);uiReceipt(dlRec.id);
+chk(els['modalhost'].innerHTML.includes('Ver la historia del día')&&els['modalhost'].innerHTML.includes('Cerrar'),'desde el diario se puede volver a ver la historia de una sesión');
+uiReplayStory(dlRec.id);
+chk(els['modalhost'].innerHTML.includes('fin-story')&&els['modalhost'].innerHTML.includes('data-from="diary"')&&els['modalhost'].innerHTML.includes("uiFinishDone('dl-now')"),'y se abre desde el principio, sabiendo que viene del diario');
+uiReceipt(dlRec.id,'finish');
+chk(!els['modalhost'].innerHTML.includes('Ver la historia del día')&&els['modalhost'].innerHTML.includes('Volver al resumen'),'desde la historia, el desglose ofrece volver y no abrirla otra vez');
 closeModal();
 
 /* ---------- resultado ---------- */

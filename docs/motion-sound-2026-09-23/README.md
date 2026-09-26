@@ -74,6 +74,8 @@ El póster final juntaba en una sola tarjeta récords, 1RM, toneladas, peso movi
 
 **A tu ritmo.** Cada capítulo dura 7 segundos y avanza solo la primera vez. Tocar a la derecha o a la izquierda pasa de capítulo y deja la historia en tus manos. Mantener pulsado la sostiene mientras dure. El botón de pausa la congela para hacer captura con calma, y vuelve a reproducirla. Los sonidos suenan la primera vez que ves cada capítulo. Solo aparecen los capítulos que tienen algo que contar: sin récords no hay capítulo de récords y la primera vez no hay «antes». Debajo solo quedan «Guardar tarjeta» y «Listo». El desglose serie por serie ya no se repite en el cierre: «Ver el detalle», en el último capítulo, abre el mismo desglose del diario y «Volver al resumen» regresa al capítulo donde estabas. La nota por entrenar casi todo al fallo pasa al último capítulo.
 
+**3.15.1 · sin perderse nada.** «Listo» queda justo debajo de la zona que pasa de capítulo, así que un toque de más cerraba la historia. Ahora, si quedan capítulos sin ver, el primer toque lo cambia a «Toca otra vez para salir» durante unos segundos y la pista de abajo dice cuántos faltan. Y la historia ya no se pierde al salir: en el diario, cada sesión tiene «Ver la historia del día», que la abre desde el principio; al terminar, «Listo» vuelve al diario.
+
 ![Fuerza: la barra pasa la marca de la vez pasada](story-lead-390.jpg)
 ![Hoy trabajaste: los grupos del día encendidos](story-body-390.jpg)
 ![Antes → ahora: tu mejor serie de la vez pasada y la de hoy](story-vs-390.jpg)

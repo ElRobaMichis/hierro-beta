@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.15.0';
+const UI_VERSION = '3.15.1';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -449,7 +449,22 @@ async function uiShareSession(id,source='finish'){
 }
 
 
-function uiReturnToFinish(id){const rec=db.history.find(h=>h.id===id);if(!rec)return;closeModal();openFullModal(finishScreenHTML(rec,rec.prs||[],''));uxCelebrate(rec,rec.prs||[],{quiet:true});}
+function uiReturnToFinish(id){const rec=db.history.find(h=>h.id===id);if(!rec)return;const from=uxStory?.el?.dataset.rec===id?uxStory.el.dataset.from||'':'';closeModal();openFullModal(finishScreenHTML(rec,rec.prs||[],'',from));uxCelebrate(rec,rec.prs||[],{quiet:true});}
+/* la historia de cualquier sesión se puede volver a ver desde el diario, desde el principio */
+function uiReplayStory(id){const rec=db.history.find(h=>h.id===id);if(!rec)return;closeModal();openFullModal(finishScreenHTML(rec,rec.prs||[],'','diary'));uxCelebrate(rec,rec.prs||[]);}
+/* «Listo» con capítulos sin ver pide un segundo toque: está justo debajo de «siguiente» */
+function uiFinishDone(id){
+ const s=uxStoryState(),left=s?s.n-s.seen.size:0,btn=document.querySelector?.('#modalhost .fin-done');
+ if(s&&left>0&&!s.armed&&btn){
+  s.armed=true;btn.classList.add('is-armed');btn.textContent='Toca otra vez para salir';uxSound('tick',-1);uxHaptic([15]);
+  const tip=s.el.querySelector('.fin-story-foot .tip');if(tip)tip.textContent=`Te ${left===1?'queda 1 capítulo':`quedan ${left} capítulos`} · luego seguirá en tu diario`;
+  uxAnim(btn,[{transform:'scale(.96)'},{transform:'none'}],{spring:'bouncy'});
+  clearTimeout(s.armT);s.armT=setTimeout(()=>{s.armed=false;if(btn.isConnected){btn.classList.remove('is-armed');btn.textContent='Listo';}if(s.el.isConnected)uxStoryUI(s);},3500);
+  return;
+ }
+ const from=s?.el.dataset.from;if(s){clearTimeout(s.armT);s.bar?.cancel();}
+ closeModal();if(from==='diary')uiReceipt(id);else go({name:'home'});
+}
 function uiReturnToReceipt(id){closeModal();uiReceipt(id);}
 
 function uiSessionMeasure(entries){
@@ -1208,7 +1223,7 @@ function uiReceipt(id,source=''){
  const h=db.history.find(h=>h.id===id);if(!h)return;
  const prs=new Set((h.prs||[]).map(p=>p.key));
  const rows=h.entries.map(e=>`<button class="n-receipt-exercise" onclick="${uiAction('uiOpenProgress',e.key,id)}" aria-label="Ver progreso de ${esc(e.name)}"><span><b>${esc(e.name)}</b>${prs.has(e.key)?'<span class="fin-mark">PR</span>':''}${uiIcon('chevron')}</span><span class="fin-sets">${setsLine(e.key,e.sets)}</span></button>`).join('');
- openModal(`<span class="n-eyebrow">${fmtDate(h.date)}${h.deload?' · Descarga':''}</span><h2>${esc(h.routineName)}</h2><p class="muted">${fmtDurShort(h.duration)} · ${h.entries.reduce((n,e)=>n+e.sets.length,0)} ${h.entries.reduce((n,e)=>n+e.sets.length,0)===1?'serie':'series'}</p><p class="hint">Toca un ejercicio para ver su progreso.</p><div class="n-receipt">${rows}</div><div class="n-receipt-actions">${uiButton('Guardar tarjeta',uiAction('uiShareSession',id,source==='finish'?'finish':'diary'),'share')}${uiButton('Editar sesión',`closeModal();${uiAction('editSession',id)}`,'edit','secondary')}</div><div class="n-receipt-danger">${uiButton('Eliminar sesión',`closeModal();${uiAction('deleteSession',id)}`,'trash','danger')}</div>${source==='finish'?uiButton('Volver al resumen',uiAction('uiReturnToFinish',id),'arrow','text'):uiButton('Cerrar','closeModal()','close','text')}`);
+ openModal(`<span class="n-eyebrow">${fmtDate(h.date)}${h.deload?' · Descarga':''}</span><h2>${esc(h.routineName)}</h2><p class="muted">${fmtDurShort(h.duration)} · ${h.entries.reduce((n,e)=>n+e.sets.length,0)} ${h.entries.reduce((n,e)=>n+e.sets.length,0)===1?'serie':'series'}</p><p class="hint">Toca un ejercicio para ver su progreso.</p><div class="n-receipt">${rows}</div><div class="n-receipt-actions">${source==='finish'?'':uiButton('Ver la historia del día',uiAction('uiReplayStory',id),'play')}${uiButton('Guardar tarjeta',uiAction('uiShareSession',id,source==='finish'?'finish':'diary'),'share',source==='finish'?'primary':'secondary')}${uiButton('Editar sesión',`closeModal();${uiAction('editSession',id)}`,'edit','secondary')}</div><div class="n-receipt-danger">${uiButton('Eliminar sesión',`closeModal();${uiAction('deleteSession',id)}`,'trash','danger')}</div>${source==='finish'?uiButton('Volver al resumen',uiAction('uiReturnToFinish',id),'arrow','text'):uiButton('Cerrar','closeModal()','close','text')}`);
 }
 
 function uiEditHistory(){
