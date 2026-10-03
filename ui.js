@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.15.1';
+const UI_VERSION = '3.16.0';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -16,6 +16,8 @@ const UI_ICONS = {
  arrow:'<path d="M4 12h16m-6-6 6 6-6 6"/>',
  play:'<path d="m8 4 12 8-12 8z" fill="currentColor" stroke="none"/>',
  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ minus:'<path d="M5 12h14"/>',
+ flame:'<path d="M12 21c-3.9 0-6.5-2.6-6.5-6 0-3.4 2.4-5.4 3.8-8 .9 1.6 1.4 2.8 1.7 4.4 1.5-.9 2.4-2.6 2.6-4.9 2.9 2.4 4.9 5.4 4.9 8.5 0 3.4-2.6 6-6.5 6z"/>',
  check:'<path d="m5 12 4 4L19 6"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
  more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
@@ -797,7 +799,7 @@ function uiSession(){
   const nextIndex=complete?s.exercises.findIndex((e,i)=>i!==xi&&!exDone(e)):xi;
   const nextCopy=nextIndex>=0?pushNextCopy(s,nextIndex):{body:'Todo listo para terminar y guardar.'};
   const restOrigin=Math.max(0,s.exercises.findIndex(e=>e.key===s.restKey));
-  work=`<div class="n-rest-phase"><span id="n-rest-announcement" class="sr-only" role="status"></span><div class="n-rest-status">${uiIcon('check')}Serie guardada</div><div class="rest ${rem?'on':'done'}" id="rest"><span id="restlabel">${rem?'Descansando':'Descanso listo'}</span><strong id="resttime">${rem?fmtClock(rem):'¡Vamos!'}</strong><div class="rest-track"><div id="restfill" class="rest-fill"></div></div></div><p>Respira. La siguiente puede esperar.</p>${uiButton('+30 segundos','uiAddRest()','plus','text')}<div class="n-rest-next"><span class="n-number">${complete?uiIcon('check'):si+1}</span><div><b>${complete?'Ejercicio completo':`Siguiente: serie ${si+1} de ${ex.sets.length}`}</b><small>${esc(nextCopy.body)}</small></div></div>${uiButton(rem?'Saltar descanso':'Continuar','uiContinue()')}${uiButton('Corregir la última serie',uiAction('uiEditSet',restOrigin,Math.max(0,s.exercises[restOrigin].sets.findLastIndex(st=>st.done))),'edit','text')}</div>`;
+  work=`<div class="n-rest-phase"><span id="n-rest-announcement" class="sr-only" role="status"></span><div class="n-rest-status">${uiIcon('check')}Serie guardada</div><div class="rest ${rem?'on':'done'}" id="rest"><span id="restlabel">${rem?'Descansando':'Descanso listo'}</span><strong id="resttime">${rem?fmtClock(rem):'¡Vamos!'}</strong><div class="rest-track"><div id="restfill" class="rest-fill"></div></div></div><p>Respira. La siguiente puede esperar.</p>${uiButton('+30 segundos','uiAddRest()','plus','text')}<div class="n-rest-next"><span class="n-number">${complete?uiIcon('check'):si+1}</span><div><b>${complete?'Ejercicio completo':`Siguiente: serie ${si+1} de ${ex.sets.length}`}</b><small>${esc(nextCopy.body)}</small>${uxTechActive(xi)&&si===ex.sets.length-1&&!ex.sets[si]?.done?`<small class="n-tech-next">${uiIcon('flame')}Al terminarla: ${TECHS[uxTechActive(xi)].label.toLowerCase()}.</small>`:''}</div></div>${uiButton(rem?'Saltar descanso':'Continuar','uiContinue()')}${uiButton('Corregir la última serie',uiAction('uiEditSet',restOrigin,Math.max(0,s.exercises[restOrigin].sets.findLastIndex(st=>st.done))),'edit','text')}</div>`;
  }else if(complete){
   const next=s.exercises.findIndex((e,i)=>i!==xi&&!exDone(e));
   work=`<section class="n-ex-complete"><span class="n-complete-mark">${uiIcon('check')}</span><h2>Una más, hecha.</h2><p>${ex.sets.length} series de ${esc(exBaseName(ex.name))} confirmadas.</p>${uiButton(next<0?'Terminar sesión':`Siguiente: ${esc(exBaseName(s.exercises[next].name))}`,next<0?'askFinish()':uiAction('uiSelectExercise',next))}${uiButton('Añadir otra serie',uiAction('uiAddSet',xi),'plus','text')}</section>`;
@@ -806,7 +808,7 @@ function uiSession(){
   const weightLabel=effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Total de las dos':discosOffset(ex.key)>0?'Discos totales':m.type==='asistido'?'Ayuda':corp?'Lastre opcional':'Peso';
   const offset=discosOffset(ex.key),hint=offset>0?'Sin '+(effEquip(ex.key)==='barra'?'la barra':'el aparato'):effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Suma ambas manos':m.type==='asistido'?'Menos ayuda = más esfuerzo':corp?'Vacío = sin lastre':uLabelEx(ex.key);
   const prev=ex.sets.slice(0,si).reverse().find(x=>x.done);
-  work=`<div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):''}</div>${ex.sugg?uiSetProposal(xi,!!prev):`<p class="n-first-hint">${corp?'Registra lo que completes.':'Elige una carga para tu rango.'}</p>`}${uiLastLoad(xi)}<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="${weightLabel} · ${uLabelEx(ex.key)} · serie ${si+1}" aria-describedby="n-weight-help" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small id="n-weight-help">${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Rango <span>${r.lo}–${r.hi}</span></small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?`<div class="n-time-tools">${uiButton(s.setTimer?.key===ex.key&&s.setTimer.si===si?'Retomar cronómetro':'Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text')}<span class="n-time-help">Por tiempo: no se usa RIR.</span></div>`:''}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status"></span></div>`;
+  work=`<div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):''}</div>${ex.sugg?uiSetProposal(xi,!!prev):`<p class="n-first-hint">${corp?'Registra lo que completes.':'Elige una carga para tu rango.'}</p>`}${uiLastLoad(xi)}<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="${weightLabel} · ${uLabelEx(ex.key)} · serie ${si+1}" aria-describedby="n-weight-help" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small id="n-weight-help">${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Rango <span>${r.lo}–${r.hi}</span></small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?`<div class="n-time-tools">${uiButton(s.setTimer?.key===ex.key&&s.setTimer.si===si?'Retomar cronómetro':'Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text')}<span class="n-time-help">Por tiempo: no se usa RIR.</span></div>`:''}${uiTechCard(xi,si)}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status"></span></div>`;
  }
  const logged=ex.sets.map((st,i)=>st.done?`<button class="n-set-chip" onclick="uiEditSet(${xi},${i})" aria-label="Editar serie ${i+1}: ${uiSetDisplay(ex.key,st)}"><span>${i+1}</span>${uiSetDisplay(ex.key,st)}${uiIcon('check')}</button>`:'').join('');
  return `<div class="n-focus">${title}${exerciseNotes(ex.key)&&!resting&&!complete?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(exerciseNotes(ex.key))}">${uiIcon('pin')}<span><small>${m.gymNotes?esc(db.gym.name):'Tu nota'}</small><strong>${esc(exerciseNotes(ex.key))}</strong></span>${uiIcon('edit')}</button>`:''}${work}${typeof pushActive==='function'&&pushActive()&&(resting||preparing)?`<p class="n-push-session" data-push-status role="status">${esc(pushMessage)}</p>`:''}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
@@ -944,7 +946,7 @@ function uiLogSet(xi,si){
  if(exMeta(ex.key).type!=='tiempo'&&(st.rir===''||st.rir===undefined||st.rir===null)){uiRIR(xi,si,true);return;}
  if(!commitChange(()=>{db.active.open=xi;st.done=true;delete st.autoWeightKg;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastSeriesAt=db.active.lastLog=Date.now();if(db.active.setTimer?.key===ex.key)delete db.active.setTimer;startRestAuto(ex.key);db.active.restKey=ex.key;db.active.uiRest=!!restUntil;})){uiSaveState();return;}
  const from=document.getElementById('n-record')?.getBoundingClientRect?.();
- render();window.scrollTo(0,0);uxSetLogged(xi,si,from);
+ render();window.scrollTo(0,0);uxSetLogged(xi,si,from);uxTechAfterLog(xi,si);
 }
 function uiStep(xi,si,field,direction){
  const ex=db.active.exercises[xi],st=ex.sets[si];
@@ -1011,7 +1013,7 @@ function uiUndoRemovedSet(){
 function uiEditSets(xi){const ex=db.active.exercises[xi];openModal(`<h2>Series del ejercicio</h2>${ex.sets.map((st,i)=>uiRow(`Serie ${i+1}`,uiSetDisplay(ex.key,st),uiAction('uiEditSet',xi,i),'edit')).join('')}${uiButton('Añadir serie',uiAction('uiAddSet',xi),'plus','secondary')}${uiButton('Listo','closeModal()','check','text')}`);}
 function uiSessionOptions(xi){
  const ex=db.active.exercises[xi];
- openModal(`<h2>${esc(exBaseName(ex.name))}</h2>${ex.sugg?uiRow('Entender la propuesta','Qué cambia y por qué',uiAction('uiSuggestionInfo',xi),'spark'):''}${uiRow('Calentamiento',ex.warmupDone?'Completado · ver detalle':ex.warmup?.phase==='skipped'?'Ver criterio de preparación':'Preparar antes de cargar',`closeModal();showWarmup(${xi})`,'barbell')}${!warmupRequired(xi)?uiRow('Series','Editar, añadir o quitar',uiAction('uiEditSets',xi),'list'):''}${uiRow('Notas','Asiento, agarre y recordatorios',`closeModal();editExNotes(${xi})`,'edit')}${uiRow('Equipo y objetivos','Ajustes de este ejercicio',`closeModal();openExFromSession(${xi},'equipment')`,'settings')}${uiRow('Quitar ejercicio de la sesión','',`closeModal();removeSessionEx(${xi})`,'trash')}${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
+ openModal(`<h2>${esc(exBaseName(ex.name))}</h2>${ex.sugg?uiRow('Entender la propuesta','Qué cambia y por qué',uiAction('uiSuggestionInfo',xi),'spark'):''}${uiRow('Calentamiento',ex.warmupDone?'Completado · ver detalle':ex.warmup?.phase==='skipped'?'Ver criterio de preparación':'Preparar antes de cargar',`closeModal();showWarmup(${xi})`,'barbell')}${!warmupRequired(xi)?uiRow('Series','Editar, añadir o quitar',uiAction('uiEditSets',xi),'list'):''}${exMeta(ex.key).type!=='tiempo'?uiRow('Técnica en la última serie',effTech(ex.key)?TECHS[effTech(ex.key)].label:'Ninguna · drop set, myo-reps…',uiAction('uiTechPicker',xi),'flame'):''}${uiRow('Notas','Asiento, agarre y recordatorios',`closeModal();editExNotes(${xi})`,'edit')}${uiRow('Equipo y objetivos','Ajustes de este ejercicio',`closeModal();openExFromSession(${xi},'equipment')`,'settings')}${uiRow('Quitar ejercicio de la sesión','',`closeModal();removeSessionEx(${xi})`,'trash')}${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
 }
 
 /* Exercise information is split by the decision being made. */
@@ -1105,7 +1107,7 @@ function uiTargets(key){
  const m=exMeta(key),sp=db.splits.find(s=>s.id===ctxSplitId()),scope=view.targetScope==='plan'&&sp?'plan':'general',oc=scope==='plan'?(sp.exconf||{})[key]||{}:m;
  const change=scope==='plan'?'setSplitConf':'setExRange',range=m.type==='tiempo'?TIEMPO_RANGE:goalRange();
  const inputs=`<div class="n-form-pair">${uiNumberField('Rango mínimo',oc.lo,`uiEditRange('${uiInlineKey(key)}','${scope}')`,{id:'n-range-lo',placeholder:String(m.lo||range.lo),min:1,step:1})}${uiNumberField('Rango máximo',oc.hi,`uiEditRange('${uiInlineKey(key)}','${scope}')`,{id:'n-range-hi',placeholder:String(m.hi||range.hi),min:2,step:1})}</div><p id="n-range-error" class="n-sync-error" role="alert"></p>`;
- return `<div class="n-detail-grid n-aligned-details"><section class="n-panel n-detail-intro"><div class="n-section-head"><h2>Cómo mides el esfuerzo</h2></div><div class="n-type-grid">${[['normal','Peso y reps'],['asistido','Con asistencia'],['corporal','Peso corporal'],['tiempo','Por tiempo']].map(([v,l])=>`<button class="${m.type===v?'on':''}" onclick="setExType('${uiInlineKey(key)}','${v}')" aria-pressed="${m.type===v}">${l}</button>`).join('')}</div><p class="n-context-note">${m.type==='asistido'?'Se progresa reduciendo la ayuda de la máquina.':m.type==='tiempo'?'El rango indica segundos, no repeticiones.':m.type==='corporal'?'La referencia principal son tus repeticiones; el lastre es opcional.':'Completa el rango y después aumenta la carga disponible.'}</p></section><section class="n-panel n-detail-form">${sp?uiSubnav([['general','Reglas generales'],['plan','Solo este plan']],scope,'uiTargetScope'):''}<h2>${scope==='plan'?esc(sp.name):'Tu rango y descanso'}</h2><p>${scope==='plan'?'Los campos vacíos heredan las reglas generales.':'Los campos vacíos siguen tu objetivo general.'}</p>${inputs}${scope==='plan'?uiNumberField('Series previstas',oc.sets,`setSplitConf('${uiInlineKey(key)}','sets',this.value)`,{placeholder:'Automáticas',min:1,step:1}):''}<label class="field"><span>Descanso</span><select onchange="${scope==='plan'?`setSplitConf('${uiInlineKey(key)}','rest',this.value)`:`setExRest('${uiInlineKey(key)}',this.value)`}"><option value="auto" ${!oc.rest?'selected':''}>${scope==='plan'?'Heredar descanso general':'Según tus preferencias'}</option>${[45,60,90,120,150,180,240,300].map(s=>`<option value="${s}" ${Number(oc.rest)===s?'selected':''}>${fmtClock(s)}</option>`).join('')}</select></label>${scope==='general'?`<label class="field"><span>Aumento mínimo</span><select onchange="setExStep('${uiInlineKey(key)}',this.value)">${stepOptionsHTML(m.step)}</select></label>${m.type==='normal'&&effEquip(key)!=='placas'?uiNumberField('Carga máxima disponible',m.cap!=null?inputWEx(key,m.cap):'',`setExCap('${uiInlineKey(key)}',this.value)`,{unit:uLabelEx(key)}):''}`:''}</section><section class="n-panel n-detail-side-top"><label class="field"><span>Grupo muscular principal</span><select onchange="setExMuscle('${uiInlineKey(key)}',this.value)"><option value="none" ${!m.muscle||m.muscle==='none'?'selected':''}>Sin asignar</option>${MUSCLES.map(([k,l])=>`<option value="${k}" ${m.muscle===k?'selected':''}>${l}</option>`).join('')}</select></label><p class="hint">Alimenta tu mapa corporal. Puedes mantener «Pierna» o elegir un grupo más específico.</p></section><section class="n-panel n-notes n-detail-side-bottom"><label class="field"><span>Ajuste de ${esc(db.gym.name)}</span><textarea maxlength="300" placeholder="Asiento, altura de polea, accesorios…" oninput="setGymNotes('${uiInlineKey(key)}',this.value)">${esc(m.gymNotes||'')}</textarea></label><p class="hint">Se recupera al elegir este gimnasio.</p><label class="field"><span>Técnica · todos tus gimnasios</span><textarea maxlength="300" placeholder="Agarre, recorrido, ritmo…" oninput="setExNotes('${uiInlineKey(key)}',this.value)">${esc(m.notes||'')}</textarea></label><p class="hint">Se guarda automáticamente y aparece al entrenar en cualquier lugar.</p></section></div>`;
+ return `<div class="n-detail-grid n-aligned-details"><section class="n-panel n-detail-intro"><div class="n-section-head"><h2>Cómo mides el esfuerzo</h2></div><div class="n-type-grid">${[['normal','Peso y reps'],['asistido','Con asistencia'],['corporal','Peso corporal'],['tiempo','Por tiempo']].map(([v,l])=>`<button class="${m.type===v?'on':''}" onclick="setExType('${uiInlineKey(key)}','${v}')" aria-pressed="${m.type===v}">${l}</button>`).join('')}</div><p class="n-context-note">${m.type==='asistido'?'Se progresa reduciendo la ayuda de la máquina.':m.type==='tiempo'?'El rango indica segundos, no repeticiones.':m.type==='corporal'?'La referencia principal son tus repeticiones; el lastre es opcional.':'Completa el rango y después aumenta la carga disponible.'}</p></section><section class="n-panel n-detail-form">${sp?uiSubnav([['general','Reglas generales'],['plan','Solo este plan']],scope,'uiTargetScope'):''}<h2>${scope==='plan'?esc(sp.name):'Tu rango y descanso'}</h2><p>${scope==='plan'?'Los campos vacíos heredan las reglas generales.':'Los campos vacíos siguen tu objetivo general.'}</p>${inputs}${scope==='plan'?uiNumberField('Series previstas',oc.sets,`setSplitConf('${uiInlineKey(key)}','sets',this.value)`,{placeholder:'Automáticas',min:1,step:1}):''}<label class="field"><span>Descanso</span><select onchange="${scope==='plan'?`setSplitConf('${uiInlineKey(key)}','rest',this.value)`:`setExRest('${uiInlineKey(key)}',this.value)`}"><option value="auto" ${!oc.rest?'selected':''}>${scope==='plan'?'Heredar descanso general':'Según tus preferencias'}</option>${[45,60,90,120,150,180,240,300].map(s=>`<option value="${s}" ${Number(oc.rest)===s?'selected':''}>${fmtClock(s)}</option>`).join('')}</select></label>${m.type!=='tiempo'?`<label class="field"><span>Técnica en la última serie</span><select onchange="uiSetTech('${uiInlineKey(key)}','${scope}',this.value)">${scope==='plan'?`<option value="" ${!oc.tech?'selected':''}>Heredar reglas generales</option><option value="none" ${oc.tech==='none'?'selected':''}>Ninguna en este plan</option>`:`<option value="" ${!oc.tech?'selected':''}>Ninguna</option>`}${Object.entries(TECHS).map(([k,t])=>`<option value="${k}" ${oc.tech===k?'selected':''}>${t.label}</option>`).join('')}</select></label><p class="hint">${uiTechSummary(effTech(key))} Se anota aparte y no cambia tu progresión.</p>`:''}${scope==='general'?`<label class="field"><span>Aumento mínimo</span><select onchange="setExStep('${uiInlineKey(key)}',this.value)">${stepOptionsHTML(m.step)}</select></label>${m.type==='normal'&&effEquip(key)!=='placas'?uiNumberField('Carga máxima disponible',m.cap!=null?inputWEx(key,m.cap):'',`setExCap('${uiInlineKey(key)}',this.value)`,{unit:uLabelEx(key)}):''}`:''}</section><section class="n-panel n-detail-side-top"><label class="field"><span>Grupo muscular principal</span><select onchange="setExMuscle('${uiInlineKey(key)}',this.value)"><option value="none" ${!m.muscle||m.muscle==='none'?'selected':''}>Sin asignar</option>${MUSCLES.map(([k,l])=>`<option value="${k}" ${m.muscle===k?'selected':''}>${l}</option>`).join('')}</select></label><p class="hint">Alimenta tu mapa corporal. Puedes mantener «Pierna» o elegir un grupo más específico.</p></section><section class="n-panel n-notes n-detail-side-bottom"><label class="field"><span>Ajuste de ${esc(db.gym.name)}</span><textarea maxlength="300" placeholder="Asiento, altura de polea, accesorios…" oninput="setGymNotes('${uiInlineKey(key)}',this.value)">${esc(m.gymNotes||'')}</textarea></label><p class="hint">Se recupera al elegir este gimnasio.</p><label class="field"><span>Técnica · todos tus gimnasios</span><textarea maxlength="300" placeholder="Agarre, recorrido, ritmo…" oninput="setExNotes('${uiInlineKey(key)}',this.value)">${esc(m.notes||'')}</textarea></label><p class="hint">Se guarda automáticamente y aparece al entrenar en cualquier lugar.</p></section></div>`;
 }
 
 /* Three personal task categories, each with its own short page. */
@@ -1379,6 +1381,8 @@ const UX_SND={
  shutter:a=>{a.noise({dur:.04,gain:.2,type:'highpass',f:2200,send:.05});a.noise({at:.07,dur:.06,gain:.15,type:'highpass',f:1600,send:.05});},
  object:(a,k)=>UX_OBJ_SOUND[k]?.(a),
  /* el cierre en capítulos */
+ techGo:a=>{a.noise({dur:.25,gain:.05,f:700,f2:3600,q:1.2,attack:.2,send:.2});a.tone({f:140,f2:60,at:.2,dur:.3,gain:.35,send:.1});[783.99,1174.66].forEach((f,i)=>a.bell(f,.2+i*.07,.08,1,.4));},
+ techDone:a=>{[[587.33,0],[739.99,.08],[880,.16],[1174.66,.26]].forEach(([f,t])=>{a.bell(f,t,.07,1.3,.5);a.synth({f,at:t,dur:.3,gain:.025,attack:.01,release:.18,cut0:900,cut1:3400,cut2:1300,send:.3});});[2349.3,2793.8].forEach((f,i)=>a.bell(f,.5+i*.09,.02,.7,.6));},
  page:(a,d=1)=>a.noise({dur:.22,gain:.035,f:d>0?600:2400,f2:d>0?2400:600,q:1.3,send:.15}),
  cross:a=>{a.noise({dur:.5,gain:.07,f:500,f2:4200,q:1.2,attack:.4,send:.3});a.bell(1318.5,.45,.09,1.6,.5);a.bell(1975.5,.55,.05,1.4,.5);},
  rise:(a,i=0)=>{const f=[392,440,523.25,587.33,659.25,783.99][i%6];a.synth({f,dur:.5,gain:.045,attack:.02,release:.35,cut0:700,cut1:3600,cut2:1200,send:.35});a.bell(f*2,0,.05,1,.4);},
@@ -1671,6 +1675,141 @@ function uxConfetti(bursts){
   if(alive)requestAnimationFrame(loop);else cv.remove();};
  requestAnimationFrame(loop);
 }
+/* ---------- técnica de intensidad en la última serie ----------
+   Se hace después de la última serie de trabajo, sin soltar el peso, así
+   que el registro va en ese orden: primero la serie y luego lo que salió
+   de la técnica. Para myo-reps y la pausa hay una guía con reloj que se
+   puede abrir antes de empezar la serie. Nada de esto cambia la serie. */
+function uxTechActive(xi){const ex=db.active?.exercises[xi];return ex&&!db.active.deload?effTech(ex.key):'';}
+function uiTechCard(xi,si){
+ const ex=db.active.exercises[xi],t=uxTechActive(xi);if(!t||si!==ex.sets.length-1)return '';
+ const st=ex.sets[si],d=TECHS[t],draft=cleanTech(st.techDraft);
+ const guide=t==='myo'||t==='hold'?uiButton(draft?'Repetir la guía':t==='myo'?'Guíame con las pausas de 5 s':'Contar los 30 s',uiAction('uiTechGuide',xi,si),'clock','text'):'';
+ return `<div class="n-tech-card" role="note"><span class="n-tech-tag">${uiIcon('flame')}Última serie · ${d.label}</span><p>${d.how}</p>${draft?`<p class="n-tech-draft">${uiIcon('check')}Guía hecha: ${techLine(ex.key,draft)}. Se anota al registrar la serie.</p>`:''}${guide}</div>`;
+}
+function uiTechSummary(t){return TECHS[t]?`${TECHS[t].label}: ${TECHS[t].how}`:'Nada extra tras la última serie.';}
+/* elegir la técnica desde la sesión: se guarda en el plan de esta sesión */
+function uiTechPicker(xi){
+ const ex=db.active.exercises[xi],sp=db.splits.find(s=>s.id===ctxSplitId()),cur=effTech(ex.key);
+ const opts=[['none','Ninguna','Terminas con la última serie normal.'],...Object.entries(TECHS).map(([k,v])=>[k,v.label,v.how])];
+ openModal(`<span class="n-eyebrow">${esc(exBaseName(ex.name))}</span><h2>Técnica en la última serie</h2><p class="muted">${sp?`Se guarda solo en ${esc(sp.name)}. `:''}Se anota aparte: no cambia tu progresión.</p><div class="n-tech-options">${opts.map(([k,l,h])=>`<button type="button" class="${(cur||'none')===k?'on':''}" aria-pressed="${(cur||'none')===k}" onclick="${uiAction('uiChooseTech',xi,k)}"><b>${l}</b><span>${h}</span></button>`).join('')}</div>${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
+}
+function uiChooseTech(xi,val){
+ const ex=db.active?.exercises[xi];if(!ex)return;
+ const sp=db.splits.find(s=>s.id===ctxSplitId());
+ if(!setExTech(ex.key,sp?'plan':'general',val)){uiSaveState();return;}
+ uxSound(val==='none'?'back':'pop');closeModal();render();
+}
+function uiSetTech(key,scope,val){if(setExTech(key,scope,val)){uxSound('tick',1);render();}else uiSaveState();}
+
+/* ---------- anotar la técnica tras registrar la serie ---------- */
+function uxTechAfterLog(xi,si){
+ const ex=db.active?.exercises[xi],t=uxTechActive(xi);
+ if(!t||!ex||si!==ex.sets.length-1||ex.sets[si].tech)return false;
+ const open=()=>{if(db.active?.exercises[xi]===ex&&ex.sets[si]?.done&&!document.querySelector?.('#modalhost .modal'))uiTechLog(xi,si);};
+ if(uxMotion())setTimeout(open,750);else open();
+ return true;
+}
+function uiTechLog(xi,si){
+ const ex=db.active?.exercises[xi],st=ex?.sets[si],t=uxTechActive(xi);if(!st||!t)return;
+ const draft=cleanTech(st.techDraft),kg=recordedSetKg(ex.key,st);
+ window.__tech={xi,si,type:t,drops:[],kg:Number.isFinite(kg)?kg:0,w:Number.isFinite(kg)?dropWeight(ex.key,kg):0,r:'',
+  n:draft&&draft.type===t?(t==='hold'?draft.s:draft.r):(t==='hold'?30:''),cycles:draft?.cycles||0};
+ openModal(`<div id="ux-tech" class="n-tech-sheet">${uxTechBody()}</div>`);
+ uxSound('pop');
+}
+function uxTechBody(){
+ const T=window.__tech;if(!T)return '';
+ const ex=db.active.exercises[T.xi],d=TECHS[T.type],u=uLabelEx(ex.key),head=`<span class="n-eyebrow">${uiIcon('flame')} ${d.label} · ${esc(exBaseName(ex.name))}</span>`;
+ const field=(id,label,val,action,step)=>`<div class="n-set-field"><label for="${id}">${label}</label><input id="${id}" type="number" min="0" step="any" inputmode="${step==='r'?'numeric':'decimal'}" placeholder="—" value="${esc(val??'')}" oninput="${action}"><div class="n-stepper"><button type="button" aria-label="Menos" onclick="uiTechStep('${step}',-1)">−</button><small></small><button type="button" aria-label="Más" onclick="uiTechStep('${step}',1)">+</button></div></div>`;
+ const skip=uiButton(T.type==='drop'&&T.drops.length?'Terminar aquí':'No la hice',T.type==='drop'&&T.drops.length?'uiTechFinish()':'uiTechSkip()',T.type==='drop'&&T.drops.length?'check':'close','text');
+ if(T.type==='drop'){
+  const k=T.drops.length,plan=loadPlan(ex.key,T.w),side=plan&&Array.isArray(plan.perPoint)&&plan.perPoint.length&&plan.points===2?` · por lado ${plan.perPoint.map(x=>fmtNum(fromKgEx(ex.key,x))).join(' + ')}`:'';
+  const done=T.drops.map((x,i)=>`<li><span>Caída ${i+1}</span><b>${fmtWEx(ex.key,x.w)} ${u} × ${x.r}</b></li>`).join('');
+  return `${head}<h2>Caída ${k+1} de 2</h2><p class="muted">Sin descanso: baja a unos <b>${fmtWEx(ex.key,T.w)} ${u}</b>${side} y otra vez al fallo.</p>${done?`<ul class="n-tech-done">${done}</ul>`:''}<div class="n-set-fields">${field('n-tech-w',`Peso total · ${u}`,inputWEx(ex.key,T.w),"uiTechVal('w',this.value)",'w')}${field('n-tech-r','Repeticiones',T.r,"uiTechVal('r',this.value)",'r')}</div><p id="n-tech-error" class="n-sync-error" role="alert"></p>${uiButton(`Guardar caída ${k+1}`,'uiTechDrop()','check')}${skip}`;
+ }
+ if(T.type==='hold')return `${head}<h2>¿Cuánto la sostuviste?</h2><p class="muted">${d.how}</p><div class="n-set-fields">${field('n-tech-n','Segundos',T.n,"uiTechVal('n',this.value)",'n')}</div><p id="n-tech-error" class="n-sync-error" role="alert"></p>${uiButton('Guardar pausa','uiTechSave()','check')}${skip}`;
+ const myo=T.type==='myo';
+ return `${head}<h2>${myo?'¿Cuántas reps extra salieron?':'¿Cuántas parciales hiciste?'}</h2><p class="muted">${myo?'Suma las de todas las mini-series de 2 tras cada pausa de 5 s.':d.how}</p><div class="n-set-fields">${field('n-tech-n',myo?'Reps extra':'Parciales',T.n,"uiTechVal('n',this.value)",'r')}</div><p id="n-tech-error" class="n-sync-error" role="alert"></p>${uiButton(myo?'Guardar myo-reps':'Guardar parciales','uiTechSave()','check')}${skip}`;
+}
+function uxTechRender(){const el=document.getElementById('ux-tech');if(el)el.innerHTML=uxTechBody();}
+function uiTechVal(f,v){const T=window.__tech;if(!T)return;if(f==='w'){const n=parseFloat(v);T.w=Number.isFinite(n)?toKgEx(db.active.exercises[T.xi].key,n):0;}else T[f]=v;}
+function uiTechStep(f,dir){
+ const T=window.__tech;if(!T)return;const key=db.active.exercises[T.xi].key;
+ if(f==='w'){const step=effStep(key,T.w)||2.5;T.w=Math.max(0,Math.round((T.w+dir*step)*1000)/1000);const inp=document.getElementById('n-tech-w');if(inp)inp.value=inputWEx(key,T.w);uxSound('step',{n:Math.round(T.w/step),toString(){return 'n'+this.n;}});return;}
+ const id=f==='r'&&T.type==='drop'?'n-tech-r':'n-tech-n',field=f==='r'&&T.type==='drop'?'r':'n';
+ const base=parseInt(T[field],10),start=T.type==='hold'?30:T.type==='drop'?Math.max(1,parseInt(db.active.exercises[T.xi].sets[T.si].r,10)||6):T.type==='myo'?2:4;
+ const next=Math.max(field==='n'&&T.type==='hold'?1:0,(Number.isFinite(base)?base:start)+dir*(T.type==='hold'&&field==='n'?5:1));
+ T[field]=String(Number.isFinite(base)?next:start);const inp=document.getElementById(id);if(inp)inp.value=T[field];uxSound('step',{n:+T[field],toString(){return 'n'+this.n;}});
+}
+function uxTechError(msg){const e=document.getElementById('n-tech-error');if(e)e.textContent=msg;}
+function uiTechDrop(){
+ const T=window.__tech;if(!T)return;const r=parseInt(T.r,10);
+ if(!(r>0)){uxTechError('Escribe cuántas repeticiones salieron en esta caída.');return;}
+ if(!(T.w>=0)||T.w>=(T.drops.length?T.drops[T.drops.length-1].w:T.kg)-1e-9){uxTechError('La caída tiene que pesar menos que lo anterior.');return;}
+ T.drops.push({w:T.w,r});uxSound('clink',.8);uxHaptic([20]);
+ if(T.drops.length>=2){uiTechFinish();return;}
+ T.w=dropWeight(db.active.exercises[T.xi].key,T.w);T.r='';uxTechRender();
+}
+function uiTechFinish(){const T=window.__tech;if(!T)return;uxTechStore({type:'drop',drops:T.drops});}
+function uiTechSave(){
+ const T=window.__tech;if(!T)return;const n=parseInt(T.n,10);
+ if(!(n>0)){uxTechError(T.type==='hold'?'Escribe cuántos segundos la sostuviste.':'Escribe cuántas repeticiones salieron.');return;}
+ uxTechStore(T.type==='hold'?{type:'hold',s:n}:T.type==='myo'?{type:'myo',r:n,cycles:T.cycles||Math.floor(n/2)}:{type:'partials',r:n});
+}
+function uxTechStore(raw){
+ const T=window.__tech,ex=db.active?.exercises[T?.xi],st=ex?.sets[T.si],tech=cleanTech(raw);if(!st||!tech){uiTechSkip();return;}
+ if(!commitChange(()=>{st.tech=tech;delete st.techDraft;})){uiSaveState();return;}
+ window.__tech=null;closeModal();
+ /* la técnica es parte de la serie: el descanso empieza al terminarla */
+ if(restUntil){startRestAuto(ex.key);db.active.uiRest=true;save();}
+ render();uxSound('techDone');uxHaptic([30,40,60]);
+ const card=document.querySelector?.('.n-saved-set,.n-current-label');if(card)uxSparks?.(card);
+}
+function uiTechSkip(){window.__tech=null;closeModal();render();}
+
+/* ---------- guía con reloj: myo-reps y pausa estirada ---------- */
+function uiTechGuide(xi,si){
+ const ex=db.active?.exercises[xi],t=uxTechActive(xi);if(!ex||!(t==='myo'||t==='hold'))return;
+ clearInterval(window.__techGuide?.int);
+ window.__techGuide={xi,si,type:t,phase:'ready',cycles:0,end:0,start:0,last:null,int:0};
+ openModal(`<div id="ux-tech-guide" class="n-tech-sheet n-tech-guide">${uxGuideBody()}</div>`);
+}
+function uxGuideBody(){
+ const G=window.__techGuide;if(!G)return '';const myo=G.type==='myo',head=`<span class="n-eyebrow">${uiIcon('flame')} ${TECHS[G.type].label}</span>`;
+ const clock=(label,sec,frac)=>`<div class="n-warmup-clock n-tech-clock" role="timer"><svg viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="70" class="n-warmup-ring-track"/><circle id="tech-ring" cx="80" cy="80" r="70" style="stroke-dashoffset:${440*(1-frac)}"/></svg><strong id="tech-time">${sec}</strong><small id="tech-label">${label}</small></div>`;
+ if(G.phase==='ready')return `${head}<h2>${myo?'Cuando llegues al fallo…':'Llega al fallo y sostén.'}</h2><p class="muted">${myo?'Toca para empezar la primera pausa de 5 s. Te aviso para cada mini-serie de 2 reps.':'Toca al llegar al fallo y quédate en la posición estirada: cuento 30 s y te aviso al final.'}</p>${uiButton(myo?'Llegué al fallo · pausa de 5 s':'Llegué al fallo · contar 30 s','uiGuideStart()','play')}`;
+ if(G.phase==='rest')return `${head}<h2>Respira.</h2>${clock('Pausa',5,1)}<p class="muted n-tech-center">Mini-series hechas: <b>${G.cycles}</b></p>`;
+ if(G.phase==='go')return `${head}<h2 class="n-tech-go">¡2 reps!</h2><p class="muted n-tech-center">Mini-serie ${G.cycles+1}. ¿Salieron?</p><div class="n-tech-choices">${uiButton('Las 2','uiGuideMyo(2)','check')}${uiButton('Solo 1','uiGuideMyo(1)','minus','secondary')}${uiButton('Ninguna','uiGuideMyo(0)','close','secondary')}</div>`;
+ if(G.phase==='hold')return `${head}<h2>Sostén.</h2>${clock('Segundos',30,1)}${uiButton('Lo solté antes','uiGuideHoldStop()','close','secondary')}`;
+ return `${head}<h2>${myo?`+${G.result} reps.`:`${G.result} s.`}</h2><p class="muted">${myo?`${G.cycles} ${G.cycles===1?'mini-serie':'mini-series'} completas.`:G.result>=30?'Pausa completa.':'Cuenta igual: lo anotado es lo que hiciste.'} Se anota al registrar la serie.</p>${uiButton('Volver a mi serie','uiGuideClose()','back')}`;
+}
+function uxGuideRender(){const el=document.getElementById('ux-tech-guide');if(el)el.innerHTML=uxGuideBody();}
+function uiGuideStart(){const G=window.__techGuide;if(!G)return;unlockAudio?.();if(G.type==='myo')uxGuideRest();else{G.phase='hold';G.start=Date.now();G.end=G.start+30000;G.last=null;uxGuideRender();uxSound('techGo');uxHaptic([40]);uxGuideTick();}}
+function uxGuideRest(){const G=window.__techGuide;G.phase='rest';G.end=Date.now()+5000;G.last=null;uxGuideRender();uxSound('wood');uxGuideTick();}
+function uxGuideTick(){
+ const G=window.__techGuide;clearInterval(G.int);
+ G.int=setInterval(()=>{
+  if(window.__techGuide!==G||!document.getElementById('tech-time')){clearInterval(G.int);return;}
+  const total=G.phase==='rest'?5:30,left=Math.max(0,Math.ceil((G.end-Date.now())/1000));
+  const ring=document.getElementById('tech-ring'),time=document.getElementById('tech-time');
+  if(ring)ring.style.strokeDashoffset=String(440*(1-Math.max(0,(G.end-Date.now())/(total*1000))));
+  if(left!==G.last){G.last=left;if(time)uxText(time,String(left));if(left>0&&(G.phase==='rest'||left<=3))uxSound(G.phase==='rest'?'wood':'countdown');}
+  if(left<=0){clearInterval(G.int);
+   if(G.phase==='rest'){G.phase='go';uxGuideRender();uxSound('techGo');uxHaptic([60,40,60]);const h=document.querySelector?.('#ux-tech-guide .n-tech-go');uxAnim(h,[{transform:'scale(.6)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy'});}
+   else uxGuideDone(30);}
+ },120);
+}
+function uiGuideMyo(n){const G=window.__techGuide;if(!G)return;if(n===2){G.cycles++;uxSound('pluck',G.cycles);uxGuideRest();return;}uxGuideDone(G.cycles*2+n);}
+function uiGuideHoldStop(){const G=window.__techGuide;if(!G)return;uxGuideDone(Math.max(1,Math.round((Date.now()-G.start)/1000)));}
+function uxGuideDone(result){
+ const G=window.__techGuide;if(!G)return;clearInterval(G.int);G.phase='done';G.result=result;
+ const st=db.active?.exercises[G.xi]?.sets[G.si];
+ if(st&&result>0)commitChange(()=>{st.techDraft=G.type==='myo'?{type:'myo',r:result,cycles:G.cycles}:{type:'hold',s:result};});
+ uxGuideRender();uxSound(result>0?'restDone':'back');uxHaptic([30,40,60]);
+}
+function uiGuideClose(){const G=window.__techGuide;if(G)clearInterval(G.int);window.__techGuide=null;closeModal();render();}
+
 /* ---------- el cierre en capítulos ----------
    Cada capítulo dura 7 s y avanza solo la primera vez. Tocar a un lado pasa
    de capítulo y deja la historia a tu ritmo; mantener pulsado la detiene

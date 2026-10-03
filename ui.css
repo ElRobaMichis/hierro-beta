@@ -1013,7 +1013,7 @@ body[data-view=session] header.app,body[data-view=session] main{padding-left:18p
 html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 
 /* One palette for surfaces, forms, charts and the anatomical map. */
-:root{--ui-version:"3.15.1";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
+:root{--ui-version:"3.16.0";--muscle-zero:#eff0e8;--muscle-low:#b2c9a0;--muscle-medium:#789c66;--muscle-high:#285c46}
 :root[data-theme=dark]{color-scheme:dark;--paper:#111b17;--white:#1b2a23;--ink:#ecf2e7;--muted:#acb8a8;--line:#35473b;--green:#c1dfa0;--lime:#d8ef96;--soft:#27382c;--surface-2:#24372b;--well:#2c4031;--line-2:#52664e;--ash:#bcc8b4;--dim:#a4b49e;--hold:#f0c08b;--danger:#ffb2a0;--muscle-zero:#1a2a21;--muscle-low:#405c3d;--muscle-medium:#77945d;--muscle-high:#c1dfa0}
 [data-theme=dark] nav.tabs{background:var(--paper)}
 [data-theme=dark] .n-primary{color:var(--paper)}
@@ -1633,3 +1633,33 @@ body:has(.modal) .n-record-dock,body:has(.modal) .n-work-action{visibility:hidde
 .fin-dock .btn.health{margin-top:9px}
 .modal .fin-dock-row .btn.fin-done.is-armed{background:#f2b67a;color:#3b2410;font-size:13px;white-space:normal;line-height:1.2}
 @media (max-height:700px){.fin-story{min-height:470px}.fin-chap{gap:9px}.fin-chap h2{font-size:clamp(28px,8.6vw,36px)}.fin-vs-row{padding:7px 0}.fin-bodies svg{height:min(170px,24dvh)}}
+
+/* 3.16.0 · técnica en la última serie */
+.n-tech-card{margin:14px 0 4px;padding:13px 14px;border-radius:18px;background:linear-gradient(135deg,rgba(242,182,122,.16),rgba(242,182,122,.05));border:1px solid rgba(242,182,122,.38);text-align:left}
+.n-tech-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--hold)}
+.n-tech-tag .ui-icon,.n-tech-sheet .n-eyebrow .ui-icon{width:15px;height:15px}
+.n-tech-card p{margin:6px 0 0;font-size:13px;line-height:1.5}
+.n-tech-card .n-text{margin-top:4px}
+.n-tech-draft{display:flex;gap:6px;align-items:flex-start;font-weight:600;color:var(--green)}
+.n-tech-draft .ui-icon{width:15px;height:15px;flex:none;margin-top:2px}
+.n-tech-options{display:grid;gap:8px;margin:14px 0}
+.n-tech-options button{display:grid;gap:3px;text-align:left;padding:12px 14px;border-radius:16px;border:1px solid var(--line-2);background:var(--surface);color:var(--bone);font:inherit}
+.n-tech-options button b{font-size:15px}
+.n-tech-options button span{font-size:12.5px;line-height:1.45;color:var(--dim)}
+.n-tech-options button.on{border-color:var(--hold);background:rgba(242,182,122,.12);box-shadow:inset 0 0 0 1px var(--hold)}
+.n-tech-sheet .n-eyebrow{display:inline-flex;align-items:center;gap:6px;color:var(--hold)}
+.n-tech-sheet h2{margin:6px 0 8px}
+.n-tech-sheet .n-set-fields{margin:14px 0 4px}
+.n-tech-sheet .n-primary{margin-top:10px}
+.n-tech-done{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.n-tech-done li{display:flex;justify-content:space-between;padding:9px 12px;border-radius:12px;background:var(--well);font-size:13px}
+.n-tech-center{text-align:center}
+.n-tech-go{text-align:center;font-size:54px;letter-spacing:-.05em;color:var(--hold);margin:22px 0 6px}
+.n-tech-choices{display:grid;gap:8px;margin-top:14px}
+.n-tech-clock{width:170px;height:170px}
+.n-tech-clock>svg{stroke:var(--hold)}
+#tech-ring{stroke-dasharray:440;stroke-linecap:round}
+@media(prefers-reduced-motion:no-preference){html:not([data-motion=off]) #tech-ring{transition:stroke-dashoffset .12s linear}}
+.fin-tech{display:inline-block;flex:none;padding:1px 6px;border-radius:5px;border:1px solid rgba(242,182,122,.55);color:#f4cb9a;font-size:10px;font-weight:750;letter-spacing:.02em}
+.n-tech-next{display:flex!important;align-items:center;gap:5px;margin-top:6px;color:var(--hold)!important;font-weight:650}
+.n-tech-next .ui-icon{width:14px;height:14px;flex:none}

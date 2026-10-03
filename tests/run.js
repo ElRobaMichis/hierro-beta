@@ -3480,6 +3480,64 @@ uiReceipt(dlRec.id,'finish');
 chk(!els['modalhost'].innerHTML.includes('Ver la historia del día')&&els['modalhost'].innerHTML.includes('Volver al resumen'),'desde la historia, el desglose ofrece volver y no abrirla otra vez');
 closeModal();
 
+suite('3.16.0 — técnica de intensidad en la última serie');
+resetDB();uiResetRest();db.gym=defaultGym('kg');db.settings.unit='kg';db.settings.rest='off';db.settings.health='off';db.settings.sound='off';
+Object.assign(exMeta('tq-press'),{equip:'barra',muscle:'pecho',lo:8,hi:10});exMeta('tq-plank').type='tiempo';
+const tqSp=db.splits[0];
+db.routines=[{id:'tq-day',name:'Push',split:tqSp.id,exercises:[{id:'q1',key:'tq-press',name:'Press banca'}]}];
+chk(effTech('tq-press')===''&&setExTech('tq-press','general','drop')&&effTech('tq-press')==='drop','la técnica se configura en el ejercicio');
+view={name:'routine',id:'tq-day'};
+setExTech('tq-press','plan','none');chk(effTech('tq-press')==='','«Ninguna en este plan» la apaga solo en ese plan (el bloque 1)');
+setExTech('tq-press','plan','myo');chk(effTech('tq-press')==='myo'&&exMeta('tq-press').tech==='drop','y el plan puede pedir otra distinta');
+setExTech('tq-press','plan','');chk(effTech('tq-press')==='drop'&&!tqSp.exconf['tq-press'],'heredar limpia la del plan');
+exMeta('tq-plank').tech='drop';chk(effTech('tq-plank')==='','los ejercicios por tiempo no llevan técnica');
+chk(JSON.stringify(cleanTech({type:'drop',drops:[{w:45,r:8},{w:'x',r:-2},{w:35,r:'6'}]}))===JSON.stringify({type:'drop',drops:[{w:45,r:8},{w:35,r:6}]})&&cleanTech({type:'myo',r:5})?.cycles===2&&cleanTech({type:'hold',s:0})===null&&cleanTech({type:'otra',r:3})===null,'lo anotado se limpia: solo números válidos y técnicas conocidas');
+chk(dropWeight('tq-press',60)===45&&[32.5,35].includes(dropWeight('tq-press',45)),'cada caída baja ~25 % a un peso que se puede armar');
+db.history.push({id:'tq-prev',routineId:'tq-day',routineName:'Push',date:new Date(Date.now()-3*864e5).toISOString(),duration:1800,plannedSets:2,entries:[{key:'tq-press',name:'Press banca',sets:[S(40,9),S(40,8)]}]});
+view={name:'home'};startSession('tq-day');
+let tqEx=db.active.exercises[0];while(tqEx.sets.length<2)addSet(0);tqEx.sets=tqEx.sets.slice(0,2);tqEx.sets[0].w='20';prepareFixture(0);
+chk(!uiSession().includes('n-tech-card'),'en las series anteriores no aparece');
+tqEx.sets[0]={...tqEx.sets[0],w:'20',r:'10',rir:'2'};uiLogSet(0,0);
+chk(uiSession().includes('n-tech-card')&&uiSession().includes('Última serie · Drop set'),'en la última serie se anuncia la técnica con su explicación');
+tqEx.sets[1]={...tqEx.sets[1],w:'20',r:'8',rir:'0'};uiLogSet(0,1);
+chk(tqEx.sets[1].done&&els['modalhost'].innerHTML.includes('Caída 1 de 2')&&window.__tech?.type==='drop','al registrarla se abre la hoja para anotar las caídas');
+const tqW1=window.__tech.w;uiTechVal('r','8');uiTechDrop();
+chk(window.__tech.drops.length===1&&uxTechBody().includes('Caída 2 de 2')&&window.__tech.w<tqW1,'la segunda caída propone un peso menor');
+uiTechVal('r','6');uiTechDrop();
+chk(tqEx.sets[1].tech?.type==='drop'&&tqEx.sets[1].tech.drops.length===2&&!window.__tech&&tqEx.sets[1].w==='20'&&tqEx.sets[1].r==='8','guardar las dos caídas las deja en la serie, sin tocar su peso ni sus reps');
+const tqEntries=collectEntries(db.active),tqSet=tqEntries[0].sets[1],tqBase=tqEntries[0].sets.map(x=>({w:x.w,r:x.r,rir:x.rir}));
+chk(tqSet.tech&&tqSet.w===tqBase[1].w&&tqSet.r===8,'al historial va la técnica junto a la serie');
+chk(entryVolume('tq-press',tqEntries[0].sets)===entryVolume('tq-press',tqBase)+tqSet.tech.drops.reduce((a,d)=>a+d.w*d.r,0),'las caídas suman al peso movido');
+chk(setsLine('tq-press',tqEntries[0].sets).includes('· Drop '+fmtWEx('tq-press',tqSet.tech.drops[0].w)+' × 8 → '),'el diario las muestra tras las series');
+const tqSugg=s=>{const saved=JSON.stringify(db.progress);updateProgress('tq-press',s,new Date().toISOString());const out=JSON.stringify(db.progress['tq-press']);db.progress=JSON.parse(saved);return out;};
+chk(tqSugg(tqEntries[0].sets)===tqSugg(tqBase),'la progresión juzga exactamente lo mismo con o sin técnica');
+/* myo-reps con la guía: la pausa deja lo hecho como borrador hasta registrar */
+setExTech('tq-press','general','myo');tqEx.sets.push({w:'20',r:'',rir:''});
+uiTechGuide(0,2);chk(els['modalhost'].innerHTML.includes('Llegué al fallo · pausa de 5 s'),'myo-reps tiene una guía con las pausas de 5 s');
+window.__techGuide.cycles=2;uxGuideDone(5);
+chk(tqEx.sets[2].techDraft?.r===5&&tqEx.sets[2].techDraft.cycles===2,'la guía guarda lo que salió como borrador');
+tqEx.sets[2]={...tqEx.sets[2],r:'7',rir:'0'};uiLogSet(0,2);
+chk(window.__tech?.type==='myo'&&String(window.__tech.n)==='5'&&els['modalhost'].innerHTML.includes('Reps extra'),'al registrar, la hoja viene ya rellena con la guía');
+uiTechSave();chk(tqEx.sets[2].tech?.type==='myo'&&tqEx.sets[2].tech.r===5&&!tqEx.sets[2].techDraft,'y se guarda con un toque');
+/* una descarga no lleva técnica; saltarla no anota nada */
+db.active.deload=true;tqEx.sets.push({w:'20',r:'',rir:''});
+chk(!uiSession().includes('n-tech-card'),'en una descarga no se propone la técnica');
+db.active.deload=false;tqEx.sets[3]={...tqEx.sets[3],r:'6',rir:'0'};closeModal();uiLogSet(0,3);uiTechSkip();
+chk(!tqEx.sets[3].tech&&!window.__tech,'«No la hice» cierra sin anotar nada');
+chk(uiSessionOptions(0)===undefined&&els['modalhost'].innerHTML.includes('Técnica en la última serie'),'se puede cambiar desde las opciones del ejercicio en la sesión');
+uiTechPicker(0);uiChooseTech(0,'hold');chk(effTech('tq-press')==='hold'&&tqSp.exconf['tq-press']?.tech==='hold','y lo elegido ahí se guarda en el plan de la sesión');
+/* el plan exportado se la lleva; editar una sesión no la pierde */
+const tqProfile=splitProfile(tqSp.id);chk(tqProfile.split.exconf['tq-press']?.tech==='hold','el plan compartible incluye la técnica');
+window.__splitImport={split:{name:'Copia',days:[],exconf:{a:{tech:'drop'},b:{tech:'<script>'},c:{tech:'none',sets:3}}}};applySplitImport();
+const tqImported=db.splits[db.splits.length-1];
+chk(tqImported.exconf.a?.tech==='drop'&&!tqImported.exconf.b&&tqImported.exconf.c?.tech==='none','al importar solo pasan técnicas conocidas');
+db.active.exercises[0].sets.forEach(x=>{if(x.r==='')x.r='5';});uiResetRest();finishSession();closeModal();
+const tqRec=db.history[db.history.length-1];
+editSession(tqRec.id);saveEditedSession();
+chk(db.history.find(h=>h.id===tqRec.id).entries[0].sets[1].tech?.type==='drop','editar la sesión conserva la técnica de cada serie');
+chk(finishScreenHTML(db.history.find(h=>h.id===tqRec.id),[],'').includes('<span class="fin-tech">+ Drop set</span>'),'en el cierre, antes → ahora marca el ejercicio con técnica');
+uiResetRest();db.active=null;
+
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));
 console.log(fail === 0 ? `TODOS LOS TESTS OK (${pass})` : `${fail} FALLOS de ${pass + fail}`);

@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.15.1">
+<link rel="stylesheet" href="ui.css?v=3.16.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.15.1"></script>
-<script src="sync-core.js?v=3.15.1"></script>
-<script src="sync-engine.js?v=3.15.1"></script>
-<script src="qr.js?v=3.15.1"></script>
-<script src="sync.js?v=3.15.1"></script>
-<script src="push-core.js?v=3.15.1"></script>
-<script src="push.js?v=3.15.1"></script>
+<script src="ui.js?v=3.16.0"></script>
+<script src="sync-core.js?v=3.16.0"></script>
+<script src="sync-engine.js?v=3.16.0"></script>
+<script src="qr.js?v=3.16.0"></script>
+<script src="sync.js?v=3.16.0"></script>
+<script src="push-core.js?v=3.16.0"></script>
+<script src="push.js?v=3.16.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.15.1';
+const APP_VERSION = '3.16.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -2388,6 +2388,7 @@ function applySplitImport(){
         const v = parseInt(o[f], 10);
         if(!isNaN(v) && v >= 1) out[f] = v;
       }
+      if(TECHS[o.tech] || o.tech === 'none') out.tech = o.tech;
       if(Object.keys(out).length) sp.exconf[k] = out;
     }
   }
@@ -2848,6 +2849,78 @@ function setSplitConf(key, field, val){
   refreshActiveSugg(key);
   if(field === 'sets') syncActiveSets(key);
   save();
+}
+/* ---------- técnica de intensidad en la última serie ----------
+   Programas como el de Jeff Nippard las añaden en un segundo bloque: tras
+   la última serie de trabajo, drop set, parciales, myo-reps o una pausa
+   estirada. Se configuran en el ejercicio (o solo en un plan) y lo hecho
+   se anota dentro de esa serie: peso y reps de la serie no cambian, así
+   que la doble progresión sigue juzgando lo mismo. */
+const TECHS = {
+  drop:     { label:'Drop set', short:'Drop set', how:'Al fallo, baja ~25 % del peso y otra vez al fallo. Repite una vez más: tres series seguidas, sin descanso.' },
+  partials: { label:'Parciales alargadas', short:'Parciales', how:'Al fallo con recorrido completo, sigue con medias repeticiones en la parte estirada hasta el fallo.' },
+  myo:      { label:'Myo-reps', short:'Myo-reps', how:'Al fallo, descansa 5 s e intenta 2 reps más. Repite hasta que no salgan las 2; suele pasar al tercer intento.' },
+  hold:     { label:'Pausa estirada', short:'Pausa', how:'Al fallo, sostén la posición estirada, con tensión, durante 30 s.' }
+};
+/* la del plan manda («none» la apaga solo ahí); si no, la del ejercicio */
+function effTech(key){
+  if(exMeta(key).type === 'tiempo') return '';
+  const oc = splitConf(key);
+  const v = oc && oc.tech ? oc.tech : exMeta(key).tech;
+  return TECHS[v] ? v : '';
+}
+function setExTech(key, scope, val){
+  const v = TECHS[val] ? val : (scope === 'plan' && val === 'none' ? 'none' : '');
+  return commitChange(() => {
+    if(scope === 'plan'){
+      const sp = db.splits.find(x => x.id === ctxSplitId()); if(!sp) return;
+      if(!sp.exconf || typeof sp.exconf !== 'object') sp.exconf = {};
+      const oc = sp.exconf[key] || (sp.exconf[key] = {});
+      if(v) oc.tech = v; else delete oc.tech;
+      if(!Object.keys(oc).length) delete sp.exconf[key];
+    } else {
+      const m = exMeta(key);
+      if(v && v !== 'none') m.tech = v; else delete m.tech;
+    }
+  });
+}
+/* lo anotado de la técnica, limpio: solo números finitos y razonables */
+function cleanTech(t){
+  if(!t || typeof t !== 'object' || !TECHS[t.type]) return null;
+  const n = (x, max) => { const v = Number(x); return Number.isFinite(v) && v >= 0 ? Math.min(max, v) : 0; };
+  if(t.type === 'drop'){
+    const drops = (Array.isArray(t.drops) ? t.drops : [])
+      .map(d => ({ w: Math.round(n(d && d.w, 2000) * 1000) / 1000, r: Math.round(n(d && d.r, 200)) }))
+      .filter(d => d.r > 0).slice(0, 4);
+    return drops.length ? { type:'drop', drops } : null;
+  }
+  if(t.type === 'hold'){ const sec = Math.round(n(t.s, 600)); return sec > 0 ? { type:'hold', s:sec } : null; }
+  const r = Math.round(n(t.r, 200));
+  if(!(r > 0)) return null;
+  return t.type === 'myo' ? { type:'myo', r, cycles: Math.round(n(t.cycles, 50)) || Math.floor(r / 2) } : { type:'partials', r };
+}
+/* el trabajo extra con recorrido completo cuenta como peso movido: las
+   caídas del drop set y las reps de los myo-reps; parciales y pausa no */
+function techVolume(st){
+  const t = st && st.tech;
+  if(!t) return 0;
+  if(t.type === 'drop') return t.drops.reduce((a, d) => a + d.w * d.r, 0);
+  if(t.type === 'myo') return (st.w > 0 ? st.w : 0) * t.r;
+  return 0;
+}
+function techLine(key, t){
+  if(!t || !TECHS[t.type]) return '';
+  if(t.type === 'drop') return `Drop ${t.drops.map(d => `${fmtWEx(key, d.w)} × ${d.r}`).join(' → ')}`;
+  if(t.type === 'myo') return `Myo-reps +${t.r}`;
+  if(t.type === 'partials') return `+${t.r} parciales`;
+  return `Pausa ${t.s} s`;
+}
+/* cada caída del drop set: ~25 % menos, ajustado a lo que se puede armar */
+function dropWeight(key, kg){
+  const target = kg * 0.75, fit = fitWeight(key, target);
+  if(fit > 0 && fit < kg - 1e-9 && Math.abs(fit - target) <= kg * .15) return Math.round(fit * 1000) / 1000;
+  const step = effStep(key, target) || 2.5;
+  return Math.max(0, Math.round(Math.round(target / step) * step * 1000) / 1000);
 }
 function setExNotes(key, val){ exMeta(key).notes = val.slice(0,300); save(); }
 function setGymNotes(key,val){exMeta(key).gymNotes=String(val).slice(0,300);save();}
@@ -3554,7 +3627,8 @@ function editSession(id){
       sets: e.sets.map(st => ({
         w: st.w != null ? inputWEx(e.key, st.w) : '',
         r: st.r != null ? String(st.r) : '',
-        rir: (st.rir === undefined || st.rir === null) ? '' : String(st.rir)
+        rir: (st.rir === undefined || st.rir === null) ? '' : String(st.rir),
+        ...(st.tech ? { tech: st.tech } : {})
       }))
     }))
   };
@@ -3587,6 +3661,8 @@ function saveEditedSession(){
       const r = parseInt(st.r,10), rir = parseInt(st.rir,10);
       const out = { w, r };
       if(exMeta(e.key).type !== 'tiempo' && !isNaN(rir)) out.rir = Math.min(9, Math.max(0, rir));
+      const tech = cleanTech(st.tech);
+      if(tech) out.tech = tech;
       return out;
     }).filter(st => !isNaN(st.w) && st.w >= 0 && !isNaN(st.r) && st.r > 0);
     if(sets.length) entries.push({ key: e.key, name: e.name, sets });
@@ -4550,6 +4626,8 @@ function collectEntries(s){
       const out = { w, r };
       const rir = parseInt(st.rir,10);
       if(exMeta(ex.key).type !== 'tiempo' && !isNaN(rir)) out.rir = Math.min(9, Math.max(0, rir));
+      const tech = cleanTech(st.tech);
+      if(tech) out.tech = tech;
       return out;
     }).filter(st => !isNaN(st.w) && st.w >= 0 && !isNaN(st.r) && st.r > 0);
     if(sets.length){
@@ -4625,7 +4703,7 @@ function fmtDurShort(sec){
 function entryVolume(key, sets){
   const t = exMeta(key).type;
   if(t === 'asistido' || t === 'tiempo') return 0;
-  return sets.reduce((a, st) => a + (st.w > 0 ? st.w * st.r : 0), 0);
+  return sets.reduce((a, st) => a + (st.w > 0 ? st.w * st.r : 0) + techVolume(st), 0);
 }
 function sessionVolume(entries){
   return entries.reduce((a, e) => a + entryVolume(e.key, e.sets), 0);
@@ -4734,7 +4812,8 @@ function setsLine(key, sets){
     ? `${g.r.join(' · ')} reps`
     : `${fmtWEx(key, g.w)} × ${g.r.join(' · ')}`).join('   ');
   const rirs = sets.map(st => st.rir).filter(x => x !== undefined && x !== null);
-  return txt + (rirs.length === sets.length && rirs.length ? ` · RIR ${rirs.join('·')}` : '');
+  const tech = sets.map(st => techLine(key, st.tech)).filter(Boolean).join(' · ');
+  return txt + (rirs.length === sets.length && rirs.length ? ` · RIR ${rirs.join('·')}` : '') + (tech ? ` · ${tech}` : '');
 }
 /* el detalle impreso: un renglón por ejercicio con su volumen, y sus series debajo */
 function receiptHTML(entries, prKeys){
@@ -4901,7 +4980,7 @@ function finishScreenHTML(rec, prs, failNote, from = ''){
   const strength = (!isDeload && !partial && lastSession) ? sessionStrengthDelta(rec, lastSession) : null;
   const prKeys = new Set(prs.map(p => p.key));
   const ARR = '<svg class="arr" viewBox="0 0 18 10" aria-hidden="true"><path d="M1 5h14M11 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const row = (name, pr, old, now, d, unit) => `<div class="fin-vs-row"><span class="nm"><span>${esc(exBaseName(name))}</span>${pr ? '<span class="fin-pr">PR</span>' : ''}</span><span class="ba"><span class="old">${old}</span>${ARR}<span class="new">${now}</span>${unit ? `<em class="u">${unit}</em>` : ''}</span><span class="dl ${d.cls}">${d.txt}</span></div>`;
+  const row = (name, pr, old, now, d, unit, tag) => `<div class="fin-vs-row"><span class="nm"><span>${esc(exBaseName(name))}</span>${pr ? '<span class="fin-pr">PR</span>' : ''}${tag ? `<span class="fin-tech">${tag}</span>` : ''}</span><span class="ba"><span class="old">${old}</span>${ARR}<span class="new">${now}</span>${unit ? `<em class="u">${unit}</em>` : ''}</span><span class="dl ${d.cls}">${d.txt}</span></div>`;
   const chaps = [];
   const add = (kind, html, attrs = '') => chaps.push({ kind, html, attrs });
 
@@ -4953,7 +5032,8 @@ function finishScreenHTML(rec, prs, failNote, from = ''){
     const prev = prevEntryOf(rec, e.key);
     if(!prev || !e.sets.length) return null;
     const a = bestSetOf(e.key, prev.sets), b = bestSetOf(e.key, e.sets);
-    return row(e.name, prKeys.has(e.key), bestSetText(e.key, a), bestSetText(e.key, b), bestSetDelta(e.key, a, b));
+    const tech = e.sets.map(x => x.tech).find(x => x && TECHS[x.type]);
+    return row(e.name, prKeys.has(e.key), bestSetText(e.key, a), bestSetText(e.key, b), bestSetDelta(e.key, a, b), '', tech ? `+ ${TECHS[tech.type].short}` : '');
   }).filter(Boolean);
   if(vs.length && !isDeload){
     add('vs', `<span class="k">Antes → ahora</span><h2>Así te <em>moviste</em> hoy.</h2>
