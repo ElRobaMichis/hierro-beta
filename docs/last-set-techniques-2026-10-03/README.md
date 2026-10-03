@@ -20,11 +20,18 @@ Muchos programas, como el de Jeff Nippard, añaden en un segundo bloque una téc
 ## Cómo se usa al entrenar
 
 1. Durante el descanso anterior, la tarjeta «Siguiente» avisa: «Al terminarla: drop set».
-2. En la última serie aparece una tarjeta con la técnica y cómo hacerla. Para myo-reps y la pausa hay una guía con reloj: cuenta las pausas de 5 s y avisa cada mini-serie de 2 reps (con «Las 2», «Solo 1» o «Ninguna»), o cuenta los 30 s con aviso en los últimos 3. Lo que salió queda como borrador.
-3. Al registrar la serie se abre una hoja para anotar la técnica. El drop set propone el peso de cada caída ya ajustado a tus discos, con lo que va por lado; myo-reps y pausa vienen rellenos si usaste la guía. «No la hice» cierra sin anotar nada.
-4. El descanso empieza al terminar la técnica, porque es parte de la serie.
+2. En la última serie, una tarjeta recuerda la técnica y cómo hacerla.
+3. Al registrar esa serie (con su RIR), la sesión pasa a **la pantalla de la técnica**: oscura, a pantalla completa y con un color y una escena propios. **El descanso no corre mientras tanto**: empieza al terminar la técnica, porque es parte de la serie.
+4. **«No hacer la técnica»** está siempre abajo: vuelve al descanso sin anotar nada. En el drop set, tras la primera caída, se convierte en «Terminar sin la segunda caída» y conserva la caída hecha.
 
-En una descarga no se propone la técnica.
+| Técnica | La pantalla |
+|---|---|
+| Drop set (coral) | Una escalera de tres barras que baja: tu serie, caída 1 y caída 2. El peso de cada caída rueda hacia abajo con un sonido de discos al quitarse, ya ajustado a tu equipo y con lo que va por lado; se puede afinar con − y +, nunca por encima de lo anterior. Anotas las reps de cada caída. |
+| Myo-reps (aguamarina) | La pausa de 5 s empieza sola, con un reloj que respira y un tic por segundo. Al terminar, un «2» enorme pide las reps; «Las 2» vuelve a la pausa, «Solo 1» o «Ninguna» terminan. Unas fichas cuentan las mini-series. |
+| Parciales alargadas (ámbar) | El arco del recorrido con su parte estirada iluminada y un punto que va y viene ahí. Un círculo grande suma una parcial por toque. |
+| Pausa estirada (azul) | Una barra en tensión espera a que estés en posición; «Empezar los 30 s» abre un reloj que late y avisa en los últimos 3. «Lo solté antes» anota los segundos aguantados. |
+
+Al terminar, el descanso arranca con «Serie guardada · Drop 45 × 8 → 35 × 8», una campana y un poco de confeti. Todo se guarda en la sesión: si cierras la app a mitad de la técnica, vuelve donde ibas. En una descarga no se propone.
 
 ## Lo que no cambia
 
@@ -34,10 +41,12 @@ En una descarga no se propone la técnica.
 Sí suman al **peso movido** las caídas del drop set y las reps de los myo-reps, porque son trabajo con recorrido completo; las parciales y la pausa no. El diario muestra la técnica tras las series («60 × 8 · 8 · 7 · RIR 2·1·0 · Drop 45 × 7 → 35 × 5»), editar la sesión la conserva y, en el cierre, «Antes → ahora» marca el ejercicio con «+ Drop set».
 
 ![La última serie anuncia el drop set](card-390.jpg)
-![Caída 2 de 2, con el peso ajustado a tus discos](drop-390.jpg)
-![Myo-reps: ¡2 reps! tras la pausa de 5 s](myo-go-390.jpg)
-![Al registrar, la hoja viene rellena con la guía](myo-log-390.jpg)
+![Drop set: la escalera que baja y el peso de la caída](drop-390.jpg)
+![Myo-reps: la pausa de 5 s](myo-rest-390.jpg)
+![Myo-reps: ¡ahora, 2 más!](myo-go-390.jpg)
+![Parciales: el arco y el contador por toques](partials-390.jpg)
+![Pausa estirada: el reloj de 30 s](hold-390.jpg)
 
 ## Verificación
 
-`node tests/run.js` incluye la suite «3.16.0 — técnica de intensidad en la última serie»: configuración general y por plan, limpieza de lo anotado, peso de cada caída, el flujo completo del drop set y de los myo-reps con su guía, que la progresión juzga lo mismo con o sin técnica, descarga sin técnica, exportar e importar el plan y editar la sesión.
+`node tests/run.js` incluye la suite «3.16.0 — técnica de intensidad en la última serie»: configuración general y por plan, limpieza de lo anotado, peso de cada caída, que el descanso espera a la técnica, el flujo de las cuatro pantallas, cancelar en cualquier momento (conservando una caída ya hecha), que la progresión juzga lo mismo con o sin técnica, descarga sin técnica, exportar e importar el plan y editar la sesión.

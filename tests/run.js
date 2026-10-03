@@ -3499,31 +3499,47 @@ let tqEx=db.active.exercises[0];while(tqEx.sets.length<2)addSet(0);tqEx.sets=tqE
 chk(!uiSession().includes('n-tech-card'),'en las series anteriores no aparece');
 tqEx.sets[0]={...tqEx.sets[0],w:'20',r:'10',rir:'2'};uiLogSet(0,0);
 chk(uiSession().includes('n-tech-card')&&uiSession().includes('Última serie · Drop set'),'en la última serie se anuncia la técnica con su explicación');
-tqEx.sets[1]={...tqEx.sets[1],w:'20',r:'8',rir:'0'};uiLogSet(0,1);
-chk(tqEx.sets[1].done&&els['modalhost'].innerHTML.includes('Caída 1 de 2')&&window.__tech?.type==='drop','al registrarla se abre la hoja para anotar las caídas');
-const tqW1=window.__tech.w;uiTechVal('r','8');uiTechDrop();
-chk(window.__tech.drops.length===1&&uxTechBody().includes('Caída 2 de 2')&&window.__tech.w<tqW1,'la segunda caída propone un peso menor');
-uiTechVal('r','6');uiTechDrop();
-chk(tqEx.sets[1].tech?.type==='drop'&&tqEx.sets[1].tech.drops.length===2&&!window.__tech&&tqEx.sets[1].w==='20'&&tqEx.sets[1].r==='8','guardar las dos caídas las deja en la serie, sin tocar su peso ni sus reps');
+tqEx.sets[1]={...tqEx.sets[1],w:'20',r:'8',rir:'0'};db.settings.rest='auto';uiLogSet(0,1);
+chk(tqEx.sets[1].done&&db.active.techPending?.type==='drop'&&!restUntil&&!db.active.uiRest,'al registrarla empieza la técnica y el descanso espera');
+chk(uiSession().includes('n-tech-stage tech-drop')&&uiSession().includes('Caída 1 de 2')&&uiSession().includes('n-drop-stairs')&&!uiSession().includes('Descansando'),'la sesión pasa a la pantalla propia del drop set, con su escalera');
+const tqW1=db.active.techPending.w;chk(tqW1<db.active.techPending.from,'la primera caída propone un peso menor');
+uiTechN(-1);uiTechDrop();
+chk(db.active.techPending.drops.length===1&&db.active.techPending.drops[0].r===7&&db.active.techPending.w<tqW1&&uiSession().includes('Caída 2 de 2'),'guardar la caída 1 propone la segunda, más ligera');
+uiTechW(1);chk(db.active.techPending.w<tqW1,'el peso de la caída nunca sube por encima de la anterior');
+uiTechDrop();
+chk(tqEx.sets[1].tech?.type==='drop'&&tqEx.sets[1].tech.drops.length===2&&!db.active.techPending&&tqEx.sets[1].w==='20'&&tqEx.sets[1].r==='8','al terminar, las caídas quedan en la serie sin tocar su peso ni sus reps');
+chk(!!restUntil&&db.active.uiRest&&uiSession().includes('Serie guardada · Drop '),'y empieza el descanso, que recuerda lo hecho');
+db.settings.rest='off';uiResetRest();
 const tqEntries=collectEntries(db.active),tqSet=tqEntries[0].sets[1],tqBase=tqEntries[0].sets.map(x=>({w:x.w,r:x.r,rir:x.rir}));
 chk(tqSet.tech&&tqSet.w===tqBase[1].w&&tqSet.r===8,'al historial va la técnica junto a la serie');
 chk(entryVolume('tq-press',tqEntries[0].sets)===entryVolume('tq-press',tqBase)+tqSet.tech.drops.reduce((a,d)=>a+d.w*d.r,0),'las caídas suman al peso movido');
-chk(setsLine('tq-press',tqEntries[0].sets).includes('· Drop '+fmtWEx('tq-press',tqSet.tech.drops[0].w)+' × 8 → '),'el diario las muestra tras las series');
+chk(setsLine('tq-press',tqEntries[0].sets).includes('· Drop '+fmtWEx('tq-press',tqSet.tech.drops[0].w)+' × 7 → '),'el diario las muestra tras las series');
 const tqSugg=s=>{const saved=JSON.stringify(db.progress);updateProgress('tq-press',s,new Date().toISOString());const out=JSON.stringify(db.progress['tq-press']);db.progress=JSON.parse(saved);return out;};
 chk(tqSugg(tqEntries[0].sets)===tqSugg(tqBase),'la progresión juzga exactamente lo mismo con o sin técnica');
-/* myo-reps con la guía: la pausa deja lo hecho como borrador hasta registrar */
-setExTech('tq-press','general','myo');tqEx.sets.push({w:'20',r:'',rir:''});
-uiTechGuide(0,2);chk(els['modalhost'].innerHTML.includes('Llegué al fallo · pausa de 5 s'),'myo-reps tiene una guía con las pausas de 5 s');
-window.__techGuide.cycles=2;uxGuideDone(5);
-chk(tqEx.sets[2].techDraft?.r===5&&tqEx.sets[2].techDraft.cycles===2,'la guía guarda lo que salió como borrador');
-tqEx.sets[2]={...tqEx.sets[2],r:'7',rir:'0'};uiLogSet(0,2);
-chk(window.__tech?.type==='myo'&&String(window.__tech.n)==='5'&&els['modalhost'].innerHTML.includes('Reps extra'),'al registrar, la hoja viene ya rellena con la guía');
-uiTechSave();chk(tqEx.sets[2].tech?.type==='myo'&&tqEx.sets[2].tech.r===5&&!tqEx.sets[2].techDraft,'y se guarda con un toque');
-/* una descarga no lleva técnica; saltarla no anota nada */
-db.active.deload=true;tqEx.sets.push({w:'20',r:'',rir:''});
+/* myo-reps: la pausa de 5 s arranca sola y cada mini-serie se cuenta */
+setExTech('tq-press','general','myo');tqEx.sets.push({w:'20',r:'7',rir:'0'});uiLogSet(0,2);
+chk(db.active.techPending?.type==='myo'&&db.active.techPending.phase==='rest'&&uiSession().includes('Pausa de 5 s')&&uiSession().includes('n-myo-orb'),'myo-reps empieza con la pausa de 5 s en marcha');
+db.active.techPending.phase='go';chk(uiSession().includes('¡Ahora, 2 más!'),'y luego pide las 2 reps');
+uiTechMyo(2);chk(db.active.techPending.cycles===1&&db.active.techPending.phase==='rest','«Las 2» cuenta la mini-serie y vuelve a la pausa');
+db.active.techPending.phase='go';uiTechMyo(1);
+chk(tqEx.sets[2].tech?.type==='myo'&&tqEx.sets[2].tech.r===3&&tqEx.sets[2].tech.cycles===1&&!db.active.techPending,'«Solo 1» termina y anota 3 reps extra');
+/* parciales y pausa */
+setExTech('tq-press','general','partials');tqEx.sets.push({w:'20',r:'6',rir:'0'});uiLogSet(0,3);
+uiTechN(1);uiTechN(1);uiTechN(1);uiTechN(-1);uiTechSave();chk(tqEx.sets[3].tech?.type==='partials'&&tqEx.sets[3].tech.r===2,'las parciales se cuentan con toques');
+setExTech('tq-press','general','hold');tqEx.sets.push({w:'20',r:'6',rir:'0'});uiLogSet(0,4);
+chk(uiSession().includes('Empezar los 30 s'),'la pausa espera a que estés en posición');
+uiTechHold();db.active.techPending.start=Date.now()-12000;uiTechHoldStop();
+chk(tqEx.sets[4].tech?.type==='hold'&&tqEx.sets[4].tech.s===12,'soltar antes anota los segundos que aguantaste');
+/* siempre se puede no hacerla; tras una caída, cancelar guarda lo hecho */
+setExTech('tq-press','general','drop');tqEx.sets.push({w:'20',r:'6',rir:'0'});uiLogSet(0,5);uiTechCancel();
+chk(!tqEx.sets[5].tech&&!db.active.techPending,'«No hacer la técnica» vuelve sin anotar nada');
+tqEx.sets.push({w:'20',r:'6',rir:'0'});uiLogSet(0,6);uiTechDrop();chk(uiSession().includes('Terminar sin la segunda caída'),'tras una caída, la salida ofrece terminar ahí');
+uiTechCancel();chk(tqEx.sets[6].tech?.drops.length===1,'y conserva la caída hecha');
+/* una descarga no lleva técnica */
+db.active.deload=true;tqEx.sets.push({w:'20',r:'6',rir:'0'});
 chk(!uiSession().includes('n-tech-card'),'en una descarga no se propone la técnica');
-db.active.deload=false;tqEx.sets[3]={...tqEx.sets[3],r:'6',rir:'0'};closeModal();uiLogSet(0,3);uiTechSkip();
-chk(!tqEx.sets[3].tech&&!window.__tech,'«No la hice» cierra sin anotar nada');
+uiLogSet(0,7);chk(!db.active.techPending,'ni empieza al registrar');
+db.active.deload=false;closeModal();
 chk(uiSessionOptions(0)===undefined&&els['modalhost'].innerHTML.includes('Técnica en la última serie'),'se puede cambiar desde las opciones del ejercicio en la sesión');
 uiTechPicker(0);uiChooseTech(0,'hold');chk(effTech('tq-press')==='hold'&&tqSp.exconf['tq-press']?.tech==='hold','y lo elegido ahí se guarda en el plan de la sesión');
 /* el plan exportado se la lleva; editar una sesión no la pierde */

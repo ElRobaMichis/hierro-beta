@@ -1663,3 +1663,92 @@ body:has(.modal) .n-record-dock,body:has(.modal) .n-work-action{visibility:hidde
 .fin-tech{display:inline-block;flex:none;padding:1px 6px;border-radius:5px;border:1px solid rgba(242,182,122,.55);color:#f4cb9a;font-size:10px;font-weight:750;letter-spacing:.02em}
 .n-tech-next{display:flex!important;align-items:center;gap:5px;margin-top:6px;color:var(--hold)!important;font-weight:650}
 .n-tech-next .ui-icon{width:14px;height:14px;flex:none}
+/* la pantalla de la técnica: oscura, a pantalla completa, un color por técnica */
+.n-tech-card small{display:block;margin-top:6px;font-size:11.5px;color:var(--dim)}
+.n-focus-tech{padding-top:2px}
+.n-tech-stage{--tc:#f2b67a;--tc2:rgba(242,182,122,.2);position:relative;isolation:isolate;overflow:hidden;border-radius:30px;padding:16px 20px 12px;color:#eef4e6;background:radial-gradient(120% 55% at 50% 0%,var(--tc2),transparent 62%),linear-gradient(170deg,#1b2b23 0%,#0d1712 100%);min-height:calc(100dvh - 150px - env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;text-align:center;box-shadow:0 30px 70px -30px #0009}
+.n-tech-stage.tech-drop{--tc:#ff9b78;--tc2:rgba(255,155,120,.24)}
+.n-tech-stage.tech-myo{--tc:#7fe0cf;--tc2:rgba(127,224,207,.22)}
+.n-tech-stage.tech-partials{--tc:#f4c76c;--tc2:rgba(244,199,108,.22)}
+.n-tech-stage.tech-hold{--tc:#a3bdff;--tc2:rgba(163,189,255,.24)}
+.n-tech-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:rgba(238,244,230,.62);text-align:right}
+.n-tech-top>span:last-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.n-tech-badge{display:inline-flex;flex:none;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:var(--tc);color:#1a1410;font-weight:800;font-size:12px}
+.n-tech-badge .ui-icon{width:14px;height:14px}
+.n-tech-title{margin:2px 0 0;font-size:clamp(30px,9vw,40px);line-height:1.02;letter-spacing:-.045em;font-weight:800;color:#fffefa}
+.n-tech-lead{margin:0 auto;max-width:34ch;font-size:14px;line-height:1.45;color:rgba(238,244,230,.72)}
+.n-tech-stage .n-primary{margin-top:auto;background:var(--tc);color:#1a1410;border-color:transparent;box-shadow:0 14px 30px -14px var(--tc)}
+.n-tech-stage .n-secondary{background:rgba(255,255,255,.07);color:#eef4e6;border-color:rgba(255,255,255,.18)}
+.n-tech-cancel{align-self:center;min-height:44px;padding:0 16px;border:0;background:none;color:rgba(238,244,230,.6);font:inherit;font-size:13.5px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.n-tech-stage button:focus-visible{outline:2px solid var(--tc);outline-offset:3px}
+/* drop set: la escalera que baja */
+.n-drop-stairs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-items:end;height:150px;margin-top:4px}
+.n-drop-stairs .step{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
+.n-drop-stairs .step i{display:block;width:100%;height:calc(var(--h) * .68);border-radius:14px 14px 6px 6px;border:1px dashed rgba(255,255,255,.22);background:rgba(255,255,255,.04);transform-origin:bottom}
+.n-drop-stairs .step.done i{border:0;background:var(--tc);opacity:.45}
+.n-drop-stairs .step.now i{border:0;background:var(--tc);box-shadow:0 0 26px var(--tc2),inset 0 1px 0 rgba(255,255,255,.5)}
+.n-drop-stairs .step b{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;color:#fffefa}
+.n-drop-stairs .step:not(.done):not(.now) b{color:rgba(238,244,230,.45)}
+.n-drop-stairs .step small{font-size:11px;color:rgba(238,244,230,.55)}
+.n-drop-load{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:8px}
+.n-drop-load button,.n-tech-count button{width:52px;height:52px;padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fffefa;font:inherit;font-size:26px;line-height:1}
+.n-drop-load strong{display:block;font-size:58px;font-weight:850;letter-spacing:-.05em;line-height:1;color:var(--tc);font-variant-numeric:tabular-nums}
+.n-drop-load .lbl{display:block;margin-top:4px;font-style:normal;font-size:12px;color:rgba(238,244,230,.62)}
+.n-tech-count{display:flex;justify-content:space-between;align-items:center;padding:8px 10px 8px 16px;border-radius:20px;background:rgba(255,255,255,.06)}
+.n-tech-count>span{font-size:13px;color:rgba(238,244,230,.72)}
+.n-tech-count>div{display:flex;align-items:center;gap:10px}
+.n-tech-count strong{min-width:42px;font-size:32px;font-weight:800;font-variant-numeric:tabular-nums}
+/* myo-reps: la pausa que respira y el «2» que estalla */
+.n-myo-orb{position:relative;width:220px;height:220px;margin:6px auto 0;display:grid;place-items:center}
+.n-myo-orb .wave{position:absolute;inset:24px;border-radius:50%;border:2px solid var(--tc);opacity:0}
+.n-tech-ring{position:relative;width:170px;height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.n-tech-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);fill:none;stroke-width:6}
+.n-tech-ring .trk{stroke:rgba(255,255,255,.1)}
+#tech-ring{stroke:var(--tc);stroke-dasharray:440;stroke-linecap:round;filter:drop-shadow(0 0 8px var(--tc2))}
+.n-tech-ring strong{font-size:66px;font-weight:850;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums;color:#fffefa}
+.n-tech-ring small{margin-top:4px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(238,244,230,.6)}
+.n-myo-go{width:170px;height:170px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#c9fff5,var(--tc) 70%);color:#0f221d;box-shadow:0 0 60px var(--tc2)}
+.n-myo-go strong{font-size:96px;line-height:.85;font-weight:850;letter-spacing:-.05em}
+.n-myo-go small{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.n-myo-dots{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
+.n-myo-dots i{display:flex;gap:4px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.06)}
+.n-myo-dots b{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.18)}
+.n-myo-dots i.on b{background:var(--tc);box-shadow:0 0 8px var(--tc2)}
+.n-tech-choices{display:grid;gap:8px;margin-top:auto}
+.n-tech-choices>div{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.n-tech-choices .n-primary{margin-top:0}
+/* parciales: el arco del recorrido y su mitad estirada */
+.n-partials-arc svg{display:block;width:100%;max-width:290px;height:auto;margin:6px auto 0;overflow:visible}
+.n-partials-arc .full{fill:none;stroke:rgba(255,255,255,.12);stroke-width:12;stroke-linecap:round}
+.n-partials-arc .zone{fill:none;stroke:var(--tc);stroke-width:12;stroke-linecap:round;stroke-dasharray:120;filter:drop-shadow(0 0 8px var(--tc2))}
+.n-partials-arc .swing{transform-origin:110px 110px}
+.n-partials-arc .swing circle{fill:#fffefa}
+.n-partials-arc text{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;fill:rgba(238,244,230,.55);stroke:none}
+.n-tech-stage:not(:has(.n-primary)) .n-tech-cancel{margin-top:auto}
+.n-tech-stage>.n-secondary{margin-top:auto}
+.n-partials-tap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:170px;height:170px;margin:0 auto;border-radius:50%;border:2px solid var(--tc);background:radial-gradient(circle,var(--tc2),transparent 72%);color:#fffefa;font:inherit;transition:transform .12s}
+.n-partials-tap:active{transform:scale(.95)}
+.n-partials-tap strong{font-size:70px;font-weight:850;line-height:1;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.n-partials-tap .lbl{font-style:normal;font-size:12px;color:rgba(238,244,230,.7)}
+.n-tech-minor button{min-height:40px;border:0;background:none;color:rgba(238,244,230,.62);font:inherit;font-size:13px}
+/* pausa estirada: la tensión y el reloj que respira */
+.n-hold-bar{position:relative;height:130px;margin:8px 0;display:grid;place-items:center}
+.n-hold-bar i{width:82%;height:12px;border-radius:6px;background:linear-gradient(90deg,transparent,var(--tc),transparent);box-shadow:0 0 30px var(--tc2)}
+.n-hold-bar span{position:absolute;width:46px;height:46px;border-radius:50%;border:2px solid var(--tc)}
+.n-hold-orb{display:grid;place-items:center;margin-top:6px}
+.n-hold-orb .n-tech-ring{width:210px;height:210px}
+@keyframes ux-wave{0%{transform:scale(.72);opacity:.65}100%{transform:scale(1.28);opacity:0}}
+@keyframes ux-swing{from{transform:rotate(0)}to{transform:rotate(44deg)}}
+@keyframes ux-tension{0%,100%{transform:scaleX(.9);opacity:.7}50%{transform:scaleX(1);opacity:1}}
+@keyframes ux-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@media (prefers-reduced-motion:no-preference){
+ html:not([data-motion=off]) .n-myo-orb .wave{animation:ux-wave 2.4s ease-out infinite}
+ html:not([data-motion=off]) .n-myo-orb .wave.w2{animation-delay:1.2s}
+ html:not([data-motion=off]) .n-myo-orb.is-go .wave{animation-duration:1.1s}
+ html:not([data-motion=off]) .n-partials-arc .swing{animation:ux-swing 1.2s ease-in-out infinite alternate}
+ html:not([data-motion=off]) .n-hold-bar i{animation:ux-tension 1.6s ease-in-out infinite}
+ html:not([data-motion=off]) .n-hold-bar span{animation:ux-wave 2s ease-out infinite}
+ html:not([data-motion=off]) .n-hold-orb .n-tech-ring{animation:ux-breathe 3s ease-in-out infinite}
+ html:not([data-motion=off]) .n-drop-stairs .step.now i{animation:ux-breathe 1.8s ease-in-out infinite;transform-origin:bottom}
+}
+@media (max-height:700px){.n-tech-stage{gap:9px}.n-drop-stairs{height:120px}.n-myo-orb{width:190px;height:190px}.n-tech-ring{width:150px;height:150px}.n-hold-orb .n-tech-ring{width:170px;height:170px}.n-partials-tap{width:140px;height:140px}}

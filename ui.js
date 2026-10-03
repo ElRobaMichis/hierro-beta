@@ -256,7 +256,7 @@ function uiSetPreference(key,value,button){
 }
 function uiMotionKey(){
  const s=db.active;
- return [view.name,view.id,view.key,view.section,view.kind,view.exTab,view.progressTab,view.name==='session'&&s?`${sessionOpenIdx()}:${!!s.uiRest}:${uiCurrentSet(s.exercises[sessionOpenIdx()]||{sets:[]})}:${s.exercises[sessionOpenIdx()]?.warmup?.phase}:${s.exercises[sessionOpenIdx()]?.warmup?.completed}`:''].join('|');
+ return [view.name,view.id,view.key,view.section,view.kind,view.exTab,view.progressTab,view.name==='session'&&s?`${s.techPending?'tech:':''}${sessionOpenIdx()}:${!!s.uiRest}:${uiCurrentSet(s.exercises[sessionOpenIdx()]||{sets:[]})}:${s.exercises[sessionOpenIdx()]?.warmup?.phase}:${s.exercises[sessionOpenIdx()]?.warmup?.completed}`:''].join('|');
 }
 function uiAnimateView(){
  const key=uiMotionKey(),changed=window.__motionView!==key;window.__motionView=key;
@@ -788,6 +788,7 @@ function uiSetProposal(xi,hasPrevious){
 }
 function uiSession(){
  const s=db.active;if(!s.exercises.length)return `<div class="n-empty">${uiGymButton()}<h2>Empieza con un ejercicio.</h2><p>Tu sesión está guardada. Añade lo que vas a entrenar.</p>${uiButton('Añadir ejercicio','uiLibrary()','plus')}</div>`;
+ if(uxTechP())return `<div class="n-focus n-focus-tech">${uiTechStage()}</div>`;
  const xi=sessionOpenIdx(),ex=s.exercises[xi],si=uiCurrentSet(ex),m=exMeta(ex.key),r=effRange(ex.key),complete=si<0;
  const resting=!!s.uiRest,preparing=!resting&&!complete&&warmupRequired(xi);
  const title=`<div class="n-ex-heading"><div><span class="n-eyebrow">Ejercicio ${String(xi+1).padStart(2,'0')} / ${String(s.exercises.length).padStart(2,'0')}</span><h1>${esc(exBaseName(ex.name))}</h1></div><button class="n-round" aria-label="Ver cola de ejercicios" onclick="uiSessionQueue()">${uiIcon('list')}</button></div>`;
@@ -799,7 +800,7 @@ function uiSession(){
   const nextIndex=complete?s.exercises.findIndex((e,i)=>i!==xi&&!exDone(e)):xi;
   const nextCopy=nextIndex>=0?pushNextCopy(s,nextIndex):{body:'Todo listo para terminar y guardar.'};
   const restOrigin=Math.max(0,s.exercises.findIndex(e=>e.key===s.restKey));
-  work=`<div class="n-rest-phase"><span id="n-rest-announcement" class="sr-only" role="status"></span><div class="n-rest-status">${uiIcon('check')}Serie guardada</div><div class="rest ${rem?'on':'done'}" id="rest"><span id="restlabel">${rem?'Descansando':'Descanso listo'}</span><strong id="resttime">${rem?fmtClock(rem):'¡Vamos!'}</strong><div class="rest-track"><div id="restfill" class="rest-fill"></div></div></div><p>Respira. La siguiente puede esperar.</p>${uiButton('+30 segundos','uiAddRest()','plus','text')}<div class="n-rest-next"><span class="n-number">${complete?uiIcon('check'):si+1}</span><div><b>${complete?'Ejercicio completo':`Siguiente: serie ${si+1} de ${ex.sets.length}`}</b><small>${esc(nextCopy.body)}</small>${uxTechActive(xi)&&si===ex.sets.length-1&&!ex.sets[si]?.done?`<small class="n-tech-next">${uiIcon('flame')}Al terminarla: ${TECHS[uxTechActive(xi)].label.toLowerCase()}.</small>`:''}</div></div>${uiButton(rem?'Saltar descanso':'Continuar','uiContinue()')}${uiButton('Corregir la última serie',uiAction('uiEditSet',restOrigin,Math.max(0,s.exercises[restOrigin].sets.findLastIndex(st=>st.done))),'edit','text')}</div>`;
+  work=`<div class="n-rest-phase"><span id="n-rest-announcement" class="sr-only" role="status"></span><div class="n-rest-status">${uiIcon('check')}Serie guardada${(()=>{const o=s.exercises[Math.max(0,s.exercises.findIndex(e=>e.key===s.restKey))],t=o?.sets.findLast(x=>x.done)?.tech;return t?` · ${techLine(o.key,t)}`:'';})()}</div><div class="rest ${rem?'on':'done'}" id="rest"><span id="restlabel">${rem?'Descansando':'Descanso listo'}</span><strong id="resttime">${rem?fmtClock(rem):'¡Vamos!'}</strong><div class="rest-track"><div id="restfill" class="rest-fill"></div></div></div><p>Respira. La siguiente puede esperar.</p>${uiButton('+30 segundos','uiAddRest()','plus','text')}<div class="n-rest-next"><span class="n-number">${complete?uiIcon('check'):si+1}</span><div><b>${complete?'Ejercicio completo':`Siguiente: serie ${si+1} de ${ex.sets.length}`}</b><small>${esc(nextCopy.body)}</small>${uxTechActive(xi)&&si===ex.sets.length-1&&!ex.sets[si]?.done?`<small class="n-tech-next">${uiIcon('flame')}Al terminarla: ${TECHS[uxTechActive(xi)].label.toLowerCase()}.</small>`:''}</div></div>${uiButton(rem?'Saltar descanso':'Continuar','uiContinue()')}${uiButton('Corregir la última serie',uiAction('uiEditSet',restOrigin,Math.max(0,s.exercises[restOrigin].sets.findLastIndex(st=>st.done))),'edit','text')}</div>`;
  }else if(complete){
   const next=s.exercises.findIndex((e,i)=>i!==xi&&!exDone(e));
   work=`<section class="n-ex-complete"><span class="n-complete-mark">${uiIcon('check')}</span><h2>Una más, hecha.</h2><p>${ex.sets.length} series de ${esc(exBaseName(ex.name))} confirmadas.</p>${uiButton(next<0?'Terminar sesión':`Siguiente: ${esc(exBaseName(s.exercises[next].name))}`,next<0?'askFinish()':uiAction('uiSelectExercise',next))}${uiButton('Añadir otra serie',uiAction('uiAddSet',xi),'plus','text')}</section>`;
@@ -944,9 +945,9 @@ function uiLogSet(xi,si){
  }
  /* el esfuerzo forma parte del registro: sin RIR se pide antes de confirmar */
  if(exMeta(ex.key).type!=='tiempo'&&(st.rir===''||st.rir===undefined||st.rir===null)){uiRIR(xi,si,true);return;}
- if(!commitChange(()=>{db.active.open=xi;st.done=true;delete st.autoWeightKg;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastSeriesAt=db.active.lastLog=Date.now();if(db.active.setTimer?.key===ex.key)delete db.active.setTimer;startRestAuto(ex.key);db.active.restKey=ex.key;db.active.uiRest=!!restUntil;})){uiSaveState();return;}
+ if(!commitChange(()=>{db.active.open=xi;st.done=true;delete st.autoWeightKg;st.loadContext=warmupLoadContext(ex.key);if(exMeta(ex.key).type==='tiempo')delete st.rir;if(st.w!=='')st.totalKg=recordedSetKg(ex.key,st);ex.lastWorkAt=db.active.lastSeriesAt=db.active.lastLog=Date.now();if(db.active.setTimer?.key===ex.key)delete db.active.setTimer;if(!uxTechBegins(xi,si)){startRestAuto(ex.key);db.active.restKey=ex.key;db.active.uiRest=!!restUntil;}})){uiSaveState();return;}
  const from=document.getElementById('n-record')?.getBoundingClientRect?.();
- render();window.scrollTo(0,0);uxSetLogged(xi,si,from);uxTechAfterLog(xi,si);
+ render();window.scrollTo(0,0);uxSetLogged(xi,si,from);
 }
 function uiStep(xi,si,field,direction){
  const ex=db.active.exercises[xi],st=ex.sets[si];
@@ -1479,7 +1480,7 @@ function uxTabs(){
  const done=()=>{pill.remove();links.classList.remove('ux-moving');};if(move)move.finished.then(done,done);else done();
  uxAnim(on.querySelector('svg'),[{transform:'none'},{transform:'translateY(-4px) scale(1.14)',offset:.4},{transform:'none'}],{duration:520,easing:'cubic-bezier(.3,.7,.2,1)'});
 }
-function uxAfterRender(){uxTabs();uxPlatePills(document.getElementById('main'));uxNumOverlays();uxLevelUpProposal();}
+function uxAfterRender(){uxTabs();uxPlatePills(document.getElementById('main'));uxNumOverlays();uxLevelUpProposal();uxTechMount();}
 
 /* ---------- los kilos y las reps ruedan sobre su campo ---------- */
 function uxNumOverlays(){
@@ -1676,23 +1677,23 @@ function uxConfetti(bursts){
  requestAnimationFrame(loop);
 }
 /* ---------- técnica de intensidad en la última serie ----------
-   Se hace después de la última serie de trabajo, sin soltar el peso, así
-   que el registro va en ese orden: primero la serie y luego lo que salió
-   de la técnica. Para myo-reps y la pausa hay una guía con reloj que se
-   puede abrir antes de empezar la serie. Nada de esto cambia la serie. */
+   Se hace justo después de la última serie de trabajo, sin soltar el peso.
+   Al registrar esa serie, la sesión pasa a una pantalla propia de la
+   técnica (el descanso espera a que termine) con su escena: la escalera
+   del drop set, la pausa de 5 s de los myo-reps, el arco del recorrido de
+   las parciales y el reloj de la pausa estirada. Siempre se puede no
+   hacerla. Lo hecho se anota dentro de la serie y no cambia la serie. */
 function uxTechActive(xi){const ex=db.active?.exercises[xi];return ex&&!db.active.deload?effTech(ex.key):'';}
 function uiTechCard(xi,si){
  const ex=db.active.exercises[xi],t=uxTechActive(xi);if(!t||si!==ex.sets.length-1)return '';
- const st=ex.sets[si],d=TECHS[t],draft=cleanTech(st.techDraft);
- const guide=t==='myo'||t==='hold'?uiButton(draft?'Repetir la guía':t==='myo'?'Guíame con las pausas de 5 s':'Contar los 30 s',uiAction('uiTechGuide',xi,si),'clock','text'):'';
- return `<div class="n-tech-card" role="note"><span class="n-tech-tag">${uiIcon('flame')}Última serie · ${d.label}</span><p>${d.how}</p>${draft?`<p class="n-tech-draft">${uiIcon('check')}Guía hecha: ${techLine(ex.key,draft)}. Se anota al registrar la serie.</p>`:''}${guide}</div>`;
+ return `<div class="n-tech-card tech-${t}" role="note"><span class="n-tech-tag">${uiIcon('flame')}Última serie · ${TECHS[t].label}</span><p>${TECHS[t].how}</p><small>Al registrarla empieza la técnica; el descanso espera.</small></div>`;
 }
 function uiTechSummary(t){return TECHS[t]?`${TECHS[t].label}: ${TECHS[t].how}`:'Nada extra tras la última serie.';}
 /* elegir la técnica desde la sesión: se guarda en el plan de esta sesión */
 function uiTechPicker(xi){
  const ex=db.active.exercises[xi],sp=db.splits.find(s=>s.id===ctxSplitId()),cur=effTech(ex.key);
  const opts=[['none','Ninguna','Terminas con la última serie normal.'],...Object.entries(TECHS).map(([k,v])=>[k,v.label,v.how])];
- openModal(`<span class="n-eyebrow">${esc(exBaseName(ex.name))}</span><h2>Técnica en la última serie</h2><p class="muted">${sp?`Se guarda solo en ${esc(sp.name)}. `:''}Se anota aparte: no cambia tu progresión.</p><div class="n-tech-options">${opts.map(([k,l,h])=>`<button type="button" class="${(cur||'none')===k?'on':''}" aria-pressed="${(cur||'none')===k}" onclick="${uiAction('uiChooseTech',xi,k)}"><b>${l}</b><span>${h}</span></button>`).join('')}</div>${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
+ openModal(`<span class="n-eyebrow">${esc(exBaseName(ex.name))}</span><h2>Técnica en la última serie</h2><p class="muted">${sp?`Se guarda solo en ${esc(sp.name)}. `:''}Se anota aparte: no cambia tu progresión.</p><div class="n-tech-options">${opts.map(([k,l,h])=>`<button type="button" class="${(cur||'none')===k?'on':''} tech-${k}" aria-pressed="${(cur||'none')===k}" onclick="${uiAction('uiChooseTech',xi,k)}"><b>${l}</b><span>${h}</span></button>`).join('')}</div>${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
 }
 function uiChooseTech(xi,val){
  const ex=db.active?.exercises[xi];if(!ex)return;
@@ -1702,113 +1703,124 @@ function uiChooseTech(xi,val){
 }
 function uiSetTech(key,scope,val){if(setExTech(key,scope,val)){uxSound('tick',1);render();}else uiSaveState();}
 
-/* ---------- anotar la técnica tras registrar la serie ---------- */
-function uxTechAfterLog(xi,si){
- const ex=db.active?.exercises[xi],t=uxTechActive(xi);
- if(!t||!ex||si!==ex.sets.length-1||ex.sets[si].tech)return false;
- const open=()=>{if(db.active?.exercises[xi]===ex&&ex.sets[si]?.done&&!document.querySelector?.('#modalhost .modal'))uiTechLog(xi,si);};
- if(uxMotion())setTimeout(open,750);else open();
+/* ---------- la pantalla de la técnica ----------
+   El estado vive en la sesión (db.active.techPending): sobrevive a cerrar
+   la app y los relojes se calculan con marcas de tiempo. */
+function uxTechBegins(xi,si){
+ const ex=db.active.exercises[xi],st=ex.sets[si],t=uxTechActive(xi);
+ if(!t||si!==ex.sets.length-1||st.tech)return false;
+ const p={xi,si,type:t,phase:t==='myo'?'rest':'ready',drops:[],cycles:0,n:t==='partials'?0:null,end:t==='myo'?Date.now()+5000:0};
+ if(t==='drop'){const kg=recordedSetKg(ex.key,st);p.from=Number.isFinite(kg)?kg:0;p.w=dropWeight(ex.key,p.from);p.r=Math.max(1,parseInt(st.r,10)||6);}
+ db.active.techPending=p;
+ restUntil=null;delete db.active.restUntil;delete db.active.restDuration;db.active.uiRest=false;db.active.restKey=ex.key;
  return true;
 }
-function uiTechLog(xi,si){
- const ex=db.active?.exercises[xi],st=ex?.sets[si],t=uxTechActive(xi);if(!st||!t)return;
- const draft=cleanTech(st.techDraft),kg=recordedSetKg(ex.key,st);
- window.__tech={xi,si,type:t,drops:[],kg:Number.isFinite(kg)?kg:0,w:Number.isFinite(kg)?dropWeight(ex.key,kg):0,r:'',
-  n:draft&&draft.type===t?(t==='hold'?draft.s:draft.r):(t==='hold'?30:''),cycles:draft?.cycles||0};
- openModal(`<div id="ux-tech" class="n-tech-sheet">${uxTechBody()}</div>`);
- uxSound('pop');
-}
-function uxTechBody(){
- const T=window.__tech;if(!T)return '';
- const ex=db.active.exercises[T.xi],d=TECHS[T.type],u=uLabelEx(ex.key),head=`<span class="n-eyebrow">${uiIcon('flame')} ${d.label} · ${esc(exBaseName(ex.name))}</span>`;
- const field=(id,label,val,action,step)=>`<div class="n-set-field"><label for="${id}">${label}</label><input id="${id}" type="number" min="0" step="any" inputmode="${step==='r'?'numeric':'decimal'}" placeholder="—" value="${esc(val??'')}" oninput="${action}"><div class="n-stepper"><button type="button" aria-label="Menos" onclick="uiTechStep('${step}',-1)">−</button><small></small><button type="button" aria-label="Más" onclick="uiTechStep('${step}',1)">+</button></div></div>`;
- const skip=uiButton(T.type==='drop'&&T.drops.length?'Terminar aquí':'No la hice',T.type==='drop'&&T.drops.length?'uiTechFinish()':'uiTechSkip()',T.type==='drop'&&T.drops.length?'check':'close','text');
- if(T.type==='drop'){
-  const k=T.drops.length,plan=loadPlan(ex.key,T.w),side=plan&&Array.isArray(plan.perPoint)&&plan.perPoint.length&&plan.points===2?` · por lado ${plan.perPoint.map(x=>fmtNum(fromKgEx(ex.key,x))).join(' + ')}`:'';
-  const done=T.drops.map((x,i)=>`<li><span>Caída ${i+1}</span><b>${fmtWEx(ex.key,x.w)} ${u} × ${x.r}</b></li>`).join('');
-  return `${head}<h2>Caída ${k+1} de 2</h2><p class="muted">Sin descanso: baja a unos <b>${fmtWEx(ex.key,T.w)} ${u}</b>${side} y otra vez al fallo.</p>${done?`<ul class="n-tech-done">${done}</ul>`:''}<div class="n-set-fields">${field('n-tech-w',`Peso total · ${u}`,inputWEx(ex.key,T.w),"uiTechVal('w',this.value)",'w')}${field('n-tech-r','Repeticiones',T.r,"uiTechVal('r',this.value)",'r')}</div><p id="n-tech-error" class="n-sync-error" role="alert"></p>${uiButton(`Guardar caída ${k+1}`,'uiTechDrop()','check')}${skip}`;
+function uxTechP(){const p=db.active?.techPending;return p&&db.active.exercises[p.xi]?.sets[p.si]?p:null;}
+function uiTechStage(){
+ const p=uxTechP();if(!p)return '';
+ const ex=db.active.exercises[p.xi],d=TECHS[p.type],u=uLabelEx(ex.key);
+ const head=`<div class="n-tech-top"><span class="n-tech-badge">${uiIcon('flame')}${d.label}</span><span>${esc(exBaseName(ex.name))} · tras la serie ${p.si+1}</span></div>`;
+ const cancel=`<button type="button" class="n-tech-cancel" onclick="uiTechCancel()">${p.type==='drop'&&p.drops.length?'Terminar sin la segunda caída':'No hacer la técnica'}</button>`;
+ const ring=(sec,label,frac)=>`<div class="n-tech-ring"><svg viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="70" class="trk"/><circle cx="80" cy="80" r="70" id="tech-ring" style="stroke-dashoffset:${(440*(1-frac)).toFixed(1)}"/></svg><strong id="tech-time">${sec}</strong><small>${label}</small></div>`;
+ let body='';
+ if(p.type==='drop'){
+  const st=ex.sets[p.si],k=p.drops.length,cols=[{w:p.from,r:parseInt(st.r,10),l:'Tu serie'},{w:k>0?p.drops[0].w:k===0?p.w:null,r:p.drops[0]?.r,l:'Caída 1'},{w:k>1?p.drops[1].w:k===1?p.w:dropWeight(ex.key,k===0?p.w:p.drops[0].w),r:p.drops[1]?.r,l:'Caída 2'}];
+  const plan=loadPlan(ex.key,p.w),side=plan&&Array.isArray(plan.perPoint)&&plan.perPoint.length&&plan.points===2?`Por lado ${plan.perPoint.map(x=>fmtNum(fromKgEx(ex.key,x))).join(' + ')}`:'';
+  body=`<div class="n-drop-stairs" aria-hidden="true">${cols.map((c,i)=>`<div class="step ${i<=k?'done':''} ${i===k+1?'now':''}" style="--h:${[100,75,56][i]}%"><i></i><b>${c.w!=null?fmtWEx(ex.key,c.w):'—'}</b><small>${c.r?`× ${c.r}`:c.l}</small></div>`).join('')}</div>
+  <h2 class="n-tech-title">Caída ${k+1} de 2</h2><p class="n-tech-lead">Sin descanso: quita peso y otra vez al fallo.</p>
+  <div class="n-drop-load"><button type="button" aria-label="Menos peso" onclick="uiTechW(-1)">−</button><div><strong id="tech-w">${fmtWEx(ex.key,p.w)}</strong><em class="lbl">${u}${side?` · ${side}`:''}</em></div><button type="button" aria-label="Más peso" onclick="uiTechW(1)">+</button></div>
+  <div class="n-tech-count"><span>Repeticiones</span><div><button type="button" aria-label="Menos repeticiones" onclick="uiTechN(-1)">−</button><strong id="tech-n">${p.r}</strong><button type="button" aria-label="Más repeticiones" onclick="uiTechN(1)">+</button></div></div>
+  ${uiButton(`Guardar caída ${k+1}`,'uiTechDrop()','check')}`;
+ }else if(p.type==='myo'){
+  const dots=`<div class="n-myo-dots" aria-label="${p.cycles} mini-series hechas">${Array.from({length:Math.max(3,p.cycles+1)},(_,i)=>`<i class="${i<p.cycles?'on':''}"><b></b><b></b></i>`).join('')}</div>`;
+  if(p.phase==='rest'){const left=Math.max(0,Math.ceil((p.end-Date.now())/1000));body=`<div class="n-myo-orb"><span class="wave"></span><span class="wave w2"></span>${ring(left,'Respira',Math.max(0,(p.end-Date.now())/5000))}</div><h2 class="n-tech-title">Pausa de 5 s</h2><p class="n-tech-lead">${p.cycles?`Mini-serie ${p.cycles} hecha. Respira y prepárate para 2 más.`:'Al fallo: respira hondo. En 5 s, 2 reps más.'}</p>${dots}`;}
+  else body=`<div class="n-myo-orb is-go"><span class="wave"></span><span class="wave w2"></span><div class="n-myo-go"><strong>2</strong><small>reps</small></div></div><h2 class="n-tech-title">¡Ahora, 2 más!</h2><p class="n-tech-lead">Mini-serie ${p.cycles+1}. ¿Salieron?</p>${dots}<div class="n-tech-choices">${uiButton('Las 2','uiTechMyo(2)','check')}<div>${uiButton('Solo 1','uiTechMyo(1)','minus','secondary')}${uiButton('Ninguna','uiTechMyo(0)','close','secondary')}</div></div>`;
+ }else if(p.type==='partials'){
+  body=`<div class="n-partials-arc" aria-hidden="true"><svg viewBox="0 0 220 130"><path class="full" d="M20 110a90 90 0 0 1 180 0"/><path class="zone" d="M20 110a90 90 0 0 1 26.4-63.6"/><g class="swing"><circle cx="20" cy="110" r="9"/></g><text x="22" y="128">Estirado</text><text x="198" y="128" text-anchor="end">Contraído</text></svg></div>
+  <h2 class="n-tech-title">Medias reps abajo.</h2><p class="n-tech-lead">Sigue en la parte estirada hasta el fallo. Toca por cada parcial o ajústalo al final.</p>
+  <button type="button" class="n-partials-tap" onclick="uiTechN(1)" aria-label="Sumar una parcial"><strong id="tech-n">${p.n||0}</strong><em class="lbl">parciales · toca +1</em></button>
+  <div class="n-tech-minor"><button type="button" onclick="uiTechN(-1)">− Quitar una</button></div>
+  ${uiButton('Guardar parciales','uiTechSave()','check')}`;
+ }else{
+  if(p.phase==='ready')body=`<div class="n-hold-bar" aria-hidden="true"><i></i><span></span></div><h2 class="n-tech-title">Sostén 30 s, estirado.</h2><p class="n-tech-lead">Vuelve a la posición estirada con tensión y toca para empezar: cuento los 30 s y te aviso al final.</p>${uiButton('Empezar los 30 s','uiTechHold()','play')}`;
+  else{const left=Math.max(0,Math.ceil((p.end-Date.now())/1000));body=`<div class="n-hold-orb">${ring(left,'Sostén',Math.max(0,(p.end-Date.now())/30000))}</div><h2 class="n-tech-title">Tensión. No sueltes.</h2><p class="n-tech-lead">Respira corto y aguanta abajo.</p>${uiButton('Lo solté antes','uiTechHoldStop()','close','secondary')}`;}
  }
- if(T.type==='hold')return `${head}<h2>¿Cuánto la sostuviste?</h2><p class="muted">${d.how}</p><div class="n-set-fields">${field('n-tech-n','Segundos',T.n,"uiTechVal('n',this.value)",'n')}</div><p id="n-tech-error" class="n-sync-error" role="alert"></p>${uiButton('Guardar pausa','uiTechSave()','check')}${skip}`;
- const myo=T.type==='myo';
- return `${head}<h2>${myo?'¿Cuántas reps extra salieron?':'¿Cuántas parciales hiciste?'}</h2><p class="muted">${myo?'Suma las de todas las mini-series de 2 tras cada pausa de 5 s.':d.how}</p><div class="n-set-fields">${field('n-tech-n',myo?'Reps extra':'Parciales',T.n,"uiTechVal('n',this.value)",'r')}</div><p id="n-tech-error" class="n-sync-error" role="alert"></p>${uiButton(myo?'Guardar myo-reps':'Guardar parciales','uiTechSave()','check')}${skip}`;
+ return `<section class="n-tech-stage tech-${p.type}" data-phase="${p.phase||''}" data-step="${p.drops.length}">${head}${body}${cancel}</section>`;
 }
-function uxTechRender(){const el=document.getElementById('ux-tech');if(el)el.innerHTML=uxTechBody();}
-function uiTechVal(f,v){const T=window.__tech;if(!T)return;if(f==='w'){const n=parseFloat(v);T.w=Number.isFinite(n)?toKgEx(db.active.exercises[T.xi].key,n):0;}else T[f]=v;}
-function uiTechStep(f,dir){
- const T=window.__tech;if(!T)return;const key=db.active.exercises[T.xi].key;
- if(f==='w'){const step=effStep(key,T.w)||2.5;T.w=Math.max(0,Math.round((T.w+dir*step)*1000)/1000);const inp=document.getElementById('n-tech-w');if(inp)inp.value=inputWEx(key,T.w);uxSound('step',{n:Math.round(T.w/step),toString(){return 'n'+this.n;}});return;}
- const id=f==='r'&&T.type==='drop'?'n-tech-r':'n-tech-n',field=f==='r'&&T.type==='drop'?'r':'n';
- const base=parseInt(T[field],10),start=T.type==='hold'?30:T.type==='drop'?Math.max(1,parseInt(db.active.exercises[T.xi].sets[T.si].r,10)||6):T.type==='myo'?2:4;
- const next=Math.max(field==='n'&&T.type==='hold'?1:0,(Number.isFinite(base)?base:start)+dir*(T.type==='hold'&&field==='n'?5:1));
- T[field]=String(Number.isFinite(base)?next:start);const inp=document.getElementById(id);if(inp)inp.value=T[field];uxSound('step',{n:+T[field],toString(){return 'n'+this.n;}});
+/* lo que la pantalla necesita entre renders: relojes y la entrada de cada escena */
+function uxTechMount(){
+ const p=uxTechP(),stage=document.querySelector?.('.n-tech-stage');
+ clearInterval(window.__techInt);
+ if(!p||!stage)return;
+ const key=`${p.type}:${p.phase}:${p.drops.length}:${p.cycles}`;
+ if(window.__techKey!==key){window.__techKey=key;uxTechEnter(stage,p);}
+ if((p.type==='myo'&&p.phase==='rest')||(p.type==='hold'&&p.phase==='hold')){
+  let last=null;const total=p.type==='myo'?5000:30000;
+  window.__techInt=setInterval(()=>{
+   const q=uxTechP();if(q!==p||!document.getElementById('tech-time')){clearInterval(window.__techInt);return;}
+   const ms=Math.max(0,p.end-Date.now()),left=Math.ceil(ms/1000),ring=document.getElementById('tech-ring');
+   if(ring)ring.style.strokeDashoffset=(440*(1-ms/total)).toFixed(1);
+   if(left!==last){last=left;uxText(document.getElementById('tech-time'),String(left));if(left>0&&(p.type==='myo'||left<=3))uxSound(p.type==='myo'?'wood':'countdown');}
+   if(ms<=0){clearInterval(window.__techInt);
+    if(p.type==='myo'){commitChange(()=>{p.phase='go';});uxSound('techGo');uxHaptic([60,40,60]);render();}
+    else uxTechStore({type:'hold',s:30});}
+  },100);
+ }
 }
-function uxTechError(msg){const e=document.getElementById('n-tech-error');if(e)e.textContent=msg;}
+function uxTechEnter(stage,p){
+ if(!uxMotion())return;
+ const q=s=>stage.querySelector(s);
+ uxAnim(stage,[{opacity:0,transform:'translateY(18px) scale(.98)'},{opacity:1,transform:'none'}],{spring:'soft'});
+ uxAnim(q('.n-tech-title'),[{opacity:0,transform:'translateY(14px)',filter:'blur(6px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{duration:600,delay:120});
+ if(p.type==='drop'){
+  stage.querySelectorAll('.n-drop-stairs .step').forEach((s,i)=>uxAnim(s.querySelector('i'),[{transform:'scaleY(0)'},{transform:'none'}],{spring:'bouncy',delay:100+i*120}));
+  const now=q('.n-drop-stairs .step.now i');
+  if(now)uxAnim(now,[{filter:'brightness(1)'},{filter:'brightness(1.5)',offset:.5},{filter:'brightness(1)'}],{duration:1400,delay:500,easing:'ease-in-out'});
+  const w=q('#tech-w'),prev=p.drops.length?p.drops[p.drops.length-1].w:p.from,ex=db.active.exercises[p.xi];
+  if(w&&prev){w.textContent=fmtWEx(ex.key,prev);setTimeout(()=>{if(w.isConnected){uxText(w,fmtWEx(ex.key,p.w));uxSound('clink',.7);setTimeout(()=>uxSound('clink',.62),140);uxHaptic([20,30,20]);}},380);}
+ }
+ if(p.type==='myo'&&p.phase==='go'){uxAnim(q('.n-myo-go'),[{transform:'scale(.3)',opacity:0},{transform:'scale(1.15)',opacity:1,offset:.6},{transform:'none'}],{duration:700,easing:'cubic-bezier(.2,.9,.3,1.3)'});}
+ if(p.type==='myo')stage.querySelectorAll('.n-myo-dots i.on').forEach((d,i,all)=>{if(i===all.length-1)uxAnim(d,[{transform:'scale(.2)'},{transform:'none'}],{spring:'bouncy',delay:200});});
+ if(p.type==='partials'){uxAnim(q('.n-partials-arc .zone'),[{strokeDashoffset:120},{strokeDashoffset:0}],{duration:900,delay:200,easing:'cubic-bezier(.3,.1,.2,1)'});}
+ if(p.type==='hold'&&p.phase==='hold')uxAnim(q('.n-hold-orb'),[{transform:'scale(.6)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy'});
+}
+function uiTechW(dir){
+ const p=uxTechP();if(!p||p.type!=='drop')return;const key=db.active.exercises[p.xi].key,step=effStep(key,p.w)||2.5,cap=(p.drops.length?p.drops[p.drops.length-1].w:p.from)-step;
+ const next=Math.max(0,Math.min(cap,Math.round((p.w+dir*step)*1000)/1000));if(next===p.w){uxSound('back');return;}
+ p.w=next;save();uxText(document.getElementById('tech-w'),fmtWEx(key,p.w));uxSound('step',{n:Math.round(p.w/step),toString(){return 'n'+this.n;}});
+ const plan=loadPlan(key,p.w),span=document.querySelector?.('.n-drop-load .lbl');if(span)span.textContent=`${uLabelEx(key)}${plan&&Array.isArray(plan.perPoint)&&plan.perPoint.length&&plan.points===2?` · Por lado ${plan.perPoint.map(x=>fmtNum(fromKgEx(key,x))).join(' + ')}`:''}`;
+}
+function uiTechN(dir){
+ const p=uxTechP();if(!p)return;const f=p.type==='drop'?'r':'n',next=Math.max(p.type==='drop'?1:0,(Number(p[f])||0)+dir);
+ if(next===p[f])return;p[f]=next;save();
+ const el=document.getElementById('tech-n');if(el){uxText(el,String(next));uxAnim(el,[{transform:'scale(1.25)'},{transform:'none'}],{spring:'bouncy'});}
+ uxSound('step',{n:next,toString(){return 'n'+this.n;}});if(p.type==='partials'&&dir>0)uxHaptic([12]);
+}
 function uiTechDrop(){
- const T=window.__tech;if(!T)return;const r=parseInt(T.r,10);
- if(!(r>0)){uxTechError('Escribe cuántas repeticiones salieron en esta caída.');return;}
- if(!(T.w>=0)||T.w>=(T.drops.length?T.drops[T.drops.length-1].w:T.kg)-1e-9){uxTechError('La caída tiene que pesar menos que lo anterior.');return;}
- T.drops.push({w:T.w,r});uxSound('clink',.8);uxHaptic([20]);
- if(T.drops.length>=2){uiTechFinish();return;}
- T.w=dropWeight(db.active.exercises[T.xi].key,T.w);T.r='';uxTechRender();
+ const p=uxTechP();if(!p||p.type!=='drop')return;
+ if(!commitChange(()=>{p.drops.push({w:p.w,r:p.r});}))return uiSaveState();
+ uxSound('pluck',p.drops.length+2);uxHaptic([25]);
+ if(p.drops.length>=2){uxTechStore({type:'drop',drops:p.drops});return;}
+ const key=db.active.exercises[p.xi].key;commitChange(()=>{p.w=dropWeight(key,p.w);});render();
 }
-function uiTechFinish(){const T=window.__tech;if(!T)return;uxTechStore({type:'drop',drops:T.drops});}
-function uiTechSave(){
- const T=window.__tech;if(!T)return;const n=parseInt(T.n,10);
- if(!(n>0)){uxTechError(T.type==='hold'?'Escribe cuántos segundos la sostuviste.':'Escribe cuántas repeticiones salieron.');return;}
- uxTechStore(T.type==='hold'?{type:'hold',s:n}:T.type==='myo'?{type:'myo',r:n,cycles:T.cycles||Math.floor(n/2)}:{type:'partials',r:n});
+function uiTechMyo(n){
+ const p=uxTechP();if(!p||p.type!=='myo')return;
+ if(n===2){commitChange(()=>{p.cycles++;p.phase='rest';p.end=Date.now()+5000;});uxSound('pluck',p.cycles+1);uxHaptic([20]);render();return;}
+ uxTechStore({type:'myo',r:p.cycles*2+n,cycles:p.cycles});
 }
+function uiTechHold(){const p=uxTechP();if(!p)return;try{unlockAudio();}catch{}commitChange(()=>{p.phase='hold';p.start=Date.now();p.end=p.start+30000;});uxSound('techGo');uxHaptic([40]);render();}
+function uiTechHoldStop(){const p=uxTechP();if(!p)return;uxTechStore({type:'hold',s:Math.max(1,Math.round((Date.now()-p.start)/1000))});}
+function uiTechSave(){const p=uxTechP();if(!p)return;if(p.type==='partials'&&!(p.n>0)){uiTechCancel();return;}uxTechStore({type:'partials',r:p.n});}
+/* guardar (o no) y que empiece el descanso: la técnica era parte de la serie */
 function uxTechStore(raw){
- const T=window.__tech,ex=db.active?.exercises[T?.xi],st=ex?.sets[T.si],tech=cleanTech(raw);if(!st||!tech){uiTechSkip();return;}
- if(!commitChange(()=>{st.tech=tech;delete st.techDraft;})){uiSaveState();return;}
- window.__tech=null;closeModal();
- /* la técnica es parte de la serie: el descanso empieza al terminarla */
- if(restUntil){startRestAuto(ex.key);db.active.uiRest=true;save();}
- render();uxSound('techDone');uxHaptic([30,40,60]);
- const card=document.querySelector?.('.n-saved-set,.n-current-label');if(card)uxSparks?.(card);
+ const p=uxTechP();if(!p)return;const ex=db.active.exercises[p.xi],st=ex.sets[p.si],tech=raw?cleanTech(raw):null;
+ clearInterval(window.__techInt);window.__techKey=null;
+ if(!commitChange(()=>{if(tech)st.tech=tech;delete db.active.techPending;startRestAuto(ex.key);db.active.restKey=ex.key;db.active.uiRest=!!restUntil;}))return uiSaveState();
+ render();
+ if(tech){uxSound('techDone');uxHaptic([30,40,60]);const status=document.querySelector?.('.n-rest-status');if(status)uxSparks(status);uxConfetti?.([[.5,.3,36,6.2,7]]);}
+ else uxSound('back');
 }
-function uiTechSkip(){window.__tech=null;closeModal();render();}
-
-/* ---------- guía con reloj: myo-reps y pausa estirada ---------- */
-function uiTechGuide(xi,si){
- const ex=db.active?.exercises[xi],t=uxTechActive(xi);if(!ex||!(t==='myo'||t==='hold'))return;
- clearInterval(window.__techGuide?.int);
- window.__techGuide={xi,si,type:t,phase:'ready',cycles:0,end:0,start:0,last:null,int:0};
- openModal(`<div id="ux-tech-guide" class="n-tech-sheet n-tech-guide">${uxGuideBody()}</div>`);
-}
-function uxGuideBody(){
- const G=window.__techGuide;if(!G)return '';const myo=G.type==='myo',head=`<span class="n-eyebrow">${uiIcon('flame')} ${TECHS[G.type].label}</span>`;
- const clock=(label,sec,frac)=>`<div class="n-warmup-clock n-tech-clock" role="timer"><svg viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="70" class="n-warmup-ring-track"/><circle id="tech-ring" cx="80" cy="80" r="70" style="stroke-dashoffset:${440*(1-frac)}"/></svg><strong id="tech-time">${sec}</strong><small id="tech-label">${label}</small></div>`;
- if(G.phase==='ready')return `${head}<h2>${myo?'Cuando llegues al fallo…':'Llega al fallo y sostén.'}</h2><p class="muted">${myo?'Toca para empezar la primera pausa de 5 s. Te aviso para cada mini-serie de 2 reps.':'Toca al llegar al fallo y quédate en la posición estirada: cuento 30 s y te aviso al final.'}</p>${uiButton(myo?'Llegué al fallo · pausa de 5 s':'Llegué al fallo · contar 30 s','uiGuideStart()','play')}`;
- if(G.phase==='rest')return `${head}<h2>Respira.</h2>${clock('Pausa',5,1)}<p class="muted n-tech-center">Mini-series hechas: <b>${G.cycles}</b></p>`;
- if(G.phase==='go')return `${head}<h2 class="n-tech-go">¡2 reps!</h2><p class="muted n-tech-center">Mini-serie ${G.cycles+1}. ¿Salieron?</p><div class="n-tech-choices">${uiButton('Las 2','uiGuideMyo(2)','check')}${uiButton('Solo 1','uiGuideMyo(1)','minus','secondary')}${uiButton('Ninguna','uiGuideMyo(0)','close','secondary')}</div>`;
- if(G.phase==='hold')return `${head}<h2>Sostén.</h2>${clock('Segundos',30,1)}${uiButton('Lo solté antes','uiGuideHoldStop()','close','secondary')}`;
- return `${head}<h2>${myo?`+${G.result} reps.`:`${G.result} s.`}</h2><p class="muted">${myo?`${G.cycles} ${G.cycles===1?'mini-serie':'mini-series'} completas.`:G.result>=30?'Pausa completa.':'Cuenta igual: lo anotado es lo que hiciste.'} Se anota al registrar la serie.</p>${uiButton('Volver a mi serie','uiGuideClose()','back')}`;
-}
-function uxGuideRender(){const el=document.getElementById('ux-tech-guide');if(el)el.innerHTML=uxGuideBody();}
-function uiGuideStart(){const G=window.__techGuide;if(!G)return;unlockAudio?.();if(G.type==='myo')uxGuideRest();else{G.phase='hold';G.start=Date.now();G.end=G.start+30000;G.last=null;uxGuideRender();uxSound('techGo');uxHaptic([40]);uxGuideTick();}}
-function uxGuideRest(){const G=window.__techGuide;G.phase='rest';G.end=Date.now()+5000;G.last=null;uxGuideRender();uxSound('wood');uxGuideTick();}
-function uxGuideTick(){
- const G=window.__techGuide;clearInterval(G.int);
- G.int=setInterval(()=>{
-  if(window.__techGuide!==G||!document.getElementById('tech-time')){clearInterval(G.int);return;}
-  const total=G.phase==='rest'?5:30,left=Math.max(0,Math.ceil((G.end-Date.now())/1000));
-  const ring=document.getElementById('tech-ring'),time=document.getElementById('tech-time');
-  if(ring)ring.style.strokeDashoffset=String(440*(1-Math.max(0,(G.end-Date.now())/(total*1000))));
-  if(left!==G.last){G.last=left;if(time)uxText(time,String(left));if(left>0&&(G.phase==='rest'||left<=3))uxSound(G.phase==='rest'?'wood':'countdown');}
-  if(left<=0){clearInterval(G.int);
-   if(G.phase==='rest'){G.phase='go';uxGuideRender();uxSound('techGo');uxHaptic([60,40,60]);const h=document.querySelector?.('#ux-tech-guide .n-tech-go');uxAnim(h,[{transform:'scale(.6)',opacity:0},{transform:'none',opacity:1}],{spring:'bouncy'});}
-   else uxGuideDone(30);}
- },120);
-}
-function uiGuideMyo(n){const G=window.__techGuide;if(!G)return;if(n===2){G.cycles++;uxSound('pluck',G.cycles);uxGuideRest();return;}uxGuideDone(G.cycles*2+n);}
-function uiGuideHoldStop(){const G=window.__techGuide;if(!G)return;uxGuideDone(Math.max(1,Math.round((Date.now()-G.start)/1000)));}
-function uxGuideDone(result){
- const G=window.__techGuide;if(!G)return;clearInterval(G.int);G.phase='done';G.result=result;
- const st=db.active?.exercises[G.xi]?.sets[G.si];
- if(st&&result>0)commitChange(()=>{st.techDraft=G.type==='myo'?{type:'myo',r:result,cycles:G.cycles}:{type:'hold',s:result};});
- uxGuideRender();uxSound(result>0?'restDone':'back');uxHaptic([30,40,60]);
-}
-function uiGuideClose(){const G=window.__techGuide;if(G)clearInterval(G.int);window.__techGuide=null;closeModal();render();}
+function uiTechCancel(){const p=uxTechP();if(!p)return;uxTechStore(p.type==='drop'&&p.drops.length?{type:'drop',drops:p.drops}:p.type==='partials'&&p.n>0?{type:'partials',r:p.n}:null);}
 
 /* ---------- el cierre en capítulos ----------
    Cada capítulo dura 7 s y avanza solo la primera vez. Tocar a un lado pasa
