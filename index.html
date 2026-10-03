@@ -4943,7 +4943,7 @@ function bestSetDelta(key, prev, now){
 function prevEntryOf(rec, key){
   let out = null, when = '';
   for(const h of db.history){
-    if(h.id === rec.id || h.deload || !(h.date < rec.date) || h.date <= when) continue;
+    if(h.id === rec.id || h.deload || h.date > rec.date || (out && h.date < when)) continue;
     const e = h.entries.find(x => x.key === key && x.sets.length);
     if(e){ out = e; when = h.date; }
   }
@@ -4967,7 +4967,7 @@ function finishScreenHTML(rec, prs, failNote, from = ''){
   const routine = esc(rec.routineName);
   const series = n => `${n} serie${n === 1 ? '' : 's'}`;
   /* la fuerza se compara con la última sesión completa del mismo día del plan */
-  const sameDay = routineSessions(rec).filter(h => h.id !== rec.id && !h.deload && h.date < rec.date);
+  const sameDay = routineSessions(rec).filter(h => h.id !== rec.id && !h.deload && h.date <= rec.date);
   const completeSession = h => !h.plannedSets || h.entries.reduce((n,e)=>n+e.sets.length,0) >= h.plannedSets;
   const prevSessions = sameDay.filter(completeSession);
   const lastSession = prevSessions.length ? prevSessions[prevSessions.length - 1] : null;

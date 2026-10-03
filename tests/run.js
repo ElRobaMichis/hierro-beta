@@ -3503,12 +3503,15 @@ tqEx.sets[1]={...tqEx.sets[1],w:'20',r:'8',rir:'0'};db.settings.rest='auto';uiLo
 chk(tqEx.sets[1].done&&db.active.techPending?.type==='drop'&&!restUntil&&!db.active.uiRest,'al registrarla empieza la técnica y el descanso espera');
 chk(uiSession().includes('n-tech-stage tech-drop')&&uiSession().includes('Caída 1 de 2')&&uiSession().includes('n-drop-stairs')&&!uiSession().includes('Descansando'),'la sesión pasa a la pantalla propia del drop set, con su escalera');
 const tqW1=db.active.techPending.w;chk(tqW1<db.active.techPending.from,'la primera caída propone un peso menor');
+const tqOff=discosOffset('tq-press'),tqStage=uiSession();
+chk(tqOff>0&&tqStage.includes(`<strong id="tech-w">${fmtWEx('tq-press',tqW1-tqOff)}</strong>`)&&tqStage.includes('Discos totales · kg')&&tqStage.includes('sin la barra'),'con barra, el peso de la caída se muestra como en la serie: solo discos');
+chk(/Por lado: <s>[^<]+<\/s> → <b>[^<]+<\/b>/.test(tqStage),'y dice qué cambia en cada lado');
 uiTechN(-1);uiTechDrop();
 chk(db.active.techPending.drops.length===1&&db.active.techPending.drops[0].r===7&&db.active.techPending.w<tqW1&&uiSession().includes('Caída 2 de 2'),'guardar la caída 1 propone la segunda, más ligera');
 uiTechW(1);chk(db.active.techPending.w<tqW1,'el peso de la caída nunca sube por encima de la anterior');
 uiTechDrop();
 chk(tqEx.sets[1].tech?.type==='drop'&&tqEx.sets[1].tech.drops.length===2&&!db.active.techPending&&tqEx.sets[1].w==='20'&&tqEx.sets[1].r==='8','al terminar, las caídas quedan en la serie sin tocar su peso ni sus reps');
-chk(!!restUntil&&db.active.uiRest&&uiSession().includes('Serie guardada · Drop '),'y empieza el descanso, que recuerda lo hecho');
+chk(!!restUntil&&db.active.uiRest&&uiSession().includes('Serie guardada · Drop set · 2 caídas'),'y empieza el descanso, que recuerda lo hecho');
 db.settings.rest='off';uiResetRest();
 const tqEntries=collectEntries(db.active),tqSet=tqEntries[0].sets[1],tqBase=tqEntries[0].sets.map(x=>({w:x.w,r:x.r,rir:x.rir}));
 chk(tqSet.tech&&tqSet.w===tqBase[1].w&&tqSet.r===8,'al historial va la técnica junto a la serie');

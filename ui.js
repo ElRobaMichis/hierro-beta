@@ -800,7 +800,7 @@ function uiSession(){
   const nextIndex=complete?s.exercises.findIndex((e,i)=>i!==xi&&!exDone(e)):xi;
   const nextCopy=nextIndex>=0?pushNextCopy(s,nextIndex):{body:'Todo listo para terminar y guardar.'};
   const restOrigin=Math.max(0,s.exercises.findIndex(e=>e.key===s.restKey));
-  work=`<div class="n-rest-phase"><span id="n-rest-announcement" class="sr-only" role="status"></span><div class="n-rest-status">${uiIcon('check')}Serie guardada${(()=>{const o=s.exercises[Math.max(0,s.exercises.findIndex(e=>e.key===s.restKey))],t=o?.sets.findLast(x=>x.done)?.tech;return t?` · ${techLine(o.key,t)}`:'';})()}</div><div class="rest ${rem?'on':'done'}" id="rest"><span id="restlabel">${rem?'Descansando':'Descanso listo'}</span><strong id="resttime">${rem?fmtClock(rem):'¡Vamos!'}</strong><div class="rest-track"><div id="restfill" class="rest-fill"></div></div></div><p>Respira. La siguiente puede esperar.</p>${uiButton('+30 segundos','uiAddRest()','plus','text')}<div class="n-rest-next"><span class="n-number">${complete?uiIcon('check'):si+1}</span><div><b>${complete?'Ejercicio completo':`Siguiente: serie ${si+1} de ${ex.sets.length}`}</b><small>${esc(nextCopy.body)}</small>${uxTechActive(xi)&&si===ex.sets.length-1&&!ex.sets[si]?.done?`<small class="n-tech-next">${uiIcon('flame')}Al terminarla: ${TECHS[uxTechActive(xi)].label.toLowerCase()}.</small>`:''}</div></div>${uiButton(rem?'Saltar descanso':'Continuar','uiContinue()')}${uiButton('Corregir la última serie',uiAction('uiEditSet',restOrigin,Math.max(0,s.exercises[restOrigin].sets.findLastIndex(st=>st.done))),'edit','text')}</div>`;
+  work=`<div class="n-rest-phase"><span id="n-rest-announcement" class="sr-only" role="status"></span><div class="n-rest-status">${uiIcon('check')}Serie guardada${(()=>{const o=s.exercises[Math.max(0,s.exercises.findIndex(e=>e.key===s.restKey))],t=o?.sets.findLast(x=>x.done)?.tech;return t?` · ${t.type==='drop'?`Drop set · ${t.drops.length} ${t.drops.length===1?'caída':'caídas'}`:techLine(o.key,t)}`:'';})()}</div><div class="rest ${rem?'on':'done'}" id="rest"><span id="restlabel">${rem?'Descansando':'Descanso listo'}</span><strong id="resttime">${rem?fmtClock(rem):'¡Vamos!'}</strong><div class="rest-track"><div id="restfill" class="rest-fill"></div></div></div><p>Respira. La siguiente puede esperar.</p>${uiButton('+30 segundos','uiAddRest()','plus','text')}<div class="n-rest-next"><span class="n-number">${complete?uiIcon('check'):si+1}</span><div><b>${complete?'Ejercicio completo':`Siguiente: serie ${si+1} de ${ex.sets.length}`}</b><small>${esc(nextCopy.body)}</small>${uxTechActive(xi)&&si===ex.sets.length-1&&!ex.sets[si]?.done?`<small class="n-tech-next">${uiIcon('flame')}Al terminarla: ${TECHS[uxTechActive(xi)].label.toLowerCase()}.</small>`:''}</div></div>${uiButton(rem?'Saltar descanso':'Continuar','uiContinue()')}${uiButton('Corregir la última serie',uiAction('uiEditSet',restOrigin,Math.max(0,s.exercises[restOrigin].sets.findLastIndex(st=>st.done))),'edit','text')}</div>`;
  }else if(complete){
   const next=s.exercises.findIndex((e,i)=>i!==xi&&!exDone(e));
   work=`<section class="n-ex-complete"><span class="n-complete-mark">${uiIcon('check')}</span><h2>Una más, hecha.</h2><p>${ex.sets.length} series de ${esc(exBaseName(ex.name))} confirmadas.</p>${uiButton(next<0?'Terminar sesión':`Siguiente: ${esc(exBaseName(s.exercises[next].name))}`,next<0?'askFinish()':uiAction('uiSelectExercise',next))}${uiButton('Añadir otra serie',uiAction('uiAddSet',xi),'plus','text')}</section>`;
@@ -1716,6 +1716,15 @@ function uxTechBegins(xi,si){
  return true;
 }
 function uxTechP(){const p=db.active?.techPending;return p&&db.active.exercises[p.xi]?.sets[p.si]?p:null;}
+/* en el drop set se habla como en la serie: si escribes solo los discos,
+   la pantalla también muestra solo discos, y qué cambia en cada lado */
+function uxDropW(key,kg){const off=discosOffset(key);return fmtWEx(key,Math.max(0,kg-(off>0?off:0)));}
+function uxDropSide(key,kg){const plan=loadPlan(key,kg);return plan&&Array.isArray(plan.perPoint)&&plan.points===2?(plan.perPoint.length?plan.perPoint.map(x=>fmtNum(fromKgEx(key,x))).join(' + '):'nada'):'';}
+function uxDropHint(key,from,to){
+ const a=uxDropSide(key,from),b=uxDropSide(key,to),off=discosOffset(key)>0;
+ if(a&&b)return `Por lado: <s>${a}</s> → <b>${b}</b>`;
+ return off?'Discos, sin la barra':`Total · ${uLabelEx(key)}`;
+}
 function uiTechStage(){
  const p=uxTechP();if(!p)return '';
  const ex=db.active.exercises[p.xi],d=TECHS[p.type],u=uLabelEx(ex.key);
@@ -1725,10 +1734,10 @@ function uiTechStage(){
  let body='';
  if(p.type==='drop'){
   const st=ex.sets[p.si],k=p.drops.length,cols=[{w:p.from,r:parseInt(st.r,10),l:'Tu serie'},{w:k>0?p.drops[0].w:k===0?p.w:null,r:p.drops[0]?.r,l:'Caída 1'},{w:k>1?p.drops[1].w:k===1?p.w:dropWeight(ex.key,k===0?p.w:p.drops[0].w),r:p.drops[1]?.r,l:'Caída 2'}];
-  const plan=loadPlan(ex.key,p.w),side=plan&&Array.isArray(plan.perPoint)&&plan.perPoint.length&&plan.points===2?`Por lado ${plan.perPoint.map(x=>fmtNum(fromKgEx(ex.key,x))).join(' + ')}`:'';
-  body=`<div class="n-drop-stairs" aria-hidden="true">${cols.map((c,i)=>`<div class="step ${i<=k?'done':''} ${i===k+1?'now':''}" style="--h:${[100,75,56][i]}%"><i></i><b>${c.w!=null?fmtWEx(ex.key,c.w):'—'}</b><small>${c.r?`× ${c.r}`:c.l}</small></div>`).join('')}</div>
-  <h2 class="n-tech-title">Caída ${k+1} de 2</h2><p class="n-tech-lead">Sin descanso: quita peso y otra vez al fallo.</p>
-  <div class="n-drop-load"><button type="button" aria-label="Menos peso" onclick="uiTechW(-1)">−</button><div><strong id="tech-w">${fmtWEx(ex.key,p.w)}</strong><em class="lbl">${u}${side?` · ${side}`:''}</em></div><button type="button" aria-label="Más peso" onclick="uiTechW(1)">+</button></div>
+  const prevW=k?p.drops[k-1].w:p.from,off=discosOffset(ex.key)>0;
+  body=`<div class="n-drop-stairs" aria-hidden="true">${cols.map((c,i)=>`<div class="step ${i<=k?'done':''} ${i===k+1?'now':''}" style="--h:${[100,75,56][i]}%"><i></i><b>${c.w!=null?uxDropW(ex.key,c.w):'—'}</b><small>${c.r?`× ${c.r}`:c.l}</small></div>`).join('')}</div>
+  <h2 class="n-tech-title">Caída ${k+1} de 2</h2><p class="n-tech-lead">Sin descanso: quita peso${off?'':` hasta ${fmtWEx(ex.key,p.w)} ${u}`} y otra vez al fallo.</p>
+  <div class="n-drop-load"><span class="cap">${off?'Discos totales':'Peso'} · ${u}</span><button type="button" aria-label="Menos peso" onclick="uiTechW(-1)">−</button><div><strong id="tech-w">${uxDropW(ex.key,p.w)}</strong><em class="lbl">${off?`Antes ${uxDropW(ex.key,prevW)} · sin la barra`:`Antes ${fmtWEx(ex.key,prevW)}`}</em></div><button type="button" aria-label="Más peso" onclick="uiTechW(1)">+</button><p class="side" id="tech-side">${uxDropHint(ex.key,prevW,p.w)}</p></div>
   <div class="n-tech-count"><span>Repeticiones</span><div><button type="button" aria-label="Menos repeticiones" onclick="uiTechN(-1)">−</button><strong id="tech-n">${p.r}</strong><button type="button" aria-label="Más repeticiones" onclick="uiTechN(1)">+</button></div></div>
   ${uiButton(`Guardar caída ${k+1}`,'uiTechDrop()','check')}`;
  }else if(p.type==='myo'){
@@ -1777,7 +1786,7 @@ function uxTechEnter(stage,p){
   const now=q('.n-drop-stairs .step.now i');
   if(now)uxAnim(now,[{filter:'brightness(1)'},{filter:'brightness(1.5)',offset:.5},{filter:'brightness(1)'}],{duration:1400,delay:500,easing:'ease-in-out'});
   const w=q('#tech-w'),prev=p.drops.length?p.drops[p.drops.length-1].w:p.from,ex=db.active.exercises[p.xi];
-  if(w&&prev){w.textContent=fmtWEx(ex.key,prev);setTimeout(()=>{if(w.isConnected){uxText(w,fmtWEx(ex.key,p.w));uxSound('clink',.7);setTimeout(()=>uxSound('clink',.62),140);uxHaptic([20,30,20]);}},380);}
+  if(w&&prev){w.textContent=uxDropW(ex.key,prev);setTimeout(()=>{if(w.isConnected){uxText(w,uxDropW(ex.key,p.w));uxSound('clink',.7);setTimeout(()=>uxSound('clink',.62),140);uxHaptic([20,30,20]);}},380);}
  }
  if(p.type==='myo'&&p.phase==='go'){uxAnim(q('.n-myo-go'),[{transform:'scale(.3)',opacity:0},{transform:'scale(1.15)',opacity:1,offset:.6},{transform:'none'}],{duration:700,easing:'cubic-bezier(.2,.9,.3,1.3)'});}
  if(p.type==='myo')stage.querySelectorAll('.n-myo-dots i.on').forEach((d,i,all)=>{if(i===all.length-1)uxAnim(d,[{transform:'scale(.2)'},{transform:'none'}],{spring:'bouncy',delay:200});});
@@ -1787,8 +1796,8 @@ function uxTechEnter(stage,p){
 function uiTechW(dir){
  const p=uxTechP();if(!p||p.type!=='drop')return;const key=db.active.exercises[p.xi].key,step=effStep(key,p.w)||2.5,cap=(p.drops.length?p.drops[p.drops.length-1].w:p.from)-step;
  const next=Math.max(0,Math.min(cap,Math.round((p.w+dir*step)*1000)/1000));if(next===p.w){uxSound('back');return;}
- p.w=next;save();uxText(document.getElementById('tech-w'),fmtWEx(key,p.w));uxSound('step',{n:Math.round(p.w/step),toString(){return 'n'+this.n;}});
- const plan=loadPlan(key,p.w),span=document.querySelector?.('.n-drop-load .lbl');if(span)span.textContent=`${uLabelEx(key)}${plan&&Array.isArray(plan.perPoint)&&plan.perPoint.length&&plan.points===2?` · Por lado ${plan.perPoint.map(x=>fmtNum(fromKgEx(key,x))).join(' + ')}`:''}`;
+ p.w=next;save();uxText(document.getElementById('tech-w'),uxDropW(key,p.w));uxSound('step',{n:Math.round(p.w/step),toString(){return 'n'+this.n;}});
+ const side=document.getElementById('tech-side');if(side)side.innerHTML=uxDropHint(key,p.drops.length?p.drops[p.drops.length-1].w:p.from,p.w);
 }
 function uiTechN(dir){
  const p=uxTechP();if(!p)return;const f=p.type==='drop'?'r':'n',next=Math.max(p.type==='drop'?1:0,(Number(p[f])||0)+dir);

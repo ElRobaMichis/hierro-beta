@@ -26,12 +26,12 @@ Muchos programas, como el de Jeff Nippard, añaden en un segundo bloque una téc
 
 | Técnica | La pantalla |
 |---|---|
-| Drop set (coral) | Una escalera de tres barras que baja: tu serie, caída 1 y caída 2. El peso de cada caída rueda hacia abajo con un sonido de discos al quitarse, ya ajustado a tu equipo y con lo que va por lado; se puede afinar con − y +, nunca por encima de lo anterior. Anotas las reps de cada caída. |
+| Drop set (coral) | Una escalera de tres barras que baja: tu serie, caída 1 y caída 2. El peso de cada caída rueda hacia abajo con un sonido de discos al quitarse, ya ajustado a tu equipo. Se muestra igual que en la serie: en barra y aparatos con peso propio, solo los discos, sin la barra (40 → 25), y debajo qué cambia en cada lado («Por lado: 20 → 10 + 2,5»). Se puede afinar con − y +, nunca por encima de lo anterior. Anotas las reps de cada caída. |
 | Myo-reps (aguamarina) | La pausa de 5 s empieza sola, con un reloj que respira y un tic por segundo. Al terminar, un «2» enorme pide las reps; «Las 2» vuelve a la pausa, «Solo 1» o «Ninguna» terminan. Unas fichas cuentan las mini-series. |
 | Parciales alargadas (ámbar) | El arco del recorrido con su parte estirada iluminada y un punto que va y viene ahí. Un círculo grande suma una parcial por toque. |
 | Pausa estirada (azul) | Una barra en tensión espera a que estés en posición; «Empezar los 30 s» abre un reloj que late y avisa en los últimos 3. «Lo solté antes» anota los segundos aguantados. |
 
-Al terminar, el descanso arranca con «Serie guardada · Drop 45 × 8 → 35 × 8», una campana y un poco de confeti. Todo se guarda en la sesión: si cierras la app a mitad de la técnica, vuelve donde ibas. En una descarga no se propone.
+Al terminar, el descanso arranca con «Serie guardada · Drop set · 2 caídas», una campana y un poco de confeti. El diario guarda el detalle con el peso total, como el resto de tus series. Todo se guarda en la sesión: si cierras la app a mitad de la técnica, vuelve donde ibas. En una descarga no se propone.
 
 ## Lo que no cambia
 

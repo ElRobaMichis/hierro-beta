@@ -1694,6 +1694,10 @@ body:has(.modal) .n-record-dock,body:has(.modal) .n-work-action{visibility:hidde
 .n-drop-load button,.n-tech-count button{width:52px;height:52px;padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fffefa;font:inherit;font-size:26px;line-height:1}
 .n-drop-load strong{display:block;font-size:58px;font-weight:850;letter-spacing:-.05em;line-height:1;color:var(--tc);font-variant-numeric:tabular-nums}
 .n-drop-load .lbl{display:block;margin-top:4px;font-style:normal;font-size:12px;color:rgba(238,244,230,.62)}
+.n-drop-load .cap{grid-column:1 / -1;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(238,244,230,.6)}
+.n-drop-load .side{grid-column:1 / -1;margin:2px auto 0;padding:8px 14px;border-radius:999px;background:rgba(255,155,120,.12);border:1px solid rgba(255,155,120,.3);font-size:14px;color:#fffefa}
+.n-drop-load .side s{color:rgba(238,244,230,.5);text-decoration-color:rgba(238,244,230,.4)}
+.n-drop-load .side b{color:var(--tc);font-weight:800}
 .n-tech-count{display:flex;justify-content:space-between;align-items:center;padding:8px 10px 8px 16px;border-radius:20px;background:rgba(255,255,255,.06)}
 .n-tech-count>span{font-size:13px;color:rgba(238,244,230,.72)}
 .n-tech-count>div{display:flex;align-items:center;gap:10px}
