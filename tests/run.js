@@ -3557,6 +3557,46 @@ chk(db.history.find(h=>h.id===tqRec.id).entries[0].sets[1].tech?.type==='drop','
 chk(finishScreenHTML(db.history.find(h=>h.id===tqRec.id),[],'').includes('<span class="fin-tech">+ Drop set</span>'),'en el cierre, antes → ahora marca el ejercicio con técnica');
 uiResetRest();db.active=null;
 
+suite('3.17.0 — descarga por esfuerzo: mismas series, solo paras antes');
+resetDB();uiResetRest();db.gym=defaultGym('kg');db.settings.unit='kg';db.settings.rest='off';db.settings.health='off';db.settings.sound='off';
+Object.assign(exMeta('dl-press'),{equip:'barra',muscle:'pecho',lo:8,hi:10});Object.assign(exMeta('dl-calf'),{equip:'placas',muscle:'pantorrillas',lo:10,hi:12});
+const dlSp=db.splits[0];
+db.routines=[{id:'dl-day',name:'Upper',split:dlSp.id,exercises:[{id:'d1',key:'dl-press',name:'Press banca'},{id:'d2',key:'dl-calf',name:'Calf press'}]}];
+/* la última vez: tope del rango en las 3 series, así que la propuesta normal sube */
+db.history.push({id:'dl-h1',routineId:'dl-day',routineName:'Upper',date:new Date(Date.now()-7*864e5).toISOString(),duration:3000,plannedSets:6,
+  entries:[{key:'dl-press',name:'Press banca',sets:[S(60,10,0),S(60,10,0),S(60,10,1)]},{key:'dl-calf',name:'Calf press',sets:[S(80,12,0),S(80,12,0),S(80,12,0)]}]});
+rebuildProgress(false);
+const dlNormal=withSplitContext(dlSp.id,()=>computeSuggestion('dl-press'));
+chk(dlNormal.type==='up'&&dlNormal.sets===3,'sin descarga, tocaba subir en 3 series');
+view={name:'home'};startSession('dl-day',true);
+chk(db.active.exercises[0].sets.length===2&&db.active.exercises[0].sugg.w<60&&!db.active.deloadKind,'la descarga clásica sigue igual: menos carga y la mitad de series');
+db.active=null;startSession('dl-day','rir');
+const rirEx2=db.active.exercises[0],rirSg=rirEx2.sugg;
+chk(db.active.deload&&db.active.deloadKind==='rir'&&rirEx2.sets.length===3&&rirSg.w===60&&rirSg.range?.join('-')==='8-10','por esfuerzo: mismas series y la carga de la última vez, sin subir');
+chk(rirSg.msg.includes('60 kg × 8–10')&&rirSg.msg.includes('RIR 3 · 2 · 2')&&uiProposalValue(rirEx2)===`${fmtWEx('dl-press',kgToTyped('dl-press',60))} kg · 8–10 reps`,'la propuesta dice el rango completo y el RIR de cada serie');
+chk(deloadRirFor('dl-press',0)===3&&deloadRirFor('dl-press',1)===2&&deloadRirFor('dl-press',2)===2,'por defecto, RIR 3 en la primera serie y 2 en las demás');
+db.active.exercises[0].warmupDone=true;delete db.active.exercises[0].warmup;
+chk(uiSession().includes('n-deload-target')&&uiSession().includes('Para con 3 en reserva'),'cada serie muestra con cuánta reserva parar');
+uiRIR(0,0,true);chk(els['modalhost'].innerHTML.includes('is-goal')&&els['modalhost'].innerHTML.includes('El objetivo de esta descarga era RIR 3'),'al anotar el RIR se marca el objetivo');closeModal();
+chk(setExDeloadRir('dl-calf','1,0')&&deloadRirFor('dl-calf',0)===1&&deloadRirFor('dl-calf',2)===0&&dlSp.exconf['dl-calf']?.deloadRir==='1,0','cada ejercicio puede pedir otra reserva, como la pantorrilla: 1 y luego al fallo');
+chk(db.active.exercises[1].sugg.msg.includes('RIR 1 · 0 · 0'),'y la propuesta en curso se actualiza');
+uiDeloadRirPicker(1);chk(els['modalhost'].innerHTML.includes('¿Con cuánta reserva paras?'),'se cambia desde la propia serie');uiChooseDeloadRir(1,'normal');
+chk(deloadRirFor('dl-calf',0)===null&&!uiDeloadTarget(1,0).includes('n-deload-rir"><b>3'),'«Como siempre» quita el objetivo en ese ejercicio');
+chk(setExDeloadRir('dl-calf','9,x')===false&&deloadRirFor('dl-calf',0)===null,'un objetivo inválido no se guarda');
+setExDeloadRir('dl-calf','1,0');
+/* lo registrado no toca la progresión: la próxima normal vuelve a proponer subir */
+const rirA=db.active.exercises[0];rirA.sets.forEach((st,i)=>{st.w='40';st.r=String(8-i);st.rir=String(3-Math.min(i,1));});
+db.active.exercises[1].sets.forEach(st=>{st.w='80';st.r='12';st.rir='1';});
+confirmFixtureSets();finishSession();
+const rirRec=db.history[db.history.length-1];
+chk(rirRec.deload&&rirRec.deloadKind==='rir'&&els['modalhost'].innerHTML.includes('Las mismas series, con reserva a propósito.'),'el cierre la reconoce como descarga por esfuerzo');
+closeModal();
+chk(withSplitContext(dlSp.id,()=>computeSuggestion('dl-press')).type==='up','y la progresión sigue donde iba: la próxima sesión normal propone subir');
+chk(splitProfile(dlSp.id).split.exconf['dl-calf']?.deloadRir==='1,0','el plan compartible se lleva la reserva de cada ejercicio');
+window.__splitImport={split:{name:'Copia',days:[],exconf:{a:{deloadRir:'1,0'},b:{deloadRir:'7,x'}}}};applySplitImport();
+const dlImp=db.splits[db.splits.length-1];chk(dlImp.exconf.a?.deloadRir==='1,0'&&!dlImp.exconf.b,'al importar solo pasan objetivos válidos');
+uiDeload('dl-day');chk(els['modalhost'].innerHTML.includes('Por esfuerzo (RIR)')&&els['modalhost'].innerHTML.includes('Clásica'),'al empezar una descarga se elige el tipo');closeModal();
+
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));
 console.log(fail === 0 ? `TODOS LOS TESTS OK (${pass})` : `${fail} FALLOS de ${pass + fail}`);

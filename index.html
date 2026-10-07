@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.16.0">
+<link rel="stylesheet" href="ui.css?v=3.17.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.16.0"></script>
-<script src="sync-core.js?v=3.16.0"></script>
-<script src="sync-engine.js?v=3.16.0"></script>
-<script src="qr.js?v=3.16.0"></script>
-<script src="sync.js?v=3.16.0"></script>
-<script src="push-core.js?v=3.16.0"></script>
-<script src="push.js?v=3.16.0"></script>
+<script src="ui.js?v=3.17.0"></script>
+<script src="sync-core.js?v=3.17.0"></script>
+<script src="sync-engine.js?v=3.17.0"></script>
+<script src="qr.js?v=3.17.0"></script>
+<script src="sync.js?v=3.17.0"></script>
+<script src="push-core.js?v=3.17.0"></script>
+<script src="push.js?v=3.17.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.16.0';
+const APP_VERSION = '3.17.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -1215,8 +1215,58 @@ function lastEntry(key, beforeISO){
 
 /* transformar la sugerencia normal en objetivo de descarga:
    ~10 % menos carga y la mitad de las series (50 % del volumen) */
-function deloadSugg(key, sugg){
+/* descarga por esfuerzo (la de la semana 7 de Jeff Nippard): mismas series,
+   mismo rango y la carga de la última vez; solo se para antes. El objetivo
+   de reserva va por serie —por defecto RIR 3 en la primera y 2 en las
+   demás— y cada ejercicio puede pedir otro (pantorrilla: 1 y 0). */
+const DELOAD_RIR_DEFAULT = '3,2';
+function validDeloadRir(v){ return v === 'normal' || /^[0-5](,[0-5]){0,4}$/.test(String(v || '')); }
+function deloadRirTargets(key){
+  const oc = splitConf(key), v = oc && validDeloadRir(oc.deloadRir) ? oc.deloadRir : validDeloadRir(exMeta(key).deloadRir) ? exMeta(key).deloadRir : DELOAD_RIR_DEFAULT;
+  return v === 'normal' ? null : v.split(',').map(Number);
+}
+function deloadRirFor(key, si){
+  if(exMeta(key).type === 'tiempo') return null;
+  const t = deloadRirTargets(key);
+  return t ? t[Math.min(si, t.length - 1)] : null;
+}
+function setExDeloadRir(key, val){
+  if(val && !validDeloadRir(val)) return false;   /* lo inválido no pisa lo que había */
+  const v = val || '';
+  return commitChange(() => {
+    const sp = db.splits.find(x => x.id === ctxSplitId());
+    if(sp){
+      if(!sp.exconf || typeof sp.exconf !== 'object') sp.exconf = {};
+      const oc = sp.exconf[key] || (sp.exconf[key] = {});
+      if(v && v !== DELOAD_RIR_DEFAULT) oc.deloadRir = v; else delete oc.deloadRir;
+      if(!Object.keys(oc).length) delete sp.exconf[key];
+    } else {
+      const m = exMeta(key);
+      if(v && v !== DELOAD_RIR_DEFAULT) m.deloadRir = v; else delete m.deloadRir;
+    }
+    if(db.active) for(const ex of db.active.exercises) if(ex.key === key) refreshActiveSugg(key);
+  });
+}
+function rirDeloadSugg(key, sugg){
+  const meta = exMeta(key), { lo, hi } = effRange(key), sets = sugg.sets;
+  /* en una descarga no se sube: si tocaba más carga, se queda la de la última vez */
+  let w = sugg.w;
+  if(sugg.type === 'up'){
+    const hist = exerciseHistory(key).filter(h => !h.deload), last = hist[hist.length - 1];
+    const lw = last ? workWeight(last.sets) : null;
+    if(Number.isFinite(lw)) w = lw;
+  }
+  const time = meta.type === 'tiempo', reps = time ? sugg.reps : lo;
+  const t = time ? null : deloadRirTargets(key);
+  const rirs = t ? Array.from({ length: sets }, (_, i) => t[Math.min(i, t.length - 1)]).join(' · ') : '';
+  const load = time ? `${reps} s` : `${meta.type === 'corporal' && !w ? '' : `${fmtWEx(key, w)} ${uLabelEx(key)}${meta.type === 'asistido' ? ' de ayuda' : ''} × `}${lo}–${hi}`;
+  return { w, reps, sets, type:'hold', label:'Descarga por esfuerzo', range:time ? null : [lo, hi],
+    msg:`Descarga: <b>${load}</b> en ${sets} serie${sets === 1 ? '' : 's'}${rirs ? `, parando con RIR ${rirs}` : ''}`,
+    why:`Descarga por esfuerzo: mismas series, mismo rango y la carga de la última vez. Solo paras antes${rirs ? ` (RIR ${rirs})` : ''}, para recuperar sin perder el ritmo. No cambia tu progresión ni compite por récords.` };
+}
+function deloadSugg(key, sugg, kind){
   if(!sugg) return null;
+  if((kind || (db.active && db.active.deloadKind)) === 'rir') return rirDeloadSugg(key, sugg);
   const meta = exMeta(key);
   const { lo } = effRange(key);
   const sets = Math.max(1, Math.ceil(sugg.sets / 2));
@@ -2389,6 +2439,7 @@ function applySplitImport(){
         if(!isNaN(v) && v >= 1) out[f] = v;
       }
       if(TECHS[o.tech] || o.tech === 'none') out.tech = o.tech;
+      if(o.deloadRir !== DELOAD_RIR_DEFAULT && validDeloadRir(o.deloadRir)) out.deloadRir = o.deloadRir;
       if(Object.keys(out).length) sp.exconf[k] = out;
     }
   }
@@ -4333,10 +4384,10 @@ function startSession(rid, deload, localOnly=false){
     routineId: r.id, routineName: r.name, splitId:r.split, open:0,
     start: Date.now(),
     suggestionVersion:APP_VERSION,
-    deload: !!deload, localOnly:!!localOnly,
+    deload: !!deload, localOnly:!!localOnly, ...(deload === 'rir' ? { deloadKind:'rir' } : {}),
     exercises: withSplitContext(r.split,()=>r.exercises.map(ex => {
       let sugg = computeSuggestion(ex.key);
-      if(deload) sugg = deloadSugg(ex.key, sugg);
+      if(deload) sugg = deloadSugg(ex.key, sugg, deload === 'rir' ? 'rir' : 'classic');
       /* sin historial no hay sugerencia, pero las series fijadas en el
          split mandan igual: un ejercicio nuevo con «3 series» sale con 3 */
       const n = sugg ? sugg.sets : (splitSetsOverride(ex.key) || 1);
@@ -4987,7 +5038,7 @@ function finishScreenHTML(rec, prs, failNote, from = ''){
   /* 1 · el titular: cuánto más fuerte, o lo que toque decir hoy */
   if(isDeload){
     add('lead', `<span class="k">Descarga guardada</span><h2>Recargar también <em>es avanzar.</em></h2>
-      <p>Series suaves, a propósito. Tu progresión y tus récords no se tocan: la próxima sesión normal retoma exactamente donde ibas.</p>`, ' data-tone="calm"');
+      <p>${rec.deloadKind === 'rir' ? 'Las mismas series, con reserva a propósito.' : 'Series suaves, a propósito.'} Tu progresión y tus récords no se tocan: la próxima sesión normal retoma exactamente donde ibas.</p>`, ' data-tone="calm"');
   } else if(strength){
     const p = strength.pct, fill = Math.max(18, Math.min(96, 70 + p * 4));
     const title = p > 0 ? `Fuiste <em>+${p} %</em> más fuerte.` : p === 0 ? `Sostuviste <em>tu fuerza.</em>` : `Hoy costó <em>un poco más.</em>`;
@@ -5142,7 +5193,7 @@ function finishSession(){
     duration: Math.floor((Date.now() - s.start)/1000),
     entries
   };
-  if(isDeload) rec.deload = true;
+  if(isDeload){ rec.deload = true; if(s.deloadKind === 'rir') rec.deloadKind = 'rir'; }
   /* los récords se guardan CON la sesión: así el historial puede marcarlos
      sin recalcular todo el pasado cada vez que se abre la pantalla */
   if(prs.length) rec.prs = prs.map(x => ({ key:x.key, name:x.name, now:x.now,

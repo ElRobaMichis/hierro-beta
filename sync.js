@@ -221,7 +221,7 @@ async function uiSyncResolve(linking){
 }
 async function uiSyncNow(){if(!hierroSync)return;await hierroSync.sync();syncNotify();}
 function syncForeignCard(){return syncForeign?`<section class="n-hero"><span class="n-eyebrow">Empezaste en otro dispositivo</span><h2>${esc(syncForeign.session.routineName)}</h2><p>Tu sesión está guardada en tu espacio. Puedes traerla aquí y continuar con tus series.</p>${uiButton('Continuar en este dispositivo','uiSyncClaim()','play')}</section>`:'';}
-function syncOfferContinue(rid,deload){openModal(`<h2>Hay una sesión en otro dispositivo.</h2><p class="muted">${esc(syncForeign?.session.routineName||'Tu sesión')} sigue allí. Puedes traerla con internet o registrar otro entrenamiento aquí y compartir el historial al terminar.</p>${uiButton('Continuar la otra sesión','closeModal();uiSyncClaim()','play')}${rid?uiButton('Entrenar aquí por separado',uiAction('startSession',rid,!!deload,true),'plus','secondary'):''}`);}
+function syncOfferContinue(rid,deload){openModal(`<h2>Hay una sesión en otro dispositivo.</h2><p class="muted">${esc(syncForeign?.session.routineName||'Tu sesión')} sigue allí. Puedes traerla con internet o registrar otro entrenamiento aquí y compartir el historial al terminar.</p>${uiButton('Continuar la otra sesión','closeModal();uiSyncClaim()','play')}${rid?uiButton('Entrenar aquí por separado',uiAction('startSession',rid,deload==='rir'?'rir':!!deload,true),'plus','secondary'):''}`);}
 async function uiSyncClaim(){
   try{if(db.active)throw new Error('Termina la sesión de este dispositivo antes de traer otra.');if(await hierroSync.claim(syncDevice))go({name:'session'});else{render();syncSchedule(100);}}catch(e){infoModal('No se pudo traer la sesión',esc(e.message));}
 }

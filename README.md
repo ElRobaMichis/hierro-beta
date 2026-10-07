@@ -6,6 +6,8 @@ Abre ese enlace en tu teléfono y añádelo a la pantalla de inicio. Se instala 
 
 Los planes y el historial se guardan en tu dispositivo. Puedes restaurar un respaldo de Hierro desde **Tú → Datos y respaldos**. Esta beta utiliza almacenamiento y cachés independientes de la aplicación principal; importar o editar aquí no cambia sus datos. La sincronización cifrada es opcional: crea o vincula tu espacio desde **Tú → Sincronización**. Los avisos remotos se activan por dispositivo y necesitan internet.
 
+La versión **3.17.0** añade la descarga por esfuerzo, como la semana 7 de Jeff Nippard: mismas series, mismo rango y la carga de la última vez, parando antes. Cada serie muestra su objetivo (RIR 3 en la primera y 2 en las demás) y cada ejercicio puede tener el suyo, como 1 y luego al fallo en la pantorrilla. La descarga clásica sigue disponible. Consulta [cómo funciona](docs/rir-deload-2026-10-07/README.md).
+
 La versión **3.16.0** añade la técnica de intensidad en la última serie: drop set, parciales alargadas, myo-reps o pausa estirada, como en el bloque 2 de muchos programas. Se elige por ejercicio (o solo en un plan) y, al registrar la última serie, la sesión pasa a una pantalla propia de cada técnica, con su escena y su animación, mientras el descanso espera; siempre se puede no hacerla. La progresión no cambia: la técnica se guarda aparte. Consulta [cómo funciona](docs/last-set-techniques-2026-10-03/README.md).
 
 La versión **3.15.1** evita perderse la historia por un toque de más: si quedan capítulos sin ver, «Listo» pide un segundo toque y dice cuántos faltan. Además, cualquier sesión del diario tiene «Ver la historia del día» para volver a verla desde el principio, con sus sonidos, y hacer las capturas que falten.
