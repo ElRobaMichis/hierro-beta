@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.17.0';
+const UI_VERSION = '3.18.0';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -749,13 +749,40 @@ function uiProposalValue(ex){
 }
 /* Antes de empezar: ¿el gimnasio activo es donde estás? Con ubicaciones guardadas se
    pregunta al teléfono, como mucho 4 s y con salida inmediata; sin ellas decide el historial. */
+/* Al empezar, la app mira una vez dónde estás para saber en cuál de tus
+   gimnasios entrenas o si es uno nuevo. Se pregunta una sola vez si quieres
+   que lo haga; después manda tu elección (Tú → Mis gimnasios) y el permiso
+   del navegador, que la app nunca vuelve a pedir por su cuenta. */
 function uiBeginSession(rid,deload=false){
- if(db.active||db.gyms.length<2||(typeof syncForeign!=='undefined'&&syncForeign)){startSession(rid,deload);return;}
- const token=window.__gymCheck=uid();
- if(!db.gyms.some(g=>validGeo(g.geo))){uiGymCheckResolve(token,rid,deload,null,false);return;}
+ if(db.active||(typeof syncForeign!=='undefined'&&syncForeign)){startSession(rid,deload);return;}
+ const token=window.__gymCheck=uid(),mapped=db.gyms.some(g=>validGeo(g.geo));
+ if(!mapped||db.settings.gymDetect==='off'){if(db.gyms.length<2){window.__gymCheck=null;startSession(rid,deload);return;}uiGymCheckResolve(token,rid,deload,null,false);return;}
+ if(db.settings.gymDetect==='on'){uiGymLocate(token,rid,deload);return;}
+ uiGymDetectAsk(token,rid,deload);
+ /* si el navegador ya tenía el permiso, no hace falta preguntar: se detecta directo */
+ geoPermission().then(state=>{
+  if(window.__gymCheck!==token||!document.querySelector?.(`[data-gym-ask="${token}"]`))return;
+  if(state==='granted'){db.settings.gymDetect='on';save();uiGymLocate(token,rid,deload);}
+  else if(state==='denied'){closeModal();uiGymCheckResolve(token,rid,deload,null,false);}
+ });
+}
+function uiGymDetectAsk(token,rid,deload){
+ openModal(`<span class="n-eyebrow">Tu gimnasio</span><h2>¿Detectamos dónde entrenas?</h2><p class="muted">Al empezar, Hierro mira tu ubicación una vez y te dice si estás en uno de tus gimnasios o en uno nuevo, para proponerte cargas con el equipo correcto. La ubicación se queda en tu dispositivo.</p><p class="hint" data-gym-ask="${token}">Solo te lo preguntamos ahora. Puedes cambiarlo en Tú → Mis gimnasios.</p>${uiButton('Sí, detectar mi gimnasio',uiAction('uiGymDetectChoice',token,rid,deload,'on'),'pin')}${uiButton('Ahora no',uiAction('uiGymDetectChoice',token,rid,deload,'off'),'close','secondary')}`);
+}
+function uiGymDetectChoice(token,rid,deload,val){
+ if(window.__gymCheck!==token)return;
+ db.settings.gymDetect=val;save();
+ if(val==='on'){uiGymLocate(token,rid,deload);return;}
+ closeModal();uiGymCheckResolve(token,rid,deload,null,false);
+}
+function uiGymLocate(token,rid,deload){
  /* la marca va en el párrafo: el título lo renombra la accesibilidad del diálogo */
- openModal(`<h2>Comprobando tu gimnasio…</h2><p class="muted" data-gym-check="${token}">Vemos si sigues en «${esc(db.gym.name)}». Tarda unos segundos como mucho.</p>${uiButton(`Empezar en ${esc(db.gym.name)}`,uiAction('uiGymCheckAnswer',token,rid,!!deload,''),'play')}`);
- locateOnce(4000,false).then(pos=>uiGymCheckResolve(token,rid,deload,pos,true));
+ openModal(`<h2>Comprobando tu gimnasio…</h2><p class="muted" data-gym-check="${token}">Vemos si sigues en «${esc(db.gym.name)}». Tarda unos segundos como mucho.</p>${uiButton(`Empezar en ${esc(db.gym.name)}`,uiAction('uiGymCheckAnswer',token,rid,deload,''),'play')}`);
+ locateOnce(4000,false).then(pos=>{
+  /* una lectura que llega es un permiso concedido: no se vuelve a preguntar */
+  if(validGeo(pos)&&db.settings.gymDetect!=='on'){db.settings.gymDetect='on';save();}
+  uiGymCheckResolve(token,rid,deload,pos,true);
+ });
 }
 function uiGymCheckResolve(token,rid,deload,pos,waited){
  if(window.__gymCheck!==token)return;
@@ -763,13 +790,37 @@ function uiGymCheckResolve(token,rid,deload,pos,waited){
  if(waited&&!String(document.getElementById('modalhost')?.innerHTML||'').includes(`data-gym-check="${token}"`)){window.__gymCheck=null;return;}
  const d=gymCheckDecision(pos);
  if(!d){window.__gymCheck=null;closeModal();startSession(rid,deload);return;}
- const here=esc(db.gym.name),there=esc(d.gym.name);
- openModal(`<h2>${d.kind==='geo'?`Parece que estás en «${there}».`:`¿Entrenas hoy en «${here}»?`}</h2><p class="muted">${d.kind==='geo'?`Tu ubicación queda a unos ${d.meters} m de ese gimnasio, pero el activo es «${here}».`:`El gimnasio activo es «${here}», pero tus últimas sesiones fueron en «${there}».`} Las cargas propuestas y el montaje dependen del gimnasio.</p>${uiButton(`Cambiar a ${there} y empezar`,uiAction('uiGymCheckAnswer',token,rid,!!deload,d.gym.id),'play')}${uiButton(`Seguir en ${here}`,uiAction('uiGymCheckAnswer',token,rid,!!deload,''),'arrow','secondary')}`);
+ const here=esc(db.gym.name);
+ if(d.kind==='unknown'){
+  window.__gymCheckPos=d.pos;
+  const km=d.meters>=1000?`${fmtNum(Math.round(d.meters/100)/10)} km`:`${d.meters} m`;
+  openModal(`<span class="n-eyebrow">Tu gimnasio</span><h2>No estás en ninguno de tus gimnasios.</h2><p class="muted">El más cercano que tienes guardado, «${esc(d.nearest.name)}», queda a unos ${km}. Las cargas y el montaje dependen del gimnasio: dinos dónde entrenas hoy.</p>${uiButton('Agregar este gimnasio',uiAction('uiGymCheckNew',token,rid,deload),'plus')}<div class="n-gym-here">${db.gyms.map(g=>uiRow(`Estoy en «${esc(g.name)}»`,g.id===db.settings.gymId?'El activo · guardamos aquí su ubicación':'Cambiar a este y guardar aquí su ubicación',uiAction('uiGymCheckHere',token,rid,deload,g.id),'chevron',`<span class="n-row-icon">${uiIcon('gym')}</span>`)).join('')}</div>${uiButton(`Empezar en «${here}» sin guardar nada`,uiAction('uiGymCheckAnswer',token,rid,deload,''),'arrow','text')}`);
+  return;
+ }
+ const there=esc(d.gym.name);
+ openModal(`<h2>${d.kind==='geo'?`Parece que estás en «${there}».`:`¿Entrenas hoy en «${here}»?`}</h2><p class="muted">${d.kind==='geo'?`Tu ubicación queda a unos ${d.meters} m de ese gimnasio, pero el activo es «${here}».`:`El gimnasio activo es «${here}», pero tus últimas sesiones fueron en «${there}».`} Las cargas propuestas y el montaje dependen del gimnasio.</p>${uiButton(`Cambiar a ${there} y empezar`,uiAction('uiGymCheckAnswer',token,rid,deload,d.gym.id),'play')}${uiButton(`Seguir en ${here}`,uiAction('uiGymCheckAnswer',token,rid,deload,''),'arrow','secondary')}`);
 }
 function uiGymCheckAnswer(token,rid,deload,gymId){
  if(window.__gymCheck!==token)return;window.__gymCheck=null;closeModal();
  if(gymId&&gymId!==db.settings.gymId)setActiveGym(gymId);
  startSession(rid,deload);
+}
+/* «Estoy en…»: se cambia a ese gimnasio y aprende dónde está */
+function uiGymCheckHere(token,rid,deload,gymId){
+ if(window.__gymCheck!==token)return;
+ if(learnGymGeo(gymId,window.__gymCheckPos))save();
+ window.__gymCheckPos=null;uiGymCheckAnswer(token,rid,deload,gymId);
+}
+function uiGymCheckNew(token,rid,deload){
+ if(window.__gymCheck!==token)return;window.__gymCheck=null;
+ window.__newGymGeo=window.__gymCheckPos;window.__gymCheckPos=null;
+ window.__afterGymCreate=()=>startSession(rid,deload);
+ promptNewGym();
+}
+function uiGymDetectToggle(button){
+ db.settings.gymDetect=db.settings.gymDetect==='on'?'off':'on';save();
+ button?.classList.toggle('on',db.settings.gymDetect==='on');button?.setAttribute('aria-checked',String(db.settings.gymDetect==='on'));
+ if(db.settings.gymDetect==='on')locateOnce(8000,false);
 }
 function uiCurrentSet(ex){return ex.sets.findIndex(st=>!st.done);}
 /* lo que cargaste la última vez en este ejercicio, para elegir con referencia */
@@ -1167,7 +1218,7 @@ async function uiOfflineInfo(){
 function uiGymPicker(){
  openModal(`<h2>¿Dónde entrenas hoy?</h2><p class="muted">Cada lugar recuerda su equipo y sus máquinas.</p>${db.gyms.map(g=>uiRow(esc(g.name),g.id===db.settings.gymId?'Estás aquí':gymSummary(g),uiAction('pickGym',g.id),g.id===db.settings.gymId?'check':'chevron',`<span class="n-row-icon">${uiIcon('gym')}</span>`)).join('')}${uiButton('Administrar mis gimnasios',`closeModal();${uiGo({name:'settings',section:'gyms'})}`,'settings','text')}${uiButton('Volver','closeModal()','back','secondary')}`);
 }
-function uiGyms(){return `<div class="n-plan-grid">${db.gyms.map(g=>`<section class="n-gym-card ${g.id===db.settings.gymId?'active':''}"><span class="n-eyebrow">${g.id===db.settings.gymId?'Entrenando aquí':'Tu otro lugar'}</span>${uiIcon('gym')}<h2>${esc(g.name)}</h2><p>${gymSummary(g)}</p><div class="n-gym-counts"><span><b>${g.plates.filter(p=>p.on).length}</b>Discos</span><span><b>${g.bars.filter(b=>b.on).length}</b>Barras</span><span><b>${g.dumbbells.filter(d=>d.on).length}</b>Mancuernas</span></div>${uiButton(g.id===db.settings.gymId?'Abrir equipo':'Usar este gimnasio',uiAction('uiOpenGym',g.id),'arrow')}${uiButton('Nombre, copia y opciones',uiAction('gymEditModal',g.id),'more','text')}</section>`).join('')}</div><div class="n-toolbar n-equal-actions">${uiButton('Nuevo gimnasio','promptNewGym()','plus','secondary')}${uiButton('Importar gimnasio',"document.getElementById('gymfile').click()",'download','secondary')}</div><input type="file" id="gymfile" accept=".json,application/json" hidden onchange="importGymFile(this.files[0]);this.value=''">`;}
+function uiGyms(){return `<div class="n-plan-grid">${db.gyms.map(g=>`<section class="n-gym-card ${g.id===db.settings.gymId?'active':''}"><span class="n-eyebrow">${g.id===db.settings.gymId?'Entrenando aquí':'Tu otro lugar'}</span>${uiIcon('gym')}<h2>${esc(g.name)}</h2><p>${gymSummary(g)}</p><div class="n-gym-counts"><span><b>${g.plates.filter(p=>p.on).length}</b>Discos</span><span><b>${g.bars.filter(b=>b.on).length}</b>Barras</span><span><b>${g.dumbbells.filter(d=>d.on).length}</b>Mancuernas</span></div>${uiButton(g.id===db.settings.gymId?'Abrir equipo':'Usar este gimnasio',uiAction('uiOpenGym',g.id),'arrow')}${uiButton('Nombre, copia y opciones',uiAction('gymEditModal',g.id),'more','text')}</section>`).join('')}</div><section class="n-panel n-gym-detect">${uiToggle('Detectar mi gimnasio al empezar','Hierro mira tu ubicación una vez al empezar un día: te propone el gimnasio donde estás o te avisa si es uno nuevo. Se queda en tu dispositivo.',db.settings.gymDetect==='on',`uiGymDetectToggle(this)`)}<p class="hint">${db.gyms.some(g=>validGeo(g.geo))?'Funciona con los gimnasios que tienen su ubicación guardada; al confirmar dónde estás, la app la aprende.':'Guarda la ubicación de un gimnasio (Nombre, copia y opciones) para empezar a detectarlo.'} Si tu navegador la pide cada vez: en iPhone, Ajustes → Apps → Safari → Ubicación → «Permitir»; en Android, permítela desde el candado de la dirección.</p></section><div class="n-toolbar n-equal-actions">${uiButton('Nuevo gimnasio','promptNewGym()','plus','secondary')}${uiButton('Importar gimnasio',"document.getElementById('gymfile').click()",'download','secondary')}</div><input type="file" id="gymfile" accept=".json,application/json" hidden onchange="importGymFile(this.files[0]);this.value=''">`;}
 function uiOpenGym(id){setActiveGym(id);go({name:'gym',kind:'plates'});}
 function uiGymTab(kind){view.kind=kind;render();}
 function uiGym(){

@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.17.0">
+<link rel="stylesheet" href="ui.css?v=3.18.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.17.0"></script>
-<script src="sync-core.js?v=3.17.0"></script>
-<script src="sync-engine.js?v=3.17.0"></script>
-<script src="qr.js?v=3.17.0"></script>
-<script src="sync.js?v=3.17.0"></script>
-<script src="push-core.js?v=3.17.0"></script>
-<script src="push.js?v=3.17.0"></script>
+<script src="ui.js?v=3.18.0"></script>
+<script src="sync-core.js?v=3.18.0"></script>
+<script src="sync-engine.js?v=3.18.0"></script>
+<script src="qr.js?v=3.18.0"></script>
+<script src="sync.js?v=3.18.0"></script>
+<script src="push-core.js?v=3.18.0"></script>
+<script src="push.js?v=3.18.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.17.0';
+const APP_VERSION = '3.18.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -939,11 +939,17 @@ function usualGymId(){
   for(const id of ids){ count[id] = (count[id] || 0) + 1; if(!best || count[id] > count[best]) best = id; }
   return count[best] * 2 > ids.length ? best : null;
 }
-/* null = el gimnasio activo vale; si no, a cuál cambiar y por qué */
+/* null = el gimnasio activo vale; si no, a cuál cambiar y por qué. Con una
+   lectura fiable que no cae cerca de ningún gimnasio guardado, estás en otro
+   sitio: un gimnasio nuevo o uno cuya ubicación falta o quedó mal. */
 function gymCheckDecision(pos){
-  if(db.gyms.length < 2) return null;
   const near = gymNear(pos);
   if(near) return near.gym.id === db.settings.gymId ? null : { kind:'geo', gym:near.gym, meters:Math.round(near.d) };
+  if(validGeo(pos) && !(Number.isFinite(pos.acc) && pos.acc > 1500) && db.gyms.some(g => validGeo(g.geo))){
+    const far = db.gyms.filter(g => validGeo(g.geo)).map(g => ({ gym:g, d:geoDistance(pos, g.geo) })).sort((a, b) => a.d - b.d)[0];
+    return { kind:'unknown', pos, nearest:far.gym, meters:Math.round(far.d) };
+  }
+  if(db.gyms.length < 2) return null;
   const usual = usualGymId();
   if(usual && usual !== db.settings.gymId) return { kind:'usual', gym:db.gyms.find(g => g.id === usual) };
   return null;
@@ -960,6 +966,23 @@ function locateOnce(ms, precise){
         () => end(null), { enableHighAccuracy:!!precise, maximumAge:precise ? 0 : 120000, timeout:ms });
     }catch{ end(null); }
   });
+}
+/* el estado del permiso, sin pedirlo: «granted», «denied», «prompt» o «unknown» */
+function geoPermission(){
+  try{
+    const q = typeof navigator !== 'undefined' && navigator.permissions && navigator.permissions.query;
+    if(!q) return Promise.resolve('unknown');
+    return navigator.permissions.query({ name:'geolocation' }).then(r => r.state, () => 'unknown');
+  }catch{ return Promise.resolve('unknown'); }
+}
+/* confirmar «estoy aquí» enseña dónde está ese gimnasio; una lectura imprecisa
+   solo se guarda si no había ninguna */
+function learnGymGeo(id, pos){
+  const g = db.gyms.find(x => x.id === id);
+  if(!g || !validGeo(pos)) return false;
+  if(validGeo(g.geo) && Number.isFinite(pos.acc) && pos.acc > 200) return false;
+  g.geo = { lat:Math.round(pos.lat*1e5)/1e5, lon:Math.round(pos.lon*1e5)/1e5, acc:Math.round(pos.acc || 0), at:new Date().toISOString() };
+  return true;
 }
 function saveGymGeo(id){
   const g = db.gyms.find(x => x.id === id);
@@ -3870,9 +3893,14 @@ function createGym(ev){
   } else {
     g = normGym({ name, unit: base }, base);
   }
+  /* creado desde «no estás en ninguno de tus gimnasios»: ya sabemos dónde está */
+  const pos = window.__newGymGeo, after = window.__afterGymCreate;
+  window.__newGymGeo = null; window.__afterGymCreate = null;
   db.gyms.push(g);
+  if(pos) learnGymGeo(g.id, pos);
   closeModal();
   setActiveGym(g.id);
+  if(typeof after === 'function') after();
 }
 function gymEditModal(id){
   const g = db.gyms.find(x => x.id === id);
@@ -5427,17 +5455,15 @@ function warmupContext(ex){
   return JSON.stringify([db.settings.gymId,m.type,m.muscle,effRange(ex.key),machineSnapshot(m),effBase(ex.key),
     ['barra','discos'].includes(eq)?db.gym.plates:eq==='mancuerna'?db.gym.dumbbells:null]);
 }
-/* Fine weights and notes change the setup, not the preparation already done.
-   Retain the full context elsewhere so actual gym/machine changes still reset. */
+/* Lo que cuenta para conservar lo ya calentado es el ejercicio y su tipo.
+   Corregir el gimnasio, la máquina, el aparato, la barra o los discos a
+   mitad de la preparación es casi siempre arreglar un dato: el músculo ya
+   está caliente, así que solo se recalcula lo que falta con el equipo nuevo. */
 function warmupCoreContext(context){
   try{
     const parts=JSON.parse(context);
     if(!Array.isArray(parts)||parts.length!==7)return null;
-    const machine=parts[4];
-    if(machine){delete machine.gymNotes;if(machine.stack){delete machine.stack.extra;delete machine.stack.extraMax;}}
-    parts[6]=null;   /* discos y mancuernas cambian el montaje de lo pendiente, no lo ya hecho */
-    parts[2]=null;parts[3]=null;   /* el grupo y el rango cambian lo que falta, no lo ya calentado */
-    return JSON.stringify(parts);
+    return JSON.stringify([parts[1]]);
   }catch{return null;}
 }
 function validWarmupState(w){

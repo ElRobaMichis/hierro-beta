@@ -2876,8 +2876,9 @@ chk(warmupPlan(0).reason==='specific','no se comparan cargas históricas de torr
 chk(warmupPlan(0).steps.every(st=>Math.abs(stackSnap(we.key,st.w).kg-st.w)<.001),'las cargas de calentamiento respetan placas, libras y extras disponibles');
 let wg=ensureWarmup(0);uiWarmupRecord(0,wg.id,0);const oldWarmContext=wg.id;
 withExChange(we.key,()=>{exMeta(we.key).stack={unit:'kg',start:2,step:2};});
-chk(ensureWarmup(0).id!==oldWarmContext&&ensureWarmup(0).phase==='set','cambiar la máquina rehace la preparación con su equipo actual');
-uiWarmupRecord(0,oldWarmContext,0);chk(ensureWarmup(0).completed===0,'un botón de la configuración anterior no confirma una carga nueva');
+const wgAfter=ensureWarmup(0);
+chk(wgAfter.id!==oldWarmContext&&wgAfter.completed===1&&wgAfter.plan.steps.slice(1).every(st=>Math.abs(stackSnap(we.key,st.w).kg-st.w)<.001),'corregir la máquina conserva el escalón hecho y recalcula lo que falta con su equipo actual');
+uiWarmupRecord(0,oldWarmContext,1);chk(ensureWarmup(0).completed===1,'un botón de la configuración anterior no confirma una carga nueva');
 we=warmFixture('warm-min',{equip:'barra',muscle:'pecho',lo:4,hi:6},'0');
 chk(warmupPlan(0).steps[0].easy&&warmupPlan(0).steps[0].w===0,'si no hay equipo más ligero propone práctica sin carga, sin inventar discos negativos');
 we=warmFixture('warm-assist',{type:'asistido',equip:'placas',lo:8,hi:12,stack:{unit:'kg',start:5,step:5},cap:50},'20');
@@ -3180,10 +3181,10 @@ suite('Regresión — torre 10/15, ajuste 0/5/10 y preparación conservada');
  localStorage.setItem=oldWriter;refreshSessionSuggestions();
 
  ex=beginTower();prepareFixture(0);warmId=ensureWarmup(0).id;setActiveGym('tower-a');
- chk(ex.sets[0].w==='65'&&warmupRequired(0)&&ensureWarmup(0).id!==warmId,
-     'cambiar realmente de gimnasio recalcula el borrador y prepara la otra máquina');
+ chk(ex.sets[0].w==='65'&&!warmupRequired(0)&&ensureWarmup(0).completed>0,
+     'cambiar de gimnasio recalcula el borrador pero conserva lo ya calentado');
  prepareFixture(0);warmId=ensureWarmup(0).id;setExStack(key,'step','15');
- chk(warmupRequired(0)&&ensureWarmup(0).id!==warmId,'cambiar el salto principal de placas sí invalida una preparación distinta');
+ chk(!warmupRequired(0)&&ensureWarmup(0).phase==='done','corregir el salto de placas tampoco reinicia una preparación terminada');
  prepareFixture(0);warmId=ensureWarmup(0).id;ensureWarmup(0,true);
  chk(warmupRequired(0)&&ensureWarmup(0).id!==warmId,'pedir explícitamente otro calentamiento sigue reiniciándolo');
  uiResetRest();db.active=null;clearInterval(timerInt);timerInt=null;
@@ -3394,6 +3395,11 @@ resetDB();uiResetRest();db.settings.health='off';db.settings.rest='off';
  uiGymCheckAnswer(gymToken,'geo-day',false,other.id);chk(db.settings.gymId===home.id,'una respuesta repetida o tardía no vuelve a cambiar nada');
  db.active=null;setActiveGym(other.id);home.geo={lat:19.4,lon:-99.1};
  view={name:'home'};uiBeginSession('geo-day');
+ chk(!db.active&&els['modalhost'].innerHTML.includes('¿Detectamos dónde entrenas?')&&els['modalhost'].innerHTML.includes('Solo te lo preguntamos ahora'),'la primera vez se pregunta una sola vez si detectar el gimnasio');
+ uiGymDetectChoice(window.__gymCheck,'geo-day',false,'on');
+ chk(db.settings.gymDetect==='on'&&!db.active&&els['modalhost'].innerHTML.includes('data-gym-check=')&&els['modalhost'].innerHTML.includes('Empezar en Gym de mi pareja'),'al aceptarlo se guarda y la comprobación aparece, con salida inmediata');
+ window.__gymCheck=null;view={name:'home'};uiBeginSession('geo-day');
+ chk(!db.active&&els['modalhost'].innerHTML.includes('data-gym-check=')&&!els['modalhost'].innerHTML.includes('¿Detectamos'),'las siguientes veces ya no se pregunta: se detecta directo');
  chk(!db.active&&els['modalhost'].innerHTML.includes('data-gym-check=')&&els['modalhost'].innerHTML.includes('Empezar en Gym de mi pareja'),'con ubicaciones guardadas aparece la comprobación, con salida inmediata');
  let geoToken=window.__gymCheck;
  /* el diálogo real renombra el título por accesibilidad: la marca debe sobrevivir a eso */
@@ -3413,6 +3419,28 @@ resetDB();uiResetRest();db.settings.health='off';db.settings.rest='off';
  db.active=null;view={name:'home'};uiBeginSession('geo-day');geoToken=window.__gymCheck;closeModal();
  uiGymCheckResolve(geoToken,'geo-day',false,{lat:19.4003,lon:-99.1,acc:25},true);
  chk(!db.active&&!els['modalhost'].innerHTML.includes('Parece que'),'si cierras la comprobación, una lectura tardía no abre ni empieza nada');
+ /* lejos de todos tus gimnasios: uno nuevo, o uno cuya ubicación falta o quedó mal */
+ const farPos={lat:19.5200,lon:-99.2300,acc:30};
+ gd=gymCheckDecision(farPos);chk(gd?.kind==='unknown'&&gd.nearest===home&&gd.meters>10000,'lejos de todos, la decisión es «no estás en ninguno», con el más cercano y su distancia');
+ chk(gymCheckDecision({lat:19.52,lon:-99.23,acc:5000})?.kind!=='unknown','una lectura muy imprecisa no afirma que estés en otro sitio');
+ db.active=null;view={name:'home'};uiBeginSession('geo-day');geoToken=window.__gymCheck;
+ els['modalhost'].innerHTML=els['modalhost'].innerHTML.replace('<h2>','<h2 id="ui-dialog-title">');
+ uiGymCheckResolve(geoToken,'geo-day',false,farPos,true);
+ chk(!db.active&&els['modalhost'].innerHTML.includes('No estás en ninguno de tus gimnasios.')&&els['modalhost'].innerHTML.includes('Agregar este gimnasio')&&els['modalhost'].innerHTML.includes('Estoy en «Mi gimnasio»')&&els['modalhost'].innerHTML.includes('km'),'al empezar lo dice y ofrece agregarlo o elegir uno de los tuyos');
+ uiGymCheckHere(geoToken,'geo-day',false,other.id);
+ chk(db.active&&db.settings.gymId===other.id&&Math.abs(other.geo?.lat-19.52)<1e-6,'«Estoy en…» cambia a ese gimnasio y aprende dónde está');
+ db.active=null;const nGyms=db.gyms.length;delete other.geo;
+ view={name:'home'};uiBeginSession('geo-day');geoToken=window.__gymCheck;
+ els['modalhost'].innerHTML=els['modalhost'].innerHTML.replace('<h2>','<h2 id="ui-dialog-title">');
+ uiGymCheckResolve(geoToken,'geo-day',false,farPos,true);uiGymCheckNew(geoToken,'geo-day',false);
+ chk(els['modalhost'].innerHTML.includes('Nuevo gimnasio'),'«Agregar este gimnasio» abre la creación');
+ els['newgymname']={value:'Gym del centro'};createGym({preventDefault(){}});
+ const created=db.gyms[db.gyms.length-1];
+ chk(db.gyms.length===nGyms+1&&created.name==='Gym del centro'&&Math.abs(created.geo?.lat-19.52)<1e-6&&db.settings.gymId===created.id&&db.active,'el gimnasio nuevo nace con su ubicación, queda activo y la sesión empieza');
+ db.active=null;db.settings.gymDetect='off';view={name:'home'};uiBeginSession('geo-day');
+ chk(!els['modalhost'].innerHTML.includes('data-gym-check=')&&!els['modalhost'].innerHTML.includes('¿Detectamos'),'con la detección apagada no se mira la ubicación');
+ window.__gymCheck=null;closeModal();db.active=null;db.settings.gymDetect='on';
+ view={name:'settings',section:'gyms'};chk(uiGyms().includes('Detectar mi gimnasio al empezar'),'la detección se cambia en Mis gimnasios');
  db.routines.push({id:'geo-home',name:'Inicio',split:(db.splits[0]||{}).id,exercises:[{id:'g2',name:'Remo',key:'geo-remo'}]});
  view={name:'routine',id:'geo-day'};chk(viewRoutine().includes('uiBeginSession(')&&!viewRoutine().includes('startSession('),'el botón de empezar pasa por la comprobación');
  gymEditModal(home.id);chk(els['modalhost'].innerHTML.includes('Ubicación')&&els['modalhost'].innerHTML.includes('Actualizar con mi ubicación actual')&&els['modalhost'].innerHTML.includes('Quitar ubicación'),'la ficha del gimnasio permite guardar, actualizar y quitar su ubicación');
