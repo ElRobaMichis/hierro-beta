@@ -829,6 +829,7 @@ db.routines.push({ id:'r1', name:'G', exercises:[{ id:'a', name:'Hip Thrust', ke
 document.getElementById('dupname').value = 'Hip Thrust (Discos)';
 window.__dupFrom = 'hip thrust';
 window.__dupView = {name:'exercise',key:'hip thrust',rid:'r1'};
+window.__dupMode = 'extra';
 doDuplicateEx({ preventDefault(){} });
 chk(!!db.exmeta['hip thrust (discos)'], 'se crea el ejercicio nuevo');
 chk(exMeta('hip thrust (discos)').muscle === 'gluteos' && exMeta('hip thrust (discos)').lo === 8,
@@ -3044,7 +3045,7 @@ window.__edit={id:'normal',entries:[{key:'ref-press',name:'Press',sets:[{w:'10',
 chk(!db.history[0].prs.some(p=>p.now===100),'corregir historial recalcula los récords almacenados');
 
 refineDB();startSession('ra');view={name:'exercise',rid:'ra',key:'ref-press',from:'session'};
-promptDuplicateEx('ref-press','Press');document.getElementById('dupname').value='Press cable';doDuplicateEx({preventDefault(){}});
+promptDuplicateEx('ref-press','Press');document.getElementById('dupname').value='Press cable';selDupMode('extra');doDuplicateEx({preventDefault(){}});
 chk(db.routines[0].exercises.length===2&&db.routines[1].exercises.length===1&&db.active.exercises.length===2,'crear una variante afecta solo al día consultado y su sesión');
 chk(db.active.exercises[1].sets.length===3&&view.rid==='ra'&&view.exTab==='equipment','la variante conserva sus series y abre su equipo en el mismo contexto');closeModal();
 refineDB();startSession('ra');db.active.exercises[0].sets=[{w:'20',r:'8',done:true},{w:'',r:'',rir:''}];
@@ -3624,6 +3625,59 @@ chk(splitProfile(dlSp.id).split.exconf['dl-calf']?.deloadRir==='1,0','el plan co
 window.__splitImport={split:{name:'Copia',days:[],exconf:{a:{deloadRir:'1,0'},b:{deloadRir:'7,x'}}}};applySplitImport();
 const dlImp=db.splits[db.splits.length-1];chk(dlImp.exconf.a?.deloadRir==='1,0'&&!dlImp.exconf.b,'al importar solo pasan objetivos válidos');
 uiDeload('dl-day');chk(els['modalhost'].innerHTML.includes('Por esfuerzo (RIR)')&&els['modalhost'].innerHTML.includes('Clásica'),'al empezar una descarga se elige el tipo');closeModal();
+
+const LB=0.45359237;
+suite('3.19.0 — mancuernas en kilos y libras, y máquinas alternativas');
+resetDB();uiResetRest();db.gym=defaultGym('kg');db.settings.unit='kg';db.settings.rest='off';db.settings.health='off';db.settings.sound='off';
+/* un rack que mezcla: las chicas en libras y las grandes en kilos */
+db.gym.dumbbells=[5,10,15,20].map(v=>({kg:Math.round(v*LB*1000)/1000,on:true,u:'lb'})).concat([10,12,14].map(v=>({kg:v,on:true})));
+chk(dumbbellLabel(db.gym.dumbbells[1])==='10 lb'&&dumbbellLabel(db.gym.dumbbells[4])==='10 kg','cada mancuerna se nombra como está rotulada');
+const lb10=db.gym.dumbbells.findIndex(d=>d.u==='lb'&&Math.abs(d.kg-10*LB)<.01);
+toggleDumbbellUnit(lb10);chk(db.gym.dumbbells[lb10].u==='kg'&&db.gym.dumbbells[lb10].kg===10,'cambiar la unidad conserva el número rotulado: 10 lb → 10 kg');
+toggleDumbbellUnit(lb10);chk(Math.abs(db.gym.dumbbells[lb10].kg-10*LB)<.001,'y se puede volver a libras');
+Object.assign(exMeta('db-curl'),{equip:'mancuerna',muscle:'biceps',lo:8,hi:12});
+chk(dumbbellText('db-curl',2*15*LB)==='15 lb c/u'&&dumbbellText('db-curl',24)===null,'una carga hecha con mancuernas de libras se nombra en libras; las de kilos, como siempre');
+chk(setsLine('db-curl',[S(Math.round(2*15*LB*1000)/1000,10),S(24,8)]).startsWith('15 lb c/u × 10'),'el diario dice qué mancuernas usaste');
+chk(Math.abs(fitWeight('db-curl',2*9.4)-2*20*LB)<.01,'la propuesta se ajusta a la mancuerna real más cercana, sea de kilos o de libras');
+db.routines=[{id:'db-day',name:'Brazos',split:db.splits[0].id,exercises:[{id:'c1',key:'db-curl',name:'Curl'}]}];
+view={name:'home'};startSession('db-day');const dbEx=db.active.exercises[0];dbEx.warmupDone=true;delete dbEx.warmup;
+dbEx.sets[0].w=String(Math.round(2*15*LB*100)/100);dbEx.sets[0].wkg=Math.round(2*15*LB*1000)/1000;
+uiStep(0,0,'w',1);chk(Math.abs(dbEx.sets[0].wkg-2*20*LB)<.005,'+ salta a la siguiente mancuerna que existe (de 15 a 20 lb)');
+uiStep(0,0,'w',1);chk(Math.abs(dbEx.sets[0].wkg-20)<.005,'y después a la de 10 kg, aunque cambie la unidad');
+uiStep(0,0,'w',-1);uiStep(0,0,'w',-1);chk(Math.abs(dbEx.sets[0].wkg-2*15*LB)<.005,'− baja igual, de mancuerna en mancuerna');
+chk(uiSetDisplay('db-curl',{w:dbEx.sets[0].w,wkg:dbEx.sets[0].wkg,r:'10'}).startsWith('15 lb c/u'),'la serie anotada se muestra con su mancuerna');
+document.getElementById('gymW').value='35';document.getElementById('gymU').value='lb';addGymItem({preventDefault(){}},'dumbbells');
+chk(db.gym.dumbbells.some(d=>d.u==='lb'&&Math.abs(d.kg-35*LB)<.001),'al añadir una mancuerna se elige su unidad');
+db.active=null;
+/* poleas: dos iguales al fondo y otras dos que progresan distinto */
+resetDB();uiResetRest();db.gym=defaultGym('kg');db.settings.unit='kg';db.settings.rest='off';db.settings.health='off';db.settings.sound='off';
+Object.assign(exMeta('lat-cable'),{equip:'placas',muscle:'hombros',lo:12,hi:15,stack:{unit:'kg',start:2.5,step:2.5}});
+const altSp=db.splits[0];
+db.routines=[{id:'alt-day',name:'Hombro',split:altSp.id,exercises:[{id:'a1',key:'lat-cable',name:'Elevación lateral en polea'}]}];
+db.history.push({id:'alt-h',routineId:'alt-day',routineName:'Hombro',date:new Date(Date.now()-3*864e5).toISOString(),duration:1500,plannedSets:3,entries:[{key:'lat-cable',name:'Elevación lateral en polea',sets:[S(10,13),S(10,12),S(10,12)]}]});
+rebuildProgress(false);
+view={name:'home'};startSession('alt-day');const altEx=()=>db.active.exercises[db.active.open||0];altEx().warmupDone=true;delete altEx().warmup;
+chk(!uiSession().includes('n-alt-chip'),'sin otra máquina guardada no aparece el cambio');
+promptDuplicateEx('lat-cable','Elevación lateral en polea');
+chk(els['modalhost'].innerHTML.includes('En lugar de la otra, cuando esté ocupada')&&window.__dupMode==='alt','guardar otra máquina la propone como alternativa');
+window.__dupView={name:'session',from:'session'};document.getElementById('dupname').value='Elevación lateral · poleas de la entrada';doDuplicateEx({preventDefault(){}});
+const altKey=exKey('Elevación lateral · poleas de la entrada');
+chk(exMeta(altKey).altOf==='lat-cable'&&exMeta(altKey).equip==='placas'&&db.routines[0].exercises.length===1,'queda unida al ejercicio, con su tipo de equipo, sin añadirse al día');
+chk(db.active.exercises.length===1&&db.active.exercises[0].key===altKey&&db.active.exercises[0].sets.length===3,'en la sesión pasa a esa máquina, con las mismas series');
+withExChange(altKey,()=>{exMeta(altKey).stack={unit:'lb',start:5,step:5};});
+uiSwapMachine(0,'lat-cable');
+chk(db.active.exercises[0].key==='lat-cable'&&db.active.exercises[0].sugg?.w>=10&&exMeta('lat-cable').stack.unit==='kg','volver a la del fondo recupera su configuración y su propuesta, sin reconfigurar');
+uiAltMachines(0);chk(els['modalhost'].innerHTML.includes('poleas de la entrada')&&els['modalhost'].innerHTML.includes('Sin historial todavía'),'la lista muestra las otras máquinas y su última vez');closeModal();
+chk(uiSession().includes('n-alt-chip')&&uiSession().includes('¿Ocupada?'),'con una alternativa guardada, la serie ofrece cambiar con un toque');
+/* a mitad del ejercicio: lo hecho se queda con su máquina, lo pendiente pasa a la otra */
+const fondo=db.active.exercises[0];fondo.sets[0]={w:'10',r:'13',rir:'1',done:true};
+uiSwapMachine(0,altKey);
+chk(db.active.exercises.length===2&&db.active.exercises[0].key==='lat-cable'&&db.active.exercises[0].sets.length===1&&db.active.exercises[1].key===altKey&&db.active.exercises[1].sets.length===2&&db.active.open===1&&db.active.exercises[1].warmupDone,'cambiar a mitad deja la serie hecha en la del fondo y pasa las dos que faltan, ya calentado');
+db.active.exercises[1].sets.forEach(st=>{st.w='15';st.r='12';st.rir='1';});confirmFixtureSets();finishSession();
+const altRec=db.history[db.history.length-1];
+chk(altRec.entries.length===2&&altRec.entries[1].key===altKey,'al guardar, cada máquina tiene sus series');
+closeModal();
+chk(withSplitContext(altSp.id,()=>computeSuggestion(altKey))?.w>0&&altGroup(altKey).join()===['lat-cable',altKey].join(),'y cada una progresa con su propio historial');
 
 /* ---------- resultado ---------- */
 console.log('\n' + '='.repeat(50));

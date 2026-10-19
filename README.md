@@ -6,6 +6,8 @@ Abre ese enlace en tu teléfono y añádelo a la pantalla de inicio. Se instala 
 
 Los planes y el historial se guardan en tu dispositivo. Puedes restaurar un respaldo de Hierro desde **Tú → Datos y respaldos**. Esta beta utiliza almacenamiento y cachés independientes de la aplicación principal; importar o editar aquí no cambia sus datos. La sincronización cifrada es opcional: crea o vincula tu espacio desde **Tú → Sincronización**. Los avisos remotos se activan por dispositivo y necesitan internet.
 
+La versión **3.19.0** permite que cada mancuerna tenga su unidad (las chicas en libras y las grandes en kilos, por ejemplo) y la muestra al entrenar como está rotulada; + y − saltan por las que existen. Además, un ejercicio puede tener máquinas alternativas, cada una con su configuración y su progresión, para cambiar con un toque cuando la tuya está ocupada. Consulta [cómo funciona](docs/mixed-units-machines-2026-10-19/README.md).
+
 La versión **3.18.0** pregunta una sola vez si detectar tu gimnasio por ubicación y, cuando estás lejos de todos los tuyos, te avisa: puedes agregar el nuevo con su ubicación o decir en cuál estás para que la aprenda. Además, corregir la máquina o el gimnasio a mitad del calentamiento ya no lo reinicia: lo ya hecho se conserva. Consulta [cómo funciona](docs/gym-detect-2026-10-07/README.md).
 
 La versión **3.17.0** añade la descarga por esfuerzo, como la semana 7 de Jeff Nippard: mismas series, mismo rango y la carga de la última vez, parando antes. Cada serie muestra su objetivo (RIR 3 en la primera y 2 en las demás) y cada ejercicio puede tener el suyo, como 1 y luego al fallo en la pantorrilla. La descarga clásica sigue disponible. Consulta [cómo funciona](docs/rir-deload-2026-10-07/README.md).

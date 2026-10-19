@@ -652,7 +652,7 @@
   .hd-acts .dz{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--danger);text-decoration:underline;text-underline-offset:3px}
 </style>
-<link rel="stylesheet" href="ui.css?v=3.18.0">
+<link rel="stylesheet" href="ui.css?v=3.19.0">
 </head>
 <body>
 <a class="ui-skip-link" href="#main">Ir al contenido</a>
@@ -664,13 +664,13 @@
 <div id="modalhost"></div>
 <div id="toasthost"></div>
 
-<script src="ui.js?v=3.18.0"></script>
-<script src="sync-core.js?v=3.18.0"></script>
-<script src="sync-engine.js?v=3.18.0"></script>
-<script src="qr.js?v=3.18.0"></script>
-<script src="sync.js?v=3.18.0"></script>
-<script src="push-core.js?v=3.18.0"></script>
-<script src="push.js?v=3.18.0"></script>
+<script src="ui.js?v=3.19.0"></script>
+<script src="sync-core.js?v=3.19.0"></script>
+<script src="sync-engine.js?v=3.19.0"></script>
+<script src="qr.js?v=3.19.0"></script>
+<script src="sync.js?v=3.19.0"></script>
+<script src="push-core.js?v=3.19.0"></script>
+<script src="push.js?v=3.19.0"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -690,7 +690,7 @@ const LS_KEY = 'hierro.v1';
      PARCHE cuando solo se arreglan fallos.
    Tiene que ir SIEMPRE igual que CACHE en sw.js; hay un test que lo
    comprueba, porque olvidar uno de los dos es el fallo fácil. */
-const APP_VERSION = '3.18.0';
+const APP_VERSION = '3.19.0';
 let updateReady = false, updateDismissed = false;
 
 /* Aviso de versión nueva, abajo y por encima de todo.
@@ -1553,6 +1553,30 @@ function nearestIn(list, w){
   return best;
 }
 function nearestDumbbell(w){ return nearestIn(availableDumbbells(), w); }
+/* cada mancuerna lleva la unidad con que está rotulada: en muchos gimnasios
+   las chicas vienen en libras y las grandes en kilos. Sin marca, la del
+   gimnasio. Por dentro todo sigue en kg; solo cambia cómo se nombra. */
+function dumbbellUnit(d){ return d && (d.u === 'lb' || d.u === 'kg') ? d.u : uLabel(); }
+function dumbbellNominal(d){ return Math.round((dumbbellUnit(d) === 'lb' ? d.kg / LB_KG : d.kg) * 100) / 100; }
+function dumbbellLabel(d){ return `${fmtNum(dumbbellNominal(d))} ${dumbbellUnit(d)}`; }
+function dumbbellAt(kg){ return db.gym.dumbbells.find(d => d.on && Math.abs(d.kg - kg) < 0.005) || null; }
+/* «25 lb c/u» cuando la mancuerna de esa carga está rotulada en otra unidad
+   que la del ejercicio; null si se lee igual que el número */
+function dumbbellText(key, totalKg){
+  if(effEquip(key) !== 'mancuerna' || !(totalKg > 0)) return null;
+  const n = effPoints(key), d = dumbbellAt(totalKg / n);
+  if(!d || dumbbellUnit(d) === uLabelEx(key)) return null;
+  return n === 1 ? dumbbellLabel(d) : `${dumbbellLabel(d)} c/u`;
+}
+/* cambiar la unidad de una mancuerna conserva el número rotulado: «10» kg → «10» lb */
+function toggleDumbbellUnit(i){
+  const d = db.gym.dumbbells[i];
+  if(!d) return;
+  const nominal = dumbbellNominal(d), to = dumbbellUnit(d) === 'lb' ? 'kg' : 'lb';
+  d.kg = Math.round((to === 'lb' ? nominal * LB_KG : nominal) * 1000) / 1000;
+  d.u = to;
+  save(); render();
+}
 /* los totales que puedes armar: cada mancuerna × las que agarras */
 function dumbbellTotals(points){
   return availableDumbbells().map(d => Math.round(d * points * 1000) / 1000);
@@ -4114,8 +4138,10 @@ function promptGymItem(kind){
     <form onsubmit="addGymItem(event,'${kind}')" class="stack" autocomplete="off">
       ${kind === 'bars' ? `<div class="field"><span>Nombre</span>
         <input type="text" id="gymName" placeholder="Ej. Barra de trap" autocomplete="off"></div>` : ''}
-      <div class="field"><span>Peso (${uLabel()})</span>
+      <div class="field"><span>Peso${kind === 'dumbbells' ? ', como está rotulada' : ` (${uLabel()})`}</span>
         <input type="number" inputmode="decimal" step="any" min="0" id="gymW" placeholder="0"></div>
+      ${kind === 'dumbbells' ? `<div class="field"><span>Unidad de esta mancuerna</span>
+        <select id="gymU"><option value="kg" ${uLabel()==='kg'?'selected':''}>Kilos (kg)</option><option value="lb" ${uLabel()==='lb'?'selected':''}>Libras (lb)</option></select></div>` : ''}
       <button class="btn" type="submit">Agregar</button>
       <button class="btn ghost" type="button" onclick="closeModal()">Cancelar</button>
     </form>`);
@@ -4125,10 +4151,11 @@ function addGymItem(ev, kind){
   ev.preventDefault();
   const v = parseFloat(document.getElementById('gymW').value);
   if(!Number.isFinite(v)||v<=0){uiFieldError('gymW','Escribe un peso mayor que cero.');return;}
-  const kg = Math.round(toKg(v) * 1000) / 1000;
-  if(db.gym[kind].some(x => Math.abs(x.kg - kg) < 1e-9)){
+  const du = kind === 'dumbbells' ? (document.getElementById('gymU')?.value === 'lb' ? 'lb' : document.getElementById('gymU')?.value === 'kg' ? 'kg' : uLabel()) : null;
+  const kg = Math.round((du ? (du === 'lb' ? v * LB_KG : v) : toKg(v)) * 1000) / 1000;
+  if(db.gym[kind].some(x => Math.abs(x.kg - kg) < (du ? 0.005 : 1e-9))){
     closeModal();
-    infoModal('Ya lo tienes', `${fmtW(kg)} ${uLabel()} ya está en la lista.`);
+    infoModal('Ya lo tienes', `${du ? `${fmtNum(v)} ${du}` : `${fmtW(kg)} ${uLabel()}`} ya está en la lista.`);
     return;
   }
   if(kind === 'plates') db.gym.plates.push({ kg, pairs:1, on:true, custom:true });
@@ -4136,7 +4163,7 @@ function addGymItem(ev, kind){
     const nm = (document.getElementById('gymName').value || '').trim();
     db.gym.bars.push({ id:uid(), name: nm || `Barra de ${fmtW(kg)} ${uLabel()}`, kg, on:true, def:false, custom:true });
   }
-  else db.gym.dumbbells.push({ kg, on:true, custom:true });
+  else db.gym.dumbbells.push({ kg, on:true, custom:true, ...(du !== uLabel() ? { u:du } : {}) });
   if(kind === 'plates') invalidatePlates();
   save(); closeModal(); render();
 }
@@ -4144,6 +4171,8 @@ function applyDbRange(){
   const from = parseFloat(document.getElementById('dbFrom').value);
   const to   = parseFloat(document.getElementById('dbTo').value);
   const step = parseFloat(document.getElementById('dbStep').value);
+  const ru = document.getElementById('dbUnit')?.value === 'lb' ? 'lb' : document.getElementById('dbUnit')?.value === 'kg' ? 'kg' : uLabel();
+  const keep = document.getElementById('dbKeep')?.checked;
   if(!Number.isFinite(from)||!Number.isFinite(to)||!Number.isFinite(step)||from<=0||step<=0||to<from){
     uiFieldError('dbFrom','Revisa el rango: inicio y salto mayores que cero, final igual o mayor que el inicio.');
     return;
@@ -4152,12 +4181,16 @@ function applyDbRange(){
     uiFieldError('dbStep','Salen más de 200 mancuernas. Sube el salto o acorta el rango.');
     return;
   }
-  confirmModal('¿Rehacer la lista?',
-    `Se reemplazan las mancuernas actuales por el rango ${fmtNum(from)} – ${fmtNum(to)} ${uLabel()} de ${fmtNum(step)} en ${fmtNum(step)}. Las que destildaste se pierden.`,
-    'Generar', () => {
-      const out = [];
-      for(let v = from; v <= to + 1e-9; v += step)
-        out.push({ kg: Math.round(toKg(v) * 1000) / 1000, on:true });
+  confirmModal(keep ? '¿Añadir este rango?' : '¿Rehacer la lista?',
+    keep ? `Se añaden las mancuernas de ${fmtNum(from)} a ${fmtNum(to)} ${ru}, de ${fmtNum(step)} en ${fmtNum(step)}, a las que ya tienes.`
+         : `Se reemplazan las mancuernas actuales por el rango ${fmtNum(from)} – ${fmtNum(to)} ${ru} de ${fmtNum(step)} en ${fmtNum(step)}. Las que destildaste se pierden.`,
+    keep ? 'Añadir' : 'Generar', () => {
+      const out = keep ? db.gym.dumbbells.slice() : [];
+      for(let v = from; v <= to + 1e-9; v += step){
+        const kg = Math.round((ru === 'lb' ? v * LB_KG : v) * 1000) / 1000;
+        if(out.some(x => Math.abs(x.kg - kg) < 0.005)) continue;
+        out.push({ kg, on:true, ...(ru !== uLabel() || keep ? { u:ru } : {}) });
+      }
       db.gym.dumbbells = out;
       save(); render();
     }, true);
@@ -4338,23 +4371,69 @@ function moveEx(rid, i, dir){
   [r.exercises[i], r.exercises[j]] = [r.exercises[j], r.exercises[i]];
   save(); render();
 }
+/* máquinas alternativas: el mismo ejercicio en aparatos que progresan
+   distinto (dos poleas del fondo iguales y otras dos con otra torre). Cada
+   máquina es un ejercicio aparte —su equipo guardado por gimnasio, su
+   historial y su progresión— unido a un grupo para cambiar de una a otra
+   con un toque cuando la tuya está ocupada. */
+function altRoot(key){ const r = db.exmeta[key] && db.exmeta[key].altOf; return r && r !== key && db.exmeta[r] ? r : key; }
+function altGroup(key){
+  const root = altRoot(key);
+  return [root, ...Object.keys(db.exmeta).filter(k => k !== root && db.exmeta[k] && db.exmeta[k].altOf === root)];
+}
+function exNameOf(key){ const n = allExerciseNames().get(key); return (n && n.name) || (db.exmeta[key] && db.exmeta[key].name) || key; }
+/* cambiar de máquina en plena sesión: lo ya hecho queda con la suya y lo
+   pendiente pasa a la otra, con su propuesta y lo ya calentado */
+function sessionSwapMachine(xi, key){
+  const s = db.active, ex = s && s.exercises[xi];
+  if(!ex || ex.key === key || !altGroup(ex.key).includes(key)) return false;
+  const there = s.exercises.findIndex(e => e.key === key);
+  if(there >= 0){ s.open = there; return true; }
+  const done = ex.sets.filter(st => st.done), pending = ex.sets.filter(st => !st.done);
+  let sugg = withSplitContext(s.splitId, () => computeSuggestion(key));
+  if(s.deload) sugg = deloadSugg(key, sugg);
+  const fresh = { key, name:exNameOf(key), sugg, sets:Array.from({ length:Math.max(1, pending.length) }, () => ({ w:'', r:'', rir:'' })) };
+  if(ex.warmup) fresh.warmup = JSON.parse(JSON.stringify(ex.warmup));
+  if(ex.warmupDone || done.length) fresh.warmupDone = true;
+  if(done.length && fresh.warmup && fresh.warmup.phase !== 'done') delete fresh.warmup;
+  if(!done.length){ s.exercises.splice(xi, 1, fresh); s.open = xi; }
+  else {
+    ex.sets = done; s.exercises.splice(xi + 1, 0, fresh); s.open = xi + 1;
+    if(s.setTimer && s.setTimer.xi > xi) s.setTimer.xi++;
+    if(s.techPending && s.techPending.xi > xi) s.techPending.xi++;
+  }
+  return true;
+}
 /* el mismo ejercicio en otra máquina no es el mismo ejercicio: 90 en la
    de cable no es 90 en la de discos. Se separan, pero sin trabajo. */
 function promptDuplicateEx(key, name){
   window.__dupFrom = key;
   window.__dupView = {...view};
+  window.__dupMode = 'alt';
   openModal(`
-    <h2>Duplicar para otra máquina</h2>
-    <p class="muted">Crea un ejercicio aparte partiendo de <b>${esc(exBaseName(name))}</b>. Empieza sin
-      historial: son aparatos distintos y sus pesos no se pueden comparar.</p>
+    <h2>Otra máquina para este ejercicio</h2>
+    <p class="muted">Guarda una máquina distinta para <b>${esc(exBaseName(name))}</b>: su configuración se queda guardada y lleva
+      su propio historial, porque sus pesos no se comparan con los de la otra.</p>
     <form onsubmit="doDuplicateEx(event)" class="stack" autocomplete="off">
-      <div class="field"><span>Nombre</span>
-        <input type="text" id="dupname" value="${esc(name)} (2)" autocomplete="off"></div>
+      <div class="field"><span>Nombre de esta máquina</span>
+        <input type="text" id="dupname" value="${esc(exBaseName(name))} · otra máquina" autocomplete="off"></div>
+      <button type="button" class="opt on" id="dupopt-alt" onclick="selDupMode('alt')">
+        <b>En lugar de la otra, cuando esté ocupada</b>
+        <span>Quedan como alternativas: en la sesión cambias de una a otra con un toque y cada una propone su carga.</span>
+      </button>
+      <button type="button" class="opt" id="dupopt-extra" onclick="selDupMode('extra')">
+        <b>Además de la otra, como ejercicio aparte</b>
+        <span>Se añade a este día después de la original.</span>
+      </button>
       <button class="btn" type="submit">Crear</button>
       <button class="btn ghost" type="button" onclick="closeModal()">Cancelar</button>
     </form>
-    <div class="hint">Se copian el rango de reps, el grupo muscular y el descanso. La variante se añade solo a este día; el ejercicio original se conserva.</div>`);
+    <div class="hint">Se copian el rango de reps, el grupo muscular, el descanso y el tipo de equipo; la torre, la barra o los discos de esta máquina los ajustas después, una sola vez.</div>`);
   setTimeout(() => document.getElementById('dupname')?.select(), 60);
+}
+function selDupMode(v){
+  window.__dupMode = v === 'extra' ? 'extra' : 'alt';
+  for(const k of ['alt','extra']){ const el = document.getElementById('dupopt-' + k); if(el) el.className = 'opt' + (k === window.__dupMode ? ' on' : ''); }
 }
 function doDuplicateEx(ev){
   ev.preventDefault();
@@ -4367,12 +4446,20 @@ function doDuplicateEx(ev){
     uiFieldError('dupname','Ese nombre ya existe. Incluye la máquina, por ejemplo «Cable» o «Discos».');
     return;
   }
-  const src = exMeta(from),origin=window.__dupView||view;
+  const src = exMeta(from),origin=window.__dupView||view,alt=window.__dupMode!=='extra';
   const r=db.routines.find(r=>r.id===origin.rid);
   if(!commitChange(()=>{
    db.exmeta[key] = { type:src.type, lo:src.lo, hi:src.hi, step:null, notes:'', rest:src.rest,
-                     muscle:src.muscle, equip:null, bar:null, points:null, base:null,
+                     muscle:src.muscle, equip:alt?(src.equip||null):null, bar:null, points:null, base:null,
                      stack:{ unit:null, step:null, start:null } };
+   if(alt){
+    db.exmeta[key].altOf = altRoot(from); db.exmeta[key].name = name;
+    const sp=db.splits.find(s=>s.id===r?.split)||db.splits.find(s=>s.id===db.active?.splitId),conf=sp?.exconf?.[from];
+    if(conf)sp.exconf[key]=JSON.parse(JSON.stringify(conf));
+    const i=db.active?db.active.exercises.findIndex(e=>e.key===from):-1;
+    if(i>=0)sessionSwapMachine(i,key);
+    return;
+   }
    if(r){
     const i = r.exercises.findIndex(e => e.key === from);
     if(i >= 0 && !r.exercises.some(e => e.key === key))
@@ -4889,7 +4976,7 @@ function setsLine(key, sets){
   }
   const txt = grupos.map(g => (g.w === 0)
     ? `${g.r.join(' · ')} reps`
-    : `${fmtWEx(key, g.w)} × ${g.r.join(' · ')}`).join('   ');
+    : `${dumbbellText(key, g.w) || fmtWEx(key, g.w)} × ${g.r.join(' · ')}`).join('   ');
   const rirs = sets.map(st => st.rir).filter(x => x !== undefined && x !== null);
   const tech = sets.map(st => techLine(key, st.tech)).filter(Boolean).join(' · ');
   return txt + (rirs.length === sets.length && rirs.length ? ` · RIR ${rirs.join('·')}` : '') + (tech ? ` · ${tech}` : '');
@@ -5445,7 +5532,7 @@ function warmupPlan(xi, force=false){
 function warmupStepText(key,st){
   if(st.seconds) return `${st.seconds} s suaves · sin lastre`;
   if(st.easy||exMeta(key).type==='corporal') return `${st.reps} reps fáciles · sin lastre`;
-  return `${fmtWEx(key,st.w)} ${uLabelEx(key)}${st.assisted?' de ayuda':''} × ${st.reps}`;
+  return `${dumbbellText(key,st.w)||`${fmtWEx(key,st.w)} ${uLabelEx(key)}`}${st.assisted?' de ayuda':''} × ${st.reps}`;
 }
 function warmupLoadContext(key){
   return JSON.stringify([db.settings.gymId,exMeta(key).type,effEquip(key),effPoints(key),effBase(key)]);

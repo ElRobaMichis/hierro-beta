@@ -1,5 +1,5 @@
 /* Hierro UI. Classic script: presentation uses the existing training engine. */
-const UI_VERSION = '3.18.0';
+const UI_VERSION = '3.19.0';
 const UI_ICONS = {
  phone:'<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 19h2"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
@@ -212,7 +212,7 @@ function uiLoadStrip(xi){
   if(p.stack.extra>0)detail+=` + ${fmtStackNum(p.stack.extra)} ${p.stack.unit} de ajuste fino`;
   closest=`${fmtStackNum(p.stack.value)} ${p.stack.unit}`;
  }else if(p.kind==='mancuerna'){
-  label=p.points===1?'Una mancuerna':'En cada mano';number=`${fmtW(p.dumbbell)} <small>${uLabel()}</small>`;
+  const dd=dumbbellAt(p.dumbbell);label=p.points===1?'Una mancuerna':'En cada mano';number=dd?`${fmtNum(dumbbellNominal(dd))} <small>${dumbbellUnit(dd)}</small>`:`${fmtW(p.dumbbell)} <small>${uLabel()}</small>`;
   closest=`${fmtWEx(key,p.total)} ${uLabelEx(key)}${p.points===2?' entre las dos':''}`;
  }else{
   label=p.points===1?'En un solo lado':p.points===2?'En cada lado':`En cada uno de ${p.points} pitones`;
@@ -745,6 +745,7 @@ function uiProposalValue(ex){
  if(sg.range)return type==='corporal'&&!sg.w?`${sg.range[0]}–${sg.range[1]} reps`:`${w} ${uLabelEx(ex.key)}${type==='asistido'?' de ayuda':''} · ${sg.range[0]}–${sg.range[1]} reps`;
  if(type==='tiempo')return `${sg.reps} s${sg.w>0?` · ${w} ${uLabelEx(ex.key)} de lastre`:''}`;
  if(type==='corporal'&&!sg.w)return `${sg.reps} reps`;
+ const dt=dumbbellText(ex.key,sg.w);if(dt)return `${dt} · ${sg.reps} reps`;
  return `${w} ${uLabelEx(ex.key)}${type==='asistido'?' de ayuda':''} · ${sg.reps} reps`;
 }
 /* Antes de empezar: ¿el gimnasio activo es donde estás? Con ubicaciones guardadas se
@@ -833,7 +834,7 @@ function uiLastLoad(xi){
  const ex=db.active.exercises[xi],last=uiLastEntry(ex.key);if(!last)return '';
  return `<div class="n-last-load"><span><small>Última vez · ${esc(fmtDateShort(last.session.date))}</small><b>${esc(setsLine(ex.key,last.entry.sets))}</b></span></div>`;
 }
-function uiSetDisplay(key,st){return `${st.w!==''?fmtWEx(key,recordedSetKg(key,st))+' '+uLabelEx(key)+' total':'—'} × ${st.r!==''?esc(st.r):'—'}${exMeta(key).type==='tiempo'?' s':''}`;}
+function uiSetDisplay(key,st){return `${st.w!==''?(dumbbellText(key,recordedSetKg(key,st))||fmtWEx(key,recordedSetKg(key,st))+' '+uLabelEx(key)+' total'):'—'} × ${st.r!==''?esc(st.r):'—'}${exMeta(key).type==='tiempo'?' s':''}`;}
 /* descarga por esfuerzo: cada serie dice con cuánta reserva parar */
 function uiDeloadTarget(xi,si){
  const s=db.active,ex=s.exercises[xi];if(s.deloadKind!=='rir'||exMeta(ex.key).type==='tiempo')return '';
@@ -846,6 +847,23 @@ function uiDeloadRirPicker(xi){
  openModal(`<span class="n-eyebrow">${esc(exBaseName(ex.name))}</span><h2>¿Con cuánta reserva paras?</h2><p class="muted">Objetivo de RIR por serie en la descarga por esfuerzo${sp?`; se guarda en ${esc(sp.name)} para la próxima`:''}.</p><div class="n-tech-options">${opts.map(([k,l,h])=>`<button type="button" class="${cur===k?'on':''}" aria-pressed="${cur===k}" onclick="${uiAction('uiChooseDeloadRir',xi,k)}"><b>${l}</b><span>${h}</span></button>`).join('')}</div>${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
 }
 function uiChooseDeloadRir(xi,val){const ex=db.active?.exercises[xi];if(!ex)return;if(!setExDeloadRir(ex.key,val)){uiSaveState();return;}uxSound('pop');closeModal();render();}
+/* ¿ocupada? un toque para pasar a la otra máquina guardada */
+function uiAltChip(xi){
+ const ex=db.active.exercises[xi],g=altGroup(ex.key);if(g.length<2)return '';
+ const others=g.filter(k=>k!==ex.key);
+ return `<button type="button" class="n-alt-chip" onclick="${uiAction('uiAltMachines',xi)}">${uiIcon('gym')}<span>¿Ocupada? <b>Cambiar a ${others.length===1?esc(exBaseName(exNameOf(others[0]))):`otra de ${others.length} máquinas`}</b></span></button>`;
+}
+function uiAltMachines(xi){
+ const ex=db.active.exercises[xi],g=altGroup(ex.key),done=ex.sets.filter(st=>st.done).length;
+ const rows=g.filter(k=>k!==ex.key).map(k=>{const last=uiLastEntry(k),hist=last?`Última vez: ${setsLine(k,last.entry.sets)}`:'Sin historial todavía · configúrala una vez';return uiRow(esc(exBaseName(exNameOf(k))),hist,uiAction('uiSwapMachine',xi,k),'chevron',`<span class="n-row-icon">${uiIcon('gym')}</span>`);}).join('');
+ openModal(`<span class="n-eyebrow">${esc(exBaseName(ex.name))}</span><h2>Cambiar de máquina</h2><p class="muted">${done?`Tus ${done} ${done===1?'serie hecha se queda':'series hechas se quedan'} con esta máquina; las que faltan pasan a la otra, con su propia propuesta.`:'Cada máquina guarda su configuración y su progresión: la propuesta cambia con ella.'}</p>${rows||'<p class="hint">Aún no hay otra máquina guardada para este ejercicio.</p>'}${uiButton('Guardar otra máquina',`closeModal();${uiAction('promptDuplicateEx',ex.key,ex.name)}`,'plus','secondary')}${uiButton('Volver a mi serie','closeModal()','back','text')}`);
+}
+function uiSwapMachine(xi,key){
+ const s=db.active;if(!s?.exercises[xi])return;
+ window.__dupView={name:'session',from:'session'};
+ if(!commitChange(()=>{sessionSwapMachine(xi,key);})){uiSaveState();return;}
+ closeModal();uxSound('whoosh');render();window.scrollTo?.(0,0);
+}
 function uiSetProposal(xi,hasPrevious){
  const ex=db.active.exercises[xi];
  return `<div class="n-set-proposal"><button class="n-set-target" onclick="uiSuggestionInfo(${xi})" aria-label="Ver propuesta: ${esc(uiProposalValue(ex))}"><span>${esc(uiProposalTitle(ex))}</span><strong>${uiProposalValue(ex)}${uiIcon('info')}</strong></button>${hasPrevious?'':uiProposalAction(xi)}</div>`;
@@ -871,12 +889,12 @@ function uiSession(){
  }else{
   const st=ex.sets[si],corp=['corporal','tiempo'].includes(m.type),repsLabel=m.type==='tiempo'?'Segundos':'Repeticiones';
   const weightLabel=effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Total de las dos':discosOffset(ex.key)>0?'Discos totales':m.type==='asistido'?'Ayuda':corp?'Lastre opcional':'Peso';
-  const offset=discosOffset(ex.key),hint=offset>0?'Sin '+(effEquip(ex.key)==='barra'?'la barra':'el aparato'):effEquip(ex.key)==='mancuerna'&&effPoints(ex.key)===2?'Suma ambas manos':m.type==='asistido'?'Menos ayuda = más esfuerzo':corp?'Vacío = sin lastre':uLabelEx(ex.key);
+  const offset=discosOffset(ex.key),hint=offset>0?'Sin '+(effEquip(ex.key)==='barra'?'la barra':'el aparato'):effEquip(ex.key)==='mancuerna'&&m.type==='normal'?(dumbbellText(ex.key,st.w!==''?recordedSetKg(ex.key,st):0)||(effPoints(ex.key)===2?'Suma ambas manos':uLabelEx(ex.key))):m.type==='asistido'?'Menos ayuda = más esfuerzo':corp?'Vacío = sin lastre':uLabelEx(ex.key);
   const prev=ex.sets.slice(0,si).reverse().find(x=>x.done);
   work=`<div class="n-current-label"><span class="n-eyebrow">Serie ${si+1} de ${ex.sets.length}</span>${prev?uiButton('Repetir anterior',uiAction('uiRepeatSet',xi),'copy','text'):''}</div>${uiDeloadTarget(xi,si)}${ex.sugg?uiSetProposal(xi,!!prev):`<p class="n-first-hint">${corp?'Registra lo que completes.':'Elige una carga para tu rango.'}</p>`}${uiLastLoad(xi)}<div id="ui-load-${xi}">${uiLoadStrip(xi)}</div><div class="n-set-fields" id="set-${xi}-${si}"><div class="n-set-field"><label for="n-weight">${weightLabel} · ${uLabelEx(ex.key)}</label><input id="n-weight" aria-label="${weightLabel} · ${uLabelEx(ex.key)} · serie ${si+1}" aria-describedby="n-weight-help" type="number" min="0" inputmode="decimal" step="any" placeholder="${corp?'0':'—'}" value="${esc(st.w??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'w',this.value)"><div class="n-stepper"><button aria-label="Reducir peso" onclick="uiStep(${xi},${si},'w',-1)">−</button><small id="n-weight-help">${hint}</small><button aria-label="Aumentar peso" onclick="uiStep(${xi},${si},'w',1)">+</button></div></div><div class="n-set-field"><label for="n-reps">${repsLabel}</label><input id="n-reps" aria-label="${repsLabel} de la serie ${si+1}" type="number" min="1" step="1" inputmode="numeric" placeholder="—" value="${esc(st.r??'')}" oninput="this.setCustomValidity('');setVal(${xi},${si},'r',this.value)"><div class="n-stepper"><button aria-label="Reducir ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',-1)">−</button><small>Rango <span>${r.lo}–${r.hi}</span></small><button aria-label="Aumentar ${repsLabel.toLowerCase()}" onclick="uiStep(${xi},${si},'r',1)">+</button></div></div></div>${m.type==='tiempo'?`<div class="n-time-tools">${uiButton(s.setTimer?.key===ex.key&&s.setTimer.si===si?'Retomar cronómetro':'Medir esta serie',uiAction('startSetTimer',xi,si),'clock','text')}<span class="n-time-help">Por tiempo: no se usa RIR.</span></div>`:''}${uiTechCard(xi,si)}<div class="n-record-dock">${uiButton('Registrar serie',uiAction('uiLogSet',xi,si),'check')}<span class="n-save-status" id="n-draft-status" role="status"></span></div>`;
  }
  const logged=ex.sets.map((st,i)=>st.done?`<button class="n-set-chip" onclick="uiEditSet(${xi},${i})" aria-label="Editar serie ${i+1}: ${uiSetDisplay(ex.key,st)}"><span>${i+1}</span>${uiSetDisplay(ex.key,st)}${uiIcon('check')}</button>`:'').join('');
- return `<div class="n-focus">${title}${exerciseNotes(ex.key)&&!resting&&!complete?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(exerciseNotes(ex.key))}">${uiIcon('pin')}<span><small>${m.gymNotes?esc(db.gym.name):'Tu nota'}</small><strong>${esc(exerciseNotes(ex.key))}</strong></span>${uiIcon('edit')}</button>`:''}${work}${typeof pushActive==='function'&&pushActive()&&(resting||preparing)?`<p class="n-push-session" data-push-status role="status">${esc(pushMessage)}</p>`:''}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
+ return `<div class="n-focus">${title}${!resting&&!complete?uiAltChip(xi):''}${exerciseNotes(ex.key)&&!resting&&!complete?`<button class="n-session-note" onclick="editExNotes(${xi})" aria-label="Editar tu nota: ${esc(exerciseNotes(ex.key))}">${uiIcon('pin')}<span><small>${m.gymNotes?esc(db.gym.name):'Tu nota'}</small><strong>${esc(exerciseNotes(ex.key))}</strong></span>${uiIcon('edit')}</button>`:''}${work}${typeof pushActive==='function'&&pushActive()&&(resting||preparing)?`<p class="n-push-session" data-push-status role="status">${esc(pushMessage)}</p>`:''}${!resting&&logged?`<div class="n-logged-sets"><span class="n-eyebrow">Ya hiciste · carga total</span><div>${logged}</div></div>`:''}<div class="n-session-tools">${uiButton('Ejercicio',uiAction('uiSessionOptions',xi),'more','text')}${uiGymButton()}</div><div class="vschip" id="vs-${xi}"></div></div>`;
 }
 function uiWarmup(xi){
  const ex=db.active.exercises[xi],w=ensureWarmup(xi),key=ex.key;
@@ -1015,6 +1033,17 @@ function uiLogSet(xi,si){
 }
 function uiStep(xi,si,field,direction){
  const ex=db.active.exercises[xi],st=ex.sets[si];
+ /* con mancuernas, + y − saltan a la siguiente que existe: el rack puede mezclar kilos y libras */
+ if(field==='w'&&effEquip(ex.key)==='mancuerna'&&exMeta(ex.key).type==='normal'&&availableDumbbells().length){
+  const totals=[...new Set(dumbbellTotals(effPoints(ex.key)))].sort((a,b)=>a-b),typed=parseFloat(st.w),cur=st.w!==''&&Number.isFinite(typed)?recordedSetKg(ex.key,st):null;
+  const next=cur==null?(ex.sugg?.w>0?nearestIn(totals,ex.sugg.w):totals[0]):direction>0?totals.find(t=>t>cur+.004):[...totals].reverse().find(t=>t<cur-.004);
+  if(next==null){uxSound('back');return;}
+  const val=inputWEx(ex.key,next),inp=document.getElementById('n-weight');if(inp){inp.value=val;inp.setCustomValidity?.('');}
+  setVal(xi,si,'w',val);st.wkg=next;save();
+  uxSound('step',{n:totals.indexOf(next),toString(){return 'n'+this.n;}});uxNumSet(inp,val,direction);
+  const hint=document.getElementById('n-weight-help'),dt=dumbbellText(ex.key,next);if(hint&&dt)hint.textContent=dt;
+  return;
+ }
  const delta=field==='r'?1:Math.max(.01,fromKgEx(ex.key,effStep(ex.key,typedToKg(ex.key,parseFloat(st.w)||0))));
  const n=parseFloat(st[field]);const next=Math.max(field==='r'?1:0,(Number.isFinite(n)?n:0)+direction*delta);
  const val=String(Math.round(next*100)/100),inp=document.getElementById(field==='w'?'n-weight':'n-reps');if(inp){inp.value=val;inp.setCustomValidity?.('');}setVal(xi,si,field,val);
@@ -1078,7 +1107,7 @@ function uiUndoRemovedSet(){
 function uiEditSets(xi){const ex=db.active.exercises[xi];openModal(`<h2>Series del ejercicio</h2>${ex.sets.map((st,i)=>uiRow(`Serie ${i+1}`,uiSetDisplay(ex.key,st),uiAction('uiEditSet',xi,i),'edit')).join('')}${uiButton('Añadir serie',uiAction('uiAddSet',xi),'plus','secondary')}${uiButton('Listo','closeModal()','check','text')}`);}
 function uiSessionOptions(xi){
  const ex=db.active.exercises[xi];
- openModal(`<h2>${esc(exBaseName(ex.name))}</h2>${ex.sugg?uiRow('Entender la propuesta','Qué cambia y por qué',uiAction('uiSuggestionInfo',xi),'spark'):''}${uiRow('Calentamiento',ex.warmupDone?'Completado · ver detalle':ex.warmup?.phase==='skipped'?'Ver criterio de preparación':'Preparar antes de cargar',`closeModal();showWarmup(${xi})`,'barbell')}${!warmupRequired(xi)?uiRow('Series','Editar, añadir o quitar',uiAction('uiEditSets',xi),'list'):''}${exMeta(ex.key).type!=='tiempo'?uiRow('Técnica en la última serie',effTech(ex.key)?TECHS[effTech(ex.key)].label:'Ninguna · drop set, myo-reps…',uiAction('uiTechPicker',xi),'flame'):''}${uiRow('Notas','Asiento, agarre y recordatorios',`closeModal();editExNotes(${xi})`,'edit')}${uiRow('Equipo y objetivos','Ajustes de este ejercicio',`closeModal();openExFromSession(${xi},'equipment')`,'settings')}${uiRow('Quitar ejercicio de la sesión','',`closeModal();removeSessionEx(${xi})`,'trash')}${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
+ openModal(`<h2>${esc(exBaseName(ex.name))}</h2>${ex.sugg?uiRow('Entender la propuesta','Qué cambia y por qué',uiAction('uiSuggestionInfo',xi),'spark'):''}${uiRow('Calentamiento',ex.warmupDone?'Completado · ver detalle':ex.warmup?.phase==='skipped'?'Ver criterio de preparación':'Preparar antes de cargar',`closeModal();showWarmup(${xi})`,'barbell')}${!warmupRequired(xi)?uiRow('Series','Editar, añadir o quitar',uiAction('uiEditSets',xi),'list'):''}${exMeta(ex.key).type!=='tiempo'?uiRow('Técnica en la última serie',effTech(ex.key)?TECHS[effTech(ex.key)].label:'Ninguna · drop set, myo-reps…',uiAction('uiTechPicker',xi),'flame'):''}${uiRow('Cambiar de máquina',altGroup(ex.key).length>1?`${altGroup(ex.key).length-1} ${altGroup(ex.key).length===2?'otra guardada':'otras guardadas'} · cada una con su carga`:'Guarda otra máquina para cuando esta esté ocupada',uiAction('uiAltMachines',xi),'gym')}${uiRow('Notas','Asiento, agarre y recordatorios',`closeModal();editExNotes(${xi})`,'edit')}${uiRow('Equipo y objetivos','Ajustes de este ejercicio',`closeModal();openExFromSession(${xi},'equipment')`,'settings')}${uiRow('Quitar ejercicio de la sesión','',`closeModal();removeSessionEx(${xi})`,'trash')}${uiButton('Volver a mi serie','closeModal()','back','secondary')}`);
 }
 
 /* Exercise information is split by the decision being made. */
@@ -1225,7 +1254,7 @@ function uiGym(){
  const kind=view.kind||'plates',tabs=uiSubnav([['plates','Discos'],['bars','Barras'],['dumbbells','Mancuernas'],['machines','Montajes']],kind,'uiGymTab');
  if(kind==='machines')return tabs+`<div class="n-machines">${[...allExerciseNames()].filter(([k])=>effEquip(k)&&effEquip(k)!=='nada').map(([k,inf])=>uiRow(esc(exBaseName(inf.name)),EQUIP[effEquip(k)]?.label||'',uiAction('uiOpenMachine',k),'settings')).join('')||'<div class="n-empty"><h2>Tu equipo, ejercicio a ejercicio.</h2><p>Añade ejercicios a un día y configura su máquina desde la ficha.</p></div>'}</div>`;
  let body='';
- if(kind==='dumbbells')body=`<p class="n-context-note">Toca los pesos disponibles. Cada número representa una mancuerna.</p><div class="n-rack">${db.gym.dumbbells.map((d,i)=>({d,i})).sort((a,b)=>a.d.kg-b.d.kg).map(({d,i})=>`<div class="n-rack-item"><button class="n-weight-tile ${d.on?'on':''}" aria-pressed="${!!d.on}" aria-label="Mancuerna ${fmtW(d.kg)} ${uLabel()}" onclick="toggleGym('dumbbells',${i})"><b>${fmtW(d.kg)}</b><small>${uLabel()}${d.on?' · disponible':''}</small>${d.on?uiIcon('check'):''}</button>${d.custom?`<button class="n-remove-weight" aria-label="Eliminar mancuerna ${fmtW(d.kg)}" onclick="removeGym('dumbbells',${i})">${uiIcon('trash')}</button>`:''}</div>`).join('')}</div>`;
+ if(kind==='dumbbells'){const mixed=new Set(db.gym.dumbbells.map(dumbbellUnit)).size>1;body=`<p class="n-context-note">Toca los pesos disponibles. Cada número es una mancuerna, como está rotulada. Si alguna viene en otra unidad, toca su «${uLabel()}» para cambiarla: el número se queda igual.${mixed?' Este gimnasio mezcla kilos y libras: al entrenar verás cada una con su unidad.':''}</p><div class="n-rack">${db.gym.dumbbells.map((d,i)=>({d,i})).sort((a,b)=>a.d.kg-b.d.kg).map(({d,i})=>`<div class="n-rack-item ${dumbbellUnit(d)!==uLabel()?'is-other-unit':''}"><button class="n-weight-tile ${d.on?'on':''}" aria-pressed="${!!d.on}" aria-label="Mancuerna ${dumbbellLabel(d)}" onclick="toggleGym('dumbbells',${i})"><b>${fmtNum(dumbbellNominal(d))}</b><small>${dumbbellUnit(d)}${d.on?' · disponible':''}</small>${d.on?uiIcon('check'):''}</button><button class="n-weight-unit" aria-label="Cambiar la mancuerna de ${dumbbellLabel(d)} a ${dumbbellUnit(d)==='lb'?'kilos':'libras'}" onclick="toggleDumbbellUnit(${i})">${dumbbellUnit(d)}</button>${d.custom?`<button class="n-remove-weight" aria-label="Eliminar mancuerna ${dumbbellLabel(d)}" onclick="removeGym('dumbbells',${i})">${uiIcon('trash')}</button>`:''}</div>`).join('')}</div>`;}
  else if(kind==='plates')body=`<p class="n-context-note">Marca los discos que hay y cuántos pares tienes. Así se propone un montaje posible.</p><div class="n-plates-grid">${db.gym.plates.map((p,i)=>({p,i})).sort((a,b)=>b.p.kg-a.p.kg).map(({p,i})=>`<section class="n-plate-card ${p.on?'on':''}"><button class="n-plate-select" aria-pressed="${!!p.on}" aria-label="Disco ${fmtW(p.kg)} ${uLabel()}" onclick="toggleGym('plates',${i})"><span class="n-plate-art" style="--plate-color:${plateColor(p.kg)}"><i></i></span><span><b>${fmtW(p.kg)} <small>${uLabel()}</small></b><small>${p.on?`${p.pairs*2} discos disponibles`:'No disponible'}</small></span>${uiIcon(p.on?'check':'plus')}</button>${p.on?`<div class="n-plate-qty"><span>Pares</span><div class="qty"><button aria-label="Menos pares de ${fmtW(p.kg)}" onclick="setPairs(${i},-1)">−</button><span>${p.pairs}</span><button aria-label="Más pares de ${fmtW(p.kg)}" onclick="setPairs(${i},1)">+</button></div></div>`:''}${uiButton('Quitar peso',`removeGym('plates',${i})`,'trash','text')}</section>`).join('')}</div>`;
  else body=`<p class="n-context-note">La barra predeterminada se usa cuando el ejercicio no tiene otra elegida.</p><div class="n-bar-grid">${db.gym.bars.map((b,i)=>`<section class="n-bar-card ${b.on?'on':''}"><span class="n-eyebrow">${b.on&&b.def?'Tu barra predeterminada':b.on?'Disponible':'No disponible'}</span>${uiIcon('barbell')}<h2>${esc(b.name)}</h2><strong>${fmtW(b.kg)}<small>${uLabel()}</small></strong><div class="n-toolbar">${uiButton(b.on?'Desactivar':'Tengo esta barra',`toggleGym('bars',${i})`,b.on?'check':'plus','secondary')}${b.on&&!b.def?uiButton('Predeterminada',`setDefaultBar(${i})`,'check','text'):''}${uiButton('Cambiar nombre',uiAction('uiRenameBar',b.id),'edit','text')}${b.custom?uiButton('Quitar',`removeGym('bars',${i})`,'trash','text'):''}</div></section>`).join('')}</div>`;
  return `${tabs}<div class="n-inventory-unit">${unitPillHTML()}</div>${body}<div class="n-inventory-footer"><div class="n-toolbar">${uiButton(kind==='bars'?'Añadir barra':'Añadir peso',uiAction('promptGymItem',kind),'plus','secondary')}${kind==='dumbbells'?uiButton('Generar un rango','uiDumbbellRange()','list','text'):''}</div></div><div class="n-inventory-reset">${uiButton('Restaurar juego estándar',uiAction('askResetGymKind',kind),'list','text')}<p>Reemplaza esta lista por los pesos iniciales en ${uLabel()}. Te pediremos confirmar antes de cambiarla.</p></div>`;
@@ -1242,7 +1271,7 @@ function uiSaveBarName(event,id){
  if(!bar||!name)return;
  bar.name=name.slice(0,100);save();closeModal();render();
 }
-function uiDumbbellRange(){openModal(`<h2>Generar un rack</h2><p class="muted">Crea la secuencia y después desmarca los pesos que falten. Sustituye la lista actual tras confirmar.</p><div class="n-form-pair">${uiNumberField('Desde',1,'',{unit:uLabel(),id:'dbFrom'})}${uiNumberField('Hasta',24,'',{unit:uLabel(),id:'dbTo'})}${uiNumberField('Salto',1,'',{unit:uLabel(),id:'dbStep'})}</div>${uiButton('Generar lista','applyDbRange()','check')}${uiButton('Cancelar','closeModal()','back','text')}`);}
+function uiDumbbellRange(){openModal(`<h2>Generar un rack</h2><p class="muted">Crea la secuencia y después desmarca los pesos que falten. Sustituye la lista actual tras confirmar.</p><div class="n-form-pair">${uiNumberField('Desde',1,'',{id:'dbFrom'})}${uiNumberField('Hasta',24,'',{id:'dbTo'})}${uiNumberField('Salto',1,'',{id:'dbStep'})}</div><label class="field"><span>Unidad de este rango</span><select id="dbUnit"><option value="kg" ${uLabel()==='kg'?'selected':''}>Kilos (kg)</option><option value="lb" ${uLabel()==='lb'?'selected':''}>Libras (lb)</option></select></label><label class="n-check-line"><input type="checkbox" id="dbKeep"> <span>Añadir a las que ya tengo (por ejemplo, las chicas en libras y las grandes en kilos)</span></label>${uiButton('Generar lista','applyDbRange()','check')}${uiButton('Cancelar','closeModal()','back','text')}`);}
 
 /* Reflection separates panorama, anatomy and the diary. */
 function uiProgress(){
